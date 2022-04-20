@@ -1,6 +1,7 @@
 const restaurantController = require('../model/restaurantSchema')
 const adminController = require('../model/adminSchema')
 const jwt = require('jsonwebtoken')
+const geolib = require('geolib')
 
 
 const image = (req,res)=>{
@@ -91,6 +92,51 @@ const removeRestaurant = (req,res)=>{
     }
 }
 
+
+const restaurantLocation = (req,res)=>{
+    try{
+        restaurantController.menu.find({},(err,data)=>{
+            console.log(data)
+            // res.send(data.restaurantDetails)
+            const datas=data.filter(((result)=>filterLocation(result,50,req.params.latitude,req.params.longitude)))
+            console.log("101",datas)
+            res.status(200).send({message:"nearby Restaurant Details",datas})
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err})
+    }
+  
+}
+
+function filterLocation(result,radius,latitude,longitude)
+    {
+      if (!result.restaurantDetails.restaurantLocation){ 
+        return false;
+      }
+      console.log('line 21',result.restaurantDetails.restaurantLocation.restaurantLatitude);
+      console.log('line 22',result.restaurantDetails.restaurantLocation.restaurantLongitude);
+
+      var x = geolib.isPointWithinRadius(
+        {
+          latitude: result.restaurantDetails.restaurantLocation.restaurantLatitude,
+          longitude: result.restaurantDetails.restaurantLocation.restaurantLongitude
+        },
+        { 
+          latitude,longitude
+        },
+           radius
+      );
+
+      console.log('x',x)
+      if (x === true) {
+        console.log('line 35',result)
+        return result;
+      }
+    
+}
+
+
 // Food
 
 const addFood =async(req,res)=>{
@@ -135,7 +181,7 @@ const getFoodByOwner = (req,res)=>{
 const updateFood = (req,res)=>{
     try{
         console.log(req.body)
-        restarauntSchema.addAvaliableFood.findByIdAndUpdate(req.params.id, req.body, { new: true }, (err, data) => {
+        restaurantController.menu.findByIdAndUpdate(req.params.id, req.body, { new: true }, (err, data) => {
             if (err) { res.status(400).send({ message: 'invalid restarauntid' }) }
             else {
                 console.log(data)
@@ -148,7 +194,7 @@ const updateFood = (req,res)=>{
 }
 
 const deleteFood = (req, res) => {
-    restarauntSchema.addAvaliableFood.findByIdAndUpdate(req.params.id, { deleteFlag: "true" }, { new: true }, (err, data) => {
+    restaurantController.menu.findByIdAndUpdate(req.params.id, { deleteFlag: "true" }, { new: true }, (err, data) => {
         if (err) { res.status(400).send({ message: 'data is not deleted yet' }) }
         else {
             console.log(data)
@@ -184,15 +230,62 @@ const filterFoodByPriceHighToLow = (req,res)=>{
     }
 }
 
-// const getFoodByPrice = (req,res)=>{
-//     restaurantController.menu.aggregate([{$sort:{foodPrice:1}}],(err,data)=>{
+// const getFoodByPrice1 = (req,res)=>{
+//     restaurantController.menu.find({ foodPrice : { $gte :  0, $lte : 50}},(err,data)=>{
 //         if(err) throw err
 //         console.log(data)
+//         res.status(200).send({message:data})
+//     })
+// }
+
+// const getFoodByPrice2 = (req,res)=>{
+//     restaurantController.menu.find({ foodPrice : { $gte :  50, $lte : 100}},(err,data)=>{
+//         if(err) throw err
+//         console.log(data)
+//         res.status(200).send({message:data})
+//     })
+// }
+
+// const getFoodByPrice3 = (req,res)=>{
+//     restaurantController.menu.find({ foodPrice : { $gte :  100, $lte : 150}},(err,data)=>{
+//         if(err) throw err
+//         console.log(data)
+//         res.status(200).send({message:data})
+//     })
+// }
+
+// const getFoodByPrice4 = (req,res)=>{
+//     restaurantController.menu.find({ foodPrice : { $gt :  150, $lt : 200}},(err,data)=>{
+//         if(err) throw err
+//         console.log(data)
+//         res.status(200).send({message:data})
+//     })
+// }
+
+// const filterFood = (req,res)=>{
+//     restaurantController.menu.find({ foodPrice : { $gte :  0, $lte : 100},"restaurantDetails.rating":"100"},(err,data)=>{
+//         console.log(data)
+
 //     })
 // }
 
 
 
+const filterFood = (req,res)=>{
+    console.log(req.body.category)
+    var rating = req.body.rating
+    var category = req.body.category
+    category.map((x)=>{console.log(x)
+        rating.map((y)=>{
+            restaurantController.menu.aggregate([{ $match: {$or:[{foodPrice: { $gte:0,$lte:50}},{"restaurantDetails.rating":y},{category:x}]}}],(err,data)=>{
+                console.log(data)
+            })
+        })
+    
+})
+}
+// {foodPrice: { $gte:0,$lte:50}}
+// ,{"restaurantDetails.rating":{$gte:0,$lte:100}}
 
 //Restaurant Review
 
@@ -256,13 +349,18 @@ module.exports={
     getSpecificRestaurant,
     updateRestaurant,
     removeRestaurant,
+    restaurantLocation,
     addFood,
     getFoodByOwner,
     updateFood,
     deleteFood,
     filterFoodByPriceLowToHigh,
     filterFoodByPriceHighToLow,
-    getFoodByPrice,
+    // getFoodByPrice1,
+    // getFoodByPrice2,
+    // getFoodByPrice3,
+    // getFoodByPrice4,
+    filterFood,
     createRestaurantReview,
     getRestaurantReview,
     restaurantRating

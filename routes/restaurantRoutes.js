@@ -9,7 +9,8 @@ router.post('/createRestaurant',restaraunt.createRestaurant)
 router.get('/getSpecificRestaurant',restaraunt.getSpecificRestaurant)
 router.put('/updateRestaurant/:id',restaraunt.updateRestaurant)
 router.delete('/removeRestaurant/:id',restaraunt.removeRestaurant)
-
+router.get('/restaurantLocation/:latitude/:longitude',restaraunt.restaurantLocation)
+router.get('/filterFood',restaraunt.filterFood)
 
 //Food
 router.post('/addFood',restaraunt.addFood)
@@ -18,7 +19,10 @@ router.put('/updateFood/:id',restaraunt.updateFood)
 router.delete('/deleteFood',restaraunt.deleteFood)
 router.get('/filterFoodByPriceLowToHigh',restaraunt.filterFoodByPriceLowToHigh)
 router.get('/filterFoodByPriceHighToLow',restaraunt.filterFoodByPriceHighToLow)
-router.get('/getFoodByPrice',restaraunt.getFoodByPrice)
+// router.get('/getFoodByPrice1',restaraunt.getFoodByPrice1)
+// router.get('/getFoodByPrice2',restaraunt.getFoodByPrice2)
+// router.get('/getFoodByPrice3',restaraunt.getFoodByPrice3)
+// router.get('/getFoodByPrice4',restaraunt.getFoodByPrice4)
 
 
 

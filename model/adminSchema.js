@@ -10,7 +10,7 @@ const registerSchema = mongoose.Schema({
     deleteFlag: {
         type: String,
         default: false
-    },
+    }
     // restaurantOwned:[]
 })
 

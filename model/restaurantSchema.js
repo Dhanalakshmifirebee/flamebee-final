@@ -19,8 +19,15 @@ const restaurantSchema = mongoose.Schema({
         lunch:String,
         dinner:String
     },
-    restaurantLocation:String,
+    restaurantLocation:{
+        restaurantLatitude:Number,
+        restaurantLongitude:Number
+    },
     cuisine:[String],
+    rating:{
+        type:Number,
+        default:0
+    },
     deleteFlag:{
         type:String,
         default:"false"
@@ -36,6 +43,11 @@ const menuSchema = mongoose.Schema({
     restaurantId:String,
     restaurantDetails:Object,
     offer:Number,
+    option:[],
+    // rating:{
+    //     type:String,
+    //     default:0
+    // },
     deleteFlag:{
         type:String,
         default:"false"
@@ -60,6 +72,8 @@ const restaurantRatingSchema =mongoose.Schema({
     price:Number,
     service:Number
 })
+
+
 
 
 
