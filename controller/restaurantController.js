@@ -1,4 +1,5 @@
 const restaurantController = require('../model/restaurantSchema')
+const responseController = require('../model/responseSchema')
 const adminController = require('../model/adminSchema')
 const jwt = require('jsonwebtoken')
 const geolib = require('geolib')
@@ -6,7 +7,7 @@ const geolib = require('geolib')
 
 const image = (req,res)=>{
     try{
-        req.body.image = `http://192.168.0.112:8612/uploads/${req.file.filename}`
+        req.body.image = `http://192.168.0.112:8613/uploads/${req.file.filename}`
         console.log(req.body)
         restaurantController.image.create(req.body,(err,data)=>{
             if(err) throw err
@@ -25,10 +26,10 @@ const createRestaurant = (req,res)=>{
     try{
         const adminToken = jwt.decode(req.headers.authorization) 
         const verifyId = adminToken.userid
-        restaurantController.restautant.countDocuments({restaurantEmail:req.body.restaurantEmail},(err,data)=>{
+        restaurantController.restaurant.countDocuments({restaurantEmail:req.body.restaurantEmail},(err,data)=>{
             if(data==0){
                 req.body.restaurantOwnerId = verifyId
-                restaurantController.restautant.create(req.body,(err,data1)=>{
+                restaurantController.restaurant.create(req.body,(err,data1)=>{
                     if(err) throw err
                     res.status(200).send({message:"Restaurant created Successfully",data1})
                 })
@@ -43,13 +44,37 @@ const createRestaurant = (req,res)=>{
     }
 }
 
+const createRestaurant1 = (req,res)=>{
+    try{
+        const adminToken = jwt.decode(req.headers.authorization) 
+        const verifyId = adminToken.userid
+        restaurantController.restaurant1.countDocuments({restaurantEmail:req.body.restaurantEmail},(err,data)=>{
+            if(data==0){
+                req.body.restaurantOwnerId = verifyId
+                restaurantController.restaurant1.create(req.body,async(err,data1)=>{
+                    if(err) throw err
+                    console.log(data1)
+                    res.status(200).send({message:"Restaurant created Successfully",data1})
+                  var data1 = await restaurantController.restaurant1.createIndexes({restaurantLocation:"2dsphere"})
+                  console.log(data1)
+                })
+            }
+            else{
+                res.status(400).send({message:"email id already exist"})
+            }
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err})
+    }
+}
 
 const getSpecificRestaurant = (req,res)=>{
     try{
         const adminToken = jwt.decode(req.headers.authorization) 
         const verifyId = adminToken.userid
         console.log(verifyId)
-        restaurantController.restautant.findOne({restaurantOwnerId:verifyId},(err,data)=>{
+        restaurantController.restaurant.findOne({restaurantOwnerId:verifyId},(err,data)=>{
             console.log(data.restaurantOwnerId)
             if(err) throw err
 
@@ -65,7 +90,7 @@ const getSpecificRestaurant = (req,res)=>{
 const updateRestaurant = (req,res)=>{
     try {
         console.log(req.body)
-        restaurantController.restautant.findOneAndUpdate({_id:req.params.id}, req.body, { new: true }, (err, data) => {
+        restaurantController.restaurant.findOneAndUpdate({_id:req.params.id}, req.body, { new: true }, (err, data) => {
             if (err) { res.status(400).send({ message: 'invalid id' }) }
             else {
                 console.log("line 143",data)
@@ -80,7 +105,7 @@ const updateRestaurant = (req,res)=>{
 const removeRestaurant = (req,res)=>{
     console.log(req.params.id)
     try {
-        restaurantController.restautant.findByIdAndUpdate(req.params.id, { deleteFlag: "true" }, { returnOriginal: false }, (err, data) => {
+        restaurantController.restaurant.findByIdAndUpdate(req.params.id, { deleteFlag: "true" }, { returnOriginal: false }, (err, data) => {
             console.log(data)
             if (err) { res.status(400).send({ message: 'data does not deleted' }) }
             else {
@@ -92,39 +117,77 @@ const removeRestaurant = (req,res)=>{
     }
 }
 
-
-const restaurantLocation = (req,res)=>{
+const getRestaurantByLocation = (req,res)=>{
     try{
-        restaurantController.menu.find({},(err,data)=>{
-            console.log(data)
-            // res.send(data.restaurantDetails)
-            const datas=data.filter(((result)=>filterLocation(result,50,req.params.latitude,req.params.longitude)))
-            console.log("101",datas)
-            res.status(200).send({message:"nearby Restaurant Details",datas})
+        console.log("data")
+        restaurantController.restaurant.find({},(err,data)=>{
+           const datas=data.filter(((result)=>filterLocation(result,5000,req.params.latitude,req.params.longitude)))
+           res.status(200).send({message:"nearby Restaurant Details",datas})
+         
         })
     }
     catch(err){
         res.status(500).send({message:err})
     }
-  
+}
+
+
+const getRestaurantLocationByRating = (req,res)=>{
+    try{
+        restaurantController.restaurant.find({},(err,data)=>{
+           const datas=data.filter(((result)=>filterLocation(result,5000,req.query.latitude,req.query.longitude)))
+           console.log(typeof(datas))
+            req.body.data = datas
+            console.log(req.body.data)
+            responseController.responseRestaurant.create(req.body,(err,data1)=>{
+                console.log(data1._id)
+                responseController.responseRestaurant.aggregate([{$match:{_id:data1._id}},{$sort:{"data1.data.rating":1}}],(err,data2)=>{
+                    res.status(200).send({message:data2})
+                })
+            })
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err})
+    }
+}
+
+const getRestaurantLocationByOffer = (req,res)=>{
+    try{
+        restaurantController.restaurant.find({},(err,data)=>{
+           const datas=data.filter(((result)=>filterLocation(result,5000,req.query.latitude,req.query.longitude)))
+            console.log(typeof(datas))
+            req.body.data = datas
+            console.log(req.body.data)
+            responseController.responseRestaurant.create(req.body,(err,data1)=>{
+                console.log(data1)
+                responseController.responseRestaurant.aggregate([{$match:{_id:data1._id}},{$sort:{"data1.data.offer":1}}],(err,data2)=>{
+                    res.status(200).send({message:data2})
+                })
+            })
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err})
+    }
 }
 
 function filterLocation(result,radius,latitude,longitude)
     {
-      if (!result.restaurantDetails.restaurantLocation){ 
+      if (!result.restaurantLocation){ 
         return false;
       }
-      console.log('line 21',result.restaurantDetails.restaurantLocation.restaurantLatitude);
-      console.log('line 22',result.restaurantDetails.restaurantLocation.restaurantLongitude);
+      console.log('line 21',result.restaurantLocation.restaurantLatitude);
+      console.log('line 22',result.restaurantLocation.restaurantLongitude);
 
       var x = geolib.isPointWithinRadius(
         {
-          latitude: result.restaurantDetails.restaurantLocation.restaurantLatitude,
-          longitude: result.restaurantDetails.restaurantLocation.restaurantLongitude
+          latitude: result.restaurantLocation.restaurantLatitude,
+          longitude: result.restaurantLocation.restaurantLongitude
         },
         { 
           latitude,longitude
-        },
+        }, 
            radius
       );
 
@@ -142,7 +205,7 @@ function filterLocation(result,radius,latitude,longitude)
 const addFood =async(req,res)=>{
    try{
         console.log(req.body.restaurantId)
-        const z = await restaurantController.restautant.findById(req.body.restaurantId)
+        const z = await restaurantController.restaurant.findById(req.body.restaurantId)
         console.log('z', z)
         req.body.restaurantDetails = z
         restaurantController.menu.create(req.body, (err, data) => {
@@ -275,14 +338,61 @@ const filterFood = (req,res)=>{
     console.log(req.body.category)
     var rating = req.body.rating
     var category = req.body.category
-    category.map((x)=>{console.log(x)
+    
+    category.map((x)=>{
         rating.map((y)=>{
             restaurantController.menu.aggregate([{ $match: {$or:[{foodPrice: { $gte:0,$lte:50}},{"restaurantDetails.rating":y},{category:x}]}}],(err,data)=>{
                 console.log(data)
             })
         })
-    
-})
+    })
+}
+
+
+const findlocation = (req,res)=>{
+try
+{
+    var long =parseFloat(req.query.long)
+    console.log((typeof(long)))
+    var lat =parseFloat(req.query.lat)
+    console.log(typeof(lat))
+    restaurantController.restaurant1.aggregate([
+        {
+           $geoNear: {
+             near: { type: "Point", coordinates: [long ,lat] },
+             key: "restaurantLocation",
+             distanceField:"dist.calculated",
+             maxDistance: 10000,
+             spherical: true
+            }
+        },
+        { $limit: 5 }
+     ],(err,data)=>{
+         console.log("line 367",data)
+     }) 
+        }
+        catch(err){
+            console.log(err)
+        } 
+    // restaurantController.restaurant.createIndexes((err,data)=>{
+
+    // })
+    //     const long = req.query.long
+    //     const lat = req.query.lat
+    //     restaurantController.restaurant.aggregate([{
+    //         $geoNear: {
+    //            near: { 
+    //              type: "Point",
+    //              coordinates: [ 78.0947840335 , 9.93095681364]
+    //            },
+    //         //    distanceField:"dist.calculated",
+    //            maxDistance: 1000000,
+    //         //    spherical: true
+    //         }
+    //       }],(err,data2)=>{
+           
+    //           console.log(data2)
+    //       })
 }
 // {foodPrice: { $gte:0,$lte:50}}
 // ,{"restaurantDetails.rating":{$gte:0,$lte:100}}
@@ -346,10 +456,14 @@ const restaurantRating = (req,res)=>{
 module.exports={
     image,
     createRestaurant,
+    createRestaurant1,
     getSpecificRestaurant,
     updateRestaurant,
     removeRestaurant,
-    restaurantLocation,
+    getRestaurantByLocation,
+    getRestaurantLocationByOffer,
+    getRestaurantLocationByRating,
+    findlocation,
     addFood,
     getFoodByOwner,
     updateFood,
