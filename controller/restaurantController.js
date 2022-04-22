@@ -86,6 +86,19 @@ const getSpecificRestaurant = (req,res)=>{
     }
 }
 
+const getOneRestaurant = (req,res)=>{
+    try{
+        restaurantController.restaurant.findOne({_id:req.params.id},(err,data)=>{
+            console.log(data)
+            if(err) throw err
+            res.status(200).send({message:data})
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err})
+    }
+}
+
 
 const updateRestaurant = (req,res)=>{
     try {
@@ -135,13 +148,20 @@ const getRestaurantByLocation = (req,res)=>{
 const getRestaurantLocationByRating = (req,res)=>{
     try{
         restaurantController.restaurant.find({},(err,data)=>{
-           const datas=data.filter(((result)=>filterLocation(result,5000,req.query.latitude,req.query.longitude)))
+           const datas=data.filter(((result)=>filterLocation(result,500000,req.query.latitude,req.query.longitude)))
+           console.log(data)
            console.log(typeof(datas))
             req.body.data = datas
             console.log(req.body.data)
             responseController.responseRestaurant.create(req.body,(err,data1)=>{
                 console.log(data1._id)
-                responseController.responseRestaurant.aggregate([{$match:{_id:data1._id}},{$sort:{"data1.data.rating":1}}],(err,data2)=>{
+                responseController.responseRestaurant.aggregate([{$match:{_id:data1._id}},
+                { $unwind: "$data" },
+                { $sort: { "data.rating": -1 }},
+                { $group: {
+                  _id: "$_id",
+                  data: { $push: "$data" }
+                }}],(err,data2)=>{
                     res.status(200).send({message:data2})
                 })
             })
@@ -152,16 +172,55 @@ const getRestaurantLocationByRating = (req,res)=>{
     }
 }
 
-const getRestaurantLocationByOffer = (req,res)=>{
+
+const getRestaurantLocationByRating1 = (req,res)=>{
     try{
         restaurantController.restaurant.find({},(err,data)=>{
+           const datas=data.filter(((result)=>filterLocation(result,500000,req.query.latitude,req.query.longitude)))
+           console.log("161",datas)
+           console.log(typeof(datas))
+            req.body.data = datas
+            // data.map((x)=>{
+            //     console.log("line 165",x)
+            // })
+            console.log(req.body.data)
+            responseController.responseRestaurant.create(req.body,(err,data1)=>{
+                console.log(data1._id)
+                responseController.responseRestaurant.aggregate([{$match:{_id:data1._id}},
+                    { $unwind: "$data" },
+                    { $sort: { "data.rating": -1 }},
+                    { $group: {
+                      _id: "$_id",
+                      data: { $push: "$data" }
+                    }}],
+                  (err,data2)=>{
+                    res.status(200).send({message:data2})
+                })
+            })
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err})
+    }
+}
+
+
+const getRestaurantLocationByOffer = (req,res)=>{
+    try{
+           restaurantController.restaurant.find({},(err,data)=>{
            const datas=data.filter(((result)=>filterLocation(result,5000,req.query.latitude,req.query.longitude)))
             console.log(typeof(datas))
             req.body.data = datas
             console.log(req.body.data)
             responseController.responseRestaurant.create(req.body,(err,data1)=>{
                 console.log(data1)
-                responseController.responseRestaurant.aggregate([{$match:{_id:data1._id}},{$sort:{"data1.data.offer":1}}],(err,data2)=>{
+                responseController.responseRestaurant.aggregate([{$match:{_id:data1._id}},
+                { $unwind: "$data" },
+                { $sort: { "data.offer": -1 }},
+                { $group: {
+                  _id: "$_id",
+                  data: { $push: "$data" }
+                }}],(err,data2)=>{
                     res.status(200).send({message:data2})
                 })
             })
@@ -458,11 +517,13 @@ module.exports={
     createRestaurant,
     createRestaurant1,
     getSpecificRestaurant,
+    getOneRestaurant,
     updateRestaurant,
     removeRestaurant,
     getRestaurantByLocation,
     getRestaurantLocationByOffer,
     getRestaurantLocationByRating,
+    getRestaurantLocationByRating1,
     findlocation,
     addFood,
     getFoodByOwner,
