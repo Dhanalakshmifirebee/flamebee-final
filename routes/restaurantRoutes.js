@@ -7,6 +7,8 @@ const multer=require('../middleware/multer')
 //Restaurant
 router.post('/image',multer.upload.single('image'),restaraunt.image)
 router.post('/createRestaurant',restaraunt.createRestaurant)
+router.post('/updateRestaurantWithFood/:id',restaraunt.updateRestaurantWithFood)
+
 router.post('/createRestaurant1',restaraunt.createRestaurant1)
 router.get('/getOneRestaurant/:id',restaraunt.getOneRestaurant)
 router.get('/getSpecificRestaurant',restaraunt.getSpecificRestaurant)
@@ -19,6 +21,8 @@ router.get('/getRestaurantLocationByRating1',restaraunt.getRestaurantLocationByR
 
 router.get('/filterFood',restaraunt.filterFood)
 router.get('/findlocation',restaraunt.findlocation)
+router.get('/searchAPI/:key',restaraunt.searchAPI)
+
 
 //Food
 router.post('/addFood',restaraunt.addFood)

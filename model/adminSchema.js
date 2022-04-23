@@ -32,10 +32,28 @@ const forgotPassword = mongoose.Schema({
 })
 
 
+const adminRequestSchema = mongoose.Schema({
+    name:String,
+    email:String,
+    restaurantName:String,
+    restaurantAddress:String,
+    restaurantCity:String,
+    restaurantCountry:String,
+    userName:String,
+    password:String,
+    confirmPassword:String,
+    status:{
+        type:String,
+        default:false
+    }
+})
+
 
 const adminSchema = mongoose.model('registerSchema', registerSchema)
 const sendOtp = mongoose.model('sendOtpSchema', otpSchema)
 const loginSchema = mongoose.model("loginSchema", forgotPassword)
+
+const adminRequest = mongoose.model('adminRequestSchema',adminRequestSchema)
 
 
 const validation = [
@@ -44,4 +62,4 @@ const validation = [
     
 ]
 
-module.exports = { adminSchema, validation, loginSchema,sendOtp }
+module.exports = { adminSchema, validation, loginSchema,sendOtp,adminRequest}

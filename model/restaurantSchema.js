@@ -57,6 +57,7 @@ const restaurantSchema = mongoose.Schema({
     cuisine:[String],
     review:[reviewSchema],
     rating:Number,
+    foodList:Object,
     deleteFlag:{
         type:String,
         default:"false"
@@ -101,6 +102,33 @@ const restaurantSchema1 = mongoose.Schema({
 })
 restaurantSchema1.index({ restaurantLocation: '2dsphere'})
 
+
+const ingredientSchema = mongoose.Schema({
+    ingredient:String,
+    price:Number,
+    status:{
+        type:String,
+        default:false
+    }
+
+})
+
+const sizeSchema = mongoose.Schema({
+    size:String,
+    price:Number,
+    status:{
+        type:String,
+        default:false
+    }
+
+})
+
+const optionSchema = mongoose.Schema({
+    addSize:[sizeSchema],
+    addIngredient:[ingredientSchema]
+
+})
+
 const menuSchema = mongoose.Schema({
     foodName:String,
     foodImage:String,
@@ -109,7 +137,7 @@ const menuSchema = mongoose.Schema({
     restaurantId:String,
     restaurantDetails:Object,
     // offer:Number,
-    option:[],
+    option:[optionSchema],
     // rating:{
     //     type:String,
     //     default:0
@@ -161,7 +189,7 @@ const restaurant1 = mongoose.model("restaurantSchema1",restaurantSchema1)
 const menu = mongoose.model("menuSchema",menuSchema)
 const restaurantReview = mongoose.model("restaurantReviewSchema",restaurantReviewSchema)
 const restaurantRating = mongoose.model("restaurantRatingSchema",restaurantRatingSchema)
-
+ 
 
 
 module.exports={

@@ -44,6 +44,23 @@ const createRestaurant = (req,res)=>{
     }
 }
 
+
+const updateRestaurantWithFood = (req,res)=>{
+    try{
+        restaurantController.menu.find({restaurantId:req.params.id},(err,data)=>{
+            console.log(data)
+            restaurantController.restaurant.findOneAndUpdate({_id:req.params.id},{$set:{foodList:data}},{new:true},(err,data1)=>{
+                  console.log(data1)
+                  res.status(200).send({message:data1})
+            })
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err})
+    }
+}
+
+
 const createRestaurant1 = (req,res)=>{
     try{
         const adminToken = jwt.decode(req.headers.authorization) 
@@ -130,6 +147,7 @@ const removeRestaurant = (req,res)=>{
     }
 }
 
+
 const getRestaurantByLocation = (req,res)=>{
     try{
         console.log("data")
@@ -143,6 +161,7 @@ const getRestaurantByLocation = (req,res)=>{
         res.status(500).send({message:err})
     }
 }
+
 
 
 const getRestaurantLocationByRating = (req,res)=>{
@@ -161,7 +180,7 @@ const getRestaurantLocationByRating = (req,res)=>{
                 { $group: {
                   _id: "$_id",
                   data: { $push: "$data" }
-                }}],(err,data2)=>{
+                }},{$project:{"restaurantDetails.foodList.restaurantDetails":0}}],(err,data2)=>{
                     res.status(200).send({message:data2})
                 })
             })
@@ -231,6 +250,7 @@ const getRestaurantLocationByOffer = (req,res)=>{
     }
 }
 
+
 function filterLocation(result,radius,latitude,longitude)
     {
       if (!result.restaurantLocation){ 
@@ -263,22 +283,24 @@ function filterLocation(result,radius,latitude,longitude)
 
 const addFood =async(req,res)=>{
    try{
-        console.log(req.body.restaurantId)
-        const z = await restaurantController.restaurant.findById(req.body.restaurantId)
-        console.log('z', z)
-        req.body.restaurantDetails = z
-        restaurantController.menu.create(req.body, (err, data) => {
-            if (err) { console.log(err) }
-            else {
-                console.log(data)
-                res.status(200).send({ message: data, statusCode: 200 })
-            }
-        })
+        // console.log(req.body.restaurantId)
+        // restaurantController.restaurant.findById({_id:req.body.restaurantId},(err,data)=>{
+        //     console.log(data)
+        //     req.body.restaurantDetails = data
+            restaurantController.menu.create(req.body, (err, data1) => {
+                if (err) { console.log(err) }
+                else {
+                    console.log(data1)
+                    res.status(200).send({ message: data1, statusCode: 200 })
+                }
+            })
+        // }) 
     }
     catch(err){
         res.status(500).send({message:err.message})
     }
 }
+
 
 const getFoodByOwner = (req,res)=>{
     try{
@@ -325,6 +347,7 @@ const deleteFood = (req, res) => {
     })
 }
 
+
 const filterFoodByPriceLowToHigh = (req,res)=>{
     try{
         restaurantController.menu.aggregate([{$sort:{foodPrice:1}}],(err,data)=>{
@@ -338,6 +361,7 @@ const filterFoodByPriceLowToHigh = (req,res)=>{
     }
     
 }
+
 
 const filterFoodByPriceHighToLow = (req,res)=>{
     try{
@@ -512,9 +536,28 @@ const restaurantRating = (req,res)=>{
     })
 }
 
+
+
+const searchAPI = (req,res)=>{
+    try{
+        restaurantController.menu.aggregate([{$match:{$or:[{"foodName":req.params.key},{"restaurantDetails.restaurantName":req.params.key}]}},],(err,data)=>{
+            if(err) throw err
+            console.log(data)
+            res.status(200).send({message:data})
+        }) 
+    }
+    catch(err){
+        res.status(500).send({message:err})
+    }
+}
+
+
+
+
 module.exports={
     image,
     createRestaurant,
+    updateRestaurantWithFood,
     createRestaurant1,
     getSpecificRestaurant,
     getOneRestaurant,
@@ -538,5 +581,6 @@ module.exports={
     filterFood,
     createRestaurantReview,
     getRestaurantReview,
-    restaurantRating
+    restaurantRating,
+    searchAPI
 }
