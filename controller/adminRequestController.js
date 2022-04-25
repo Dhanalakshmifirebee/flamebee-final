@@ -5,6 +5,7 @@ const nodemailer = require('nodemailer')
 const jwt = require('jsonwebtoken')
 
 
+
 const createAdminRequest = (req,res)=>{
     try{
         const errors = validationResult(req)
@@ -69,7 +70,7 @@ const acceptAdmin =(req,res)=>{
         console.log(data.email)
         if(req.body.role=="accept"){
              const to = data.email
-             postMail(to,"Your Restaurant is selected","Username:"+data.userName+"\nPassword:"+data.password)
+             postMail(to,"FlameBee","Your Restaurant is approved")
              adminRequestController.adminRequest.findOneAndUpdate({_id:req.params.id},{$set:{status:true}},{new:true},(err,data1)=>{
                  if(err) throw err
                  console.log(data1)
@@ -77,7 +78,7 @@ const acceptAdmin =(req,res)=>{
          }
          else{
             const to = data.email
-            postMail(to,"Your Restaurant is rejected","Your Restaurant is rejected")
+            postMail(to,"FlameBee","Your Restaurant is rejected")
             adminRequestController.adminRequest.findOneAndUpdate({_id:req.params.id},{$set:{status:false}},{new:true},(err,data1)=>{
                 if(err) throw err
                 console.log(data1)

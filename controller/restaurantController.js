@@ -292,7 +292,15 @@ const addFood =async(req,res)=>{
                 else {
                     console.log(data1)
                     res.status(200).send({ message: data1, statusCode: 200 })
-                }
+                
+                restaurantController.menu.find({restaurantId:data1.restaurantId},(err,data)=>{
+                    console.log(data)
+                    restaurantController.restaurant.findOneAndUpdate({_id:data1.restaurantId},{$set:{foodList:data}},{new:true},(err,data1)=>{
+                          console.log(data1)
+                        //   res.status(200).send({message:data1})
+                    })
+                })
+            }
             })
         // }) 
     }
@@ -540,18 +548,31 @@ const restaurantRating = (req,res)=>{
 
 const searchAPI = (req,res)=>{
     try{
-        restaurantController.menu.aggregate([{$match:{$or:[{"foodName":req.params.key},{"restaurantDetails.restaurantName":req.params.key}]}},],(err,data)=>{
-            if(err) throw err
-            console.log(data)
-            res.status(200).send({message:data})
-        }) 
+        restaurantController.restaurant.find({},(err,data)=>{
+            const datas=data.filter(((result)=>filterLocation(result,5000,req.query.latitude,req.query.longitude)))
+            req.body.data = datas
+            responseController.responseRestaurant.create(req.body,(err,data1)=>{
+                console.log("line 547",data1)
+                responseController.responseRestaurant.aggregate([{$match:{_id:data1._id}},{ $unwind:"$data"},{$match:{$or:[{"data.restaurantName":req.params.key},{"data.foodList.foodName":req.params.key}]}},{ $group: {
+                    _id: "$_id",
+                    data: { $push: "$data" }
+                    }}],(err,data)=>{
+                    if(err) throw err
+                    console.log(data)
+                    res.status(200).send({message:data})
+                }) 
+            })
+        })
     }
     catch(err){
         res.status(500).send({message:err})
     }
 }
+// ,{$match:{$or:[{"data.restaurantName":req.params.key},{"data.foodList.foodName":req.params.key}]}}
 
+// ,{$match: {$or:[{"data.restaurantName":req.params.key},{"data.foodList.foodName":req.params.key}]}}
 
+// {$or:[{"restaurantName":req.params.key},{"restaurantName":req.params.key}]}
 
 
 module.exports={

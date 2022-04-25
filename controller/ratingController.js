@@ -8,6 +8,8 @@ const mongoose = require('mongoose')
 
 
 const foodQualityRating = (req,res)=>{
+    const token = jwt.decode(req.headers.authorization)
+    const verify = token.userid
     ratingController.foodQualityRating.create(req.body,(err,data1)=>{
         console.log(data1)
         ratingController.foodQualityRating.countDocuments({restaurantId:data1.restaurantId},(err,num)=>{
@@ -25,16 +27,23 @@ const foodQualityRating = (req,res)=>{
                     console.log(average)
                     console.log(parseFloat(average).toFixed(2));
                     const foodQualityRating = parseFloat(average).toFixed(2)
-                    restaurantController.restaurantRating.findOneAndUpdate({restaurantId:req.body.restaurantId},{$set:{foodQuality:foodQualityRating}},{new:true},(err,data3)=>{
+                    req.body.userId = verify
+                    restaurantController.restaurantRating.create(req.body,(err,data)=>{
+                        console.log(data)
+                        restaurantController.restaurantRating.findOneAndUpdate({restaurantId:req.body.restaurantId},{$set:{foodQuality:foodQualityRating}},{new:true},(err,data3)=>{
                         console.log(data3)
                         res.status(200).send({message:data3})
                     })
+                    })
+                    
             })
         })   
     })
 }
 
 const locationRating = (req,res)=>{
+    const token = jwt.decode(req.headers.authorization)
+    const verify = token.userid
     ratingController.locationRating.create(req.body,(err,data1)=>{
         console.log(data1)
         ratingController.locationRating.countDocuments({restaurantId:data1.restaurantId},(err,num)=>{
@@ -52,16 +61,21 @@ const locationRating = (req,res)=>{
                     console.log(average)
                     console.log(parseFloat(average).toFixed(2));
                     const locationRating = parseFloat(average).toFixed(2)
-                    restaurantController.restaurantRating.findOneAndUpdate({restaurantId:req.body.restaurantId},{$set:{location:locationRating}},{new:true},(err,data3)=>{
-                        console.log(data3)
-                        res.status(200).send({message:data3})
-                    })
-            })
+                    req.body.userId = verify
+                    restaurantController.restaurantRating.create(req.body,(err,data)=>{
+                        restaurantController.restaurantRating.findOneAndUpdate({restaurantId:req.body.restaurantId},{$set:{location:locationRating}},{new:true},(err,data3)=>{
+                            console.log(data3)
+                            res.status(200).send({message:data3})
+                        })
+                })  
+            })  
         })   
     })
 }
 
 const priceRating = (req,res)=>{
+    const token = jwt.decode(req.headers.authorization)
+    const verify = token.userid
     ratingController.priceRating.create(req.body,(err,data1)=>{
         console.log(data1)
         ratingController.priceRating.countDocuments({restaurantId:data1.restaurantId},(err,num)=>{
@@ -79,16 +93,21 @@ const priceRating = (req,res)=>{
                     console.log(average)
                     console.log(parseFloat(average).toFixed(2));
                     const priceRating = parseFloat(average).toFixed(2)
-                    restaurantController.restaurantRating.findOneAndUpdate({restaurantId:req.body.restaurantId},{$set:{price:priceRating}},{new:true},(err,data3)=>{
-                        console.log(data3)
-                        res.status(200).send({message:data3})
-                    })
+                    req.body.userId = verify
+                    restaurantController.restaurantRating.create(req.body,(err,data)=>{
+                        restaurantController.restaurantRating.findOneAndUpdate({restaurantId:req.body.restaurantId},{$set:{price:priceRating}},{new:true},(err,data3)=>{
+                            console.log(data3)
+                            res.status(200).send({message:data3})
+                        })
+                })
             })
         })   
     })
 }
 
 const serviceRating = (req,res)=>{
+    const token = jwt.decode(req.headers.authorization)
+    const verify = token.userid
     ratingController.serviceRating.create(req.body,(err,data1)=>{
         console.log(data1)
         ratingController.serviceRating.countDocuments({restaurantId:data1.restaurantId},(err,num)=>{
@@ -106,10 +125,13 @@ const serviceRating = (req,res)=>{
                     console.log(average)
                     console.log(parseFloat(average).toFixed(2));
                     const serviceRating = parseFloat(average).toFixed(2)
-                    restaurantController.restaurantRating.findOneAndUpdate({restaurantId:req.body.restaurantId},{$set:{service:serviceRating}},{new:true},(err,data3)=>{
-                        console.log(data3)
-                        res.status(200).send({message:data3})
-                    })
+                    req.body.userId = verify
+                    restaurantController.restaurantRating.create(req.body,(err,data)=>{
+                        restaurantController.restaurantRating.findOneAndUpdate({restaurantId:req.body.restaurantId},{$set:{service:serviceRating}},{new:true},(err,data3)=>{
+                            console.log(data3)
+                            res.status(200).send({message:data3})
+                        })
+                })
             })
         })   
     })
@@ -122,11 +144,27 @@ const ratingForRestaurant = (req,res)=>{
             const values = data.foodQuality+data.location+data.price+data.service
             const average = values/4
             console.log(average)
-            restaurantController.restaurant.findOneAndUpdate({restaurantId:req.query.id},{$set:{rating:average}},{new:true},(err,data1)=>{
-                if(err) throw err
-                 console.log(data1)
-                 res.status(200).send({message:data1})
-            })
+            if(average>=9){
+                restaurantController.restaurant.findOneAndUpdate({restaurantId:req.query.id},{$set:{ratingValue:average,rating:"superb"}},{new:true},(err,data1)=>{
+                    if(err) throw err
+                     console.log(data1)
+                     res.status(200).send({message:data1})
+                })
+            }
+            if(average>=8){
+                restaurantController.restaurant.findOneAndUpdate({restaurantId:req.query.id},{$set:{ratingValue:average,rating:"veryGood"}},{new:true},(err,data1)=>{
+                    if(err) throw err
+                     console.log(data1)
+                     res.status(200).send({message:data1})
+                })
+            }
+            if(average>=7){
+                restaurantController.restaurant.findOneAndUpdate({restaurantId:req.query.id},{$set:{ratingValue:average,rating:"Good"}},{new:true},(err,data1)=>{
+                    if(err) throw err
+                     console.log(data1)
+                     res.status(200).send({message:data1})
+                })
+            }
        
         })
     }

@@ -56,7 +56,8 @@ const restaurantSchema = mongoose.Schema({
     },
     cuisine:[String],
     review:[reviewSchema],
-    rating:Number,
+    ratingValue:Number,
+    rating:String,
     foodList:Object,
     deleteFlag:{
         type:String,
@@ -138,6 +139,10 @@ const menuSchema = mongoose.Schema({
     restaurantDetails:Object,
     // offer:Number,
     option:[optionSchema],
+    count:{
+        type:Number,
+        default:0
+    },
     // rating:{
     //     type:String,
     //     default:0
