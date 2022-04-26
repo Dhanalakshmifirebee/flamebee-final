@@ -2,6 +2,9 @@ const bcrypt = require('bcrypt')
 const { validationResult } = require('express-validator')
 const jwt = require('jsonwebtoken')
 const superControll=require('../model/superAdminSchema')
+const adminPackageController = require('../model/adminSchema')
+
+
 
 const superAdminRegistration =(req, res) => {
     console.log('line 7',req.body)
@@ -49,4 +52,31 @@ const superAdminLogin = (req, res) => {
 }
 
 
-module.exports={superAdminRegistration,superAdminLogin}
+const createAdminPackage = (req,res)=>{
+    try{
+        adminPackageController.adminPackage.create(req.body,(err,data)=>{
+            if(err) throw err
+            console.log(data)
+            res.status(200).send({message:data})
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err})
+    }
+}
+
+const getPackagePlan = (req,res)=>{
+    try{
+        adminPackageController.adminPackage.find({},(err,data)=>{
+            if(err) throw err
+            res.status(200).send({message:data})
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err})
+    }
+   
+}
+
+
+module.exports={superAdminRegistration,superAdminLogin,createAdminPackage,getPackagePlan}

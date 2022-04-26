@@ -49,11 +49,19 @@ const adminRequestSchema = mongoose.Schema({
 })
 
 
+const adminPackageSchema = mongoose.Schema({
+    packageName:String,
+    packagePlan:String,
+    amount:Number
+})
+
+
 const adminSchema = mongoose.model('registerSchema', registerSchema)
 const sendOtp = mongoose.model('sendOtpSchema', otpSchema)
 const loginSchema = mongoose.model("loginSchema", forgotPassword)
 
 const adminRequest = mongoose.model('adminRequestSchema',adminRequestSchema)
+const adminPackage = mongoose.model('adminPackageSchema',adminPackageSchema)
 
 
 const validation = [
@@ -62,4 +70,4 @@ const validation = [
     
 ]
 
-module.exports = { adminSchema, validation, loginSchema,sendOtp,adminRequest}
+module.exports = { adminSchema, validation, loginSchema,sendOtp,adminRequest,adminPackage}

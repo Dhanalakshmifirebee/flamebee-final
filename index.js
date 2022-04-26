@@ -13,6 +13,7 @@ const delivery=require('./routes/delivery_routes')
 // const cardDetails=require('./routes/card_routes')
 // const locate=require('./routes/location_routes')
 const order=require('./routes/order_routes')
+const blog=require('./routes/blogRoute')
 // const onlineOrder=require('./routes/onlineOrder_routes')
 const app = express()
 
@@ -29,6 +30,7 @@ app.use('/flame/delivery',delivery)
 // app.use('/flame/cardDetails',cardDetails)
 // app.use('/flame/locate',locate)
 app.use('/flame/order',order)
+app.use('/flame/blog',blog)
 // app.use('/flame/onlineOrder',onlineOrder)
 
 app.get('/',(req,res)=>{

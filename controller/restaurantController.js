@@ -3,6 +3,8 @@ const responseController = require('../model/responseSchema')
 const adminController = require('../model/adminSchema')
 const jwt = require('jsonwebtoken')
 const geolib = require('geolib')
+const { Z_BEST_COMPRESSION } = require('zlib')
+const paginated=require('./adminController')
 
 
 const image = (req,res)=>{
@@ -91,11 +93,13 @@ const getSpecificRestaurant = (req,res)=>{
         const adminToken = jwt.decode(req.headers.authorization) 
         const verifyId = adminToken.userid
         console.log(verifyId)
-        restaurantController.restaurant.findOne({restaurantOwnerId:verifyId},(err,data)=>{
-            console.log(data.restaurantOwnerId)
+        restaurantController.restaurant.find({restaurantOwnerId:verifyId},(err,data)=>{
             if(err) throw err
-
-            res.status(200).send({message:data})
+            var count=data.length
+            console.log(count)
+           
+            const datas=paginated.paginated(data,req,res)
+            res.status(200).send({message:datas,count})
         })
     }
     catch(err){
@@ -161,6 +165,7 @@ const getRestaurantByLocation = (req,res)=>{
         res.status(500).send({message:err})
     }
 }
+
 
 
 
@@ -250,6 +255,99 @@ const getRestaurantLocationByOffer = (req,res)=>{
     }
 }
 
+const filterFood = (req,res)=>{
+    // console.log(req.body.category)
+    var y = req.body.rating
+    var z ="Good"
+    var x = req.body.category
+    var distance = req.body.distance
+    restaurantController.restaurant.find({},{"foodList.restaurantDetails":0},(err,data)=>{
+        const datas=data.filter(((result)=>filterLocation(result,distance,req.query.latitude,req.query.longitude)))
+        var arr = []
+        // console.log("line 274",datas)
+        // res.send(datas)
+        for(var i=0;i<datas.length;i++){
+            var index = datas.filter((b)=>b.rating==y[i])
+            console.log(index)
+            arr.push(index)
+            if(x!==null){
+                for(var j=0;j<=arr.length;j++){
+                    var index2 = arr.map((c)=>{c.filter((e)=>e.category==x[i])})
+                    console.log(index2)
+
+                }
+            }
+        }
+
+        // res.send(arr)
+    })
+
+
+
+    //  restaurantController.restaurant.aggregate([{$match:{rating:{"$in":[z,y]}}}],(err,data)=>{
+    //      console.log(data)
+    //  })
+
+
+
+
+    // restaurantController.restaurant.find({},{"foodList.restaurantDetails":0},(err,data)=>{
+    //     console.log(data)
+       
+        // category.map((x)=>{
+        //     rating.map((y)=>{
+        //         console.log(y)
+        //        foodPrice.map((z)=>{
+              
+                // restaurantController.restaurant.aggregate([{ $match:{$or:[{rating:y},{"foodList.category":x},{"foodList.foodPrice": z}]}},{$project:{"foodList.restaurantDetails":0}}],(err,data1)=>{
+                //     // console.log(data1)
+                   
+                //     const datas=data1.filter(((result)=>filterLocation(result,distance,req.query.latitude,req.query.longitude)))
+                //     console.log("line 274",datas)
+                //     // res.send(datas)
+
+                // })
+                
+    //            })
+    //         })
+    //     })
+    }
+    // })
+
+    // {$or:[{rating:y},{"foodList.cuisine":x},{"foodList.foodPrice": z}]}
+
+        // {"foodList.foodPrice": z},
+        // console.log(data)
+        // data.map((x)=>{
+        //    x.foodList.map((y)=>{
+        //         console.log(y)
+
+        //     })
+        // })
+        // foodList.map((x)=>{
+        //     console.log("262",x)
+        // })
+        // category.map((x)=>{
+        // rating.map((y)=>{
+        //     restaurantController.restaurant.aggregate([{ $match: {$or:[{foodListfoodPrice: { $gte:0,$lte:50}},{"restaurantDetails.rating":y},{category:x}]}}],(err,data)=>{
+        //         console.log(data)
+        //         const datas=data.filter(((result)=>filterLocation(result,5000,req.query.latitude,req.query.longitude)))
+        //         console.log("line 262",datas)
+        //     })
+        // })
+    // })
+       
+
+
+        
+    // category.map((x)=>{
+    //     rating.map((y)=>{
+    //         restaurantController.menu.aggregate([{ $match: {$or:[{foodPrice: { $gte:0,$lte:50}},{"restaurantDetails.rating":y},{category:x}]}}],(err,data)=>{
+    //             console.log(data)
+    //         })
+    //     })
+    // })
+
 
 function filterLocation(result,radius,latitude,longitude)
     {
@@ -283,10 +381,10 @@ function filterLocation(result,radius,latitude,longitude)
 
 const addFood =async(req,res)=>{
    try{
-        // console.log(req.body.restaurantId)
-        // restaurantController.restaurant.findById({_id:req.body.restaurantId},(err,data)=>{
-        //     console.log(data)
-        //     req.body.restaurantDetails = data
+        console.log(req.body.restaurantId)
+        restaurantController.restaurant.findById({_id:req.body.restaurantId},(err,data)=>{
+            console.log(data)
+            req.body.restaurantDetails = data
             restaurantController.menu.create(req.body, (err, data1) => {
                 if (err) { console.log(err) }
                 else {
@@ -302,7 +400,7 @@ const addFood =async(req,res)=>{
                 })
             }
             })
-        // }) 
+        }) 
     }
     catch(err){
         res.status(500).send({message:err.message})
@@ -384,6 +482,52 @@ const filterFoodByPriceHighToLow = (req,res)=>{
     }
 }
 
+
+const getCategoryList = (req,res)=>{
+    restaurantController.menu.find({},(err,data)=>{
+        const datas=data.filter(((result)=>filterLocationForFood(result,5000,req.query.latitude,req.query.longitude)))
+        console.log(datas)
+        var arr = []
+        datas.map((x)=>{
+            console.log(x.cuisine)
+            arr.push(x.cuisine)
+        })
+        console.log(arr)
+        var removeDuplicates = [...new Set(arr)]; 
+        console.log(removeDuplicates)
+        res.status(200).send({message:removeDuplicates})
+    })
+}
+
+
+function filterLocationForFood(result,radius,latitude,longitude)
+    {
+      if (!result.restaurantDetails.restaurantLocation){ 
+        return false;
+      }
+      console.log('line 21',result.restaurantDetails.restaurantLocation.restaurantLatitude);
+      console.log('line 22',result.restaurantDetails.restaurantLocation.restaurantLongitude);
+
+      var x = geolib.isPointWithinRadius(
+        {
+          latitude: result.restaurantDetails.restaurantLocation.restaurantLatitude,
+          longitude: result.restaurantDetails.restaurantLocation.restaurantLongitude
+        },
+        { 
+          latitude,longitude
+        }, 
+           radius
+      );
+
+      console.log('x',x)
+      if (x === true) {
+        console.log('line 35',result)
+        return result;
+      }
+    
+}
+
+
 // const getFoodByPrice1 = (req,res)=>{
 //     restaurantController.menu.find({ foodPrice : { $gte :  0, $lte : 50}},(err,data)=>{
 //         if(err) throw err
@@ -425,19 +569,7 @@ const filterFoodByPriceHighToLow = (req,res)=>{
 
 
 
-const filterFood = (req,res)=>{
-    console.log(req.body.category)
-    var rating = req.body.rating
-    var category = req.body.category
-    
-    category.map((x)=>{
-        rating.map((y)=>{
-            restaurantController.menu.aggregate([{ $match: {$or:[{foodPrice: { $gte:0,$lte:50}},{"restaurantDetails.rating":y},{category:x}]}}],(err,data)=>{
-                console.log(data)
-            })
-        })
-    })
-}
+
 
 
 const findlocation = (req,res)=>{
@@ -595,6 +727,7 @@ module.exports={
     deleteFood,
     filterFoodByPriceLowToHigh,
     filterFoodByPriceHighToLow,
+    getCategoryList,
     // getFoodByPrice1,
     // getFoodByPrice2,
     // getFoodByPrice3,

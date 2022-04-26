@@ -31,6 +31,8 @@ router.put('/updateFood/:id',restaraunt.updateFood)
 router.delete('/deleteFood',restaraunt.deleteFood)
 router.get('/filterFoodByPriceLowToHigh',restaraunt.filterFoodByPriceLowToHigh)
 router.get('/filterFoodByPriceHighToLow',restaraunt.filterFoodByPriceHighToLow)
+router.get('/getCategoryList',restaraunt.getCategoryList)
+
 // router.get('/getFoodByPrice1',restaraunt.getFoodByPrice1)
 // router.get('/getFoodByPrice2',restaraunt.getFoodByPrice2)
 // router.get('/getFoodByPrice3',restaraunt.getFoodByPrice3)

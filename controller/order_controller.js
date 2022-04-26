@@ -203,6 +203,7 @@ const getAllOrderAcceptedDetails = (req, res) => {
     }
 }
 
+
 const deliveryCandidateUpdateOrderDetails = (req, res) => {
     try {
         deliveryControll.deliveryRegister.findOne({ _id: req.query.deliveryCandidateId, deleteFlag: "false" }, (err, data) => {
@@ -224,6 +225,7 @@ const deliveryCandidateUpdateOrderDetails = (req, res) => {
     }
 }
 
+
 const popularFood = (req,res)=>{
     try{
         restaurantController.menu.aggregate([{$sort:{count:-1}}],(err,data)=>{
@@ -236,6 +238,7 @@ const popularFood = (req,res)=>{
         res.status(500).send({message:err})
     }
 }
+
 
 
 module.exports = {

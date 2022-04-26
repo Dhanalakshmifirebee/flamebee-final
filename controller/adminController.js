@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt')
 const fast2sms=require('fast-two-sms')
 const otpRandamString=require('../controller/random_string')
 
+
 const register = async (req, res) => {
     try {
         const errors = await validationResult(req)

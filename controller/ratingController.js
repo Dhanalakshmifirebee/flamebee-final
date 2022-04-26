@@ -145,21 +145,28 @@ const ratingForRestaurant = (req,res)=>{
             const average = values/4
             console.log(average)
             if(average>=9){
-                restaurantController.restaurant.findOneAndUpdate({restaurantId:req.query.id},{$set:{ratingValue:average,rating:"superb"}},{new:true},(err,data1)=>{
+                restaurantController.restaurant.findOneAndUpdate({_id:req.query.id},{$set:{ratingValue:average,rating:"Superb"}},{new:true},(err,data1)=>{
                     if(err) throw err
                      console.log(data1)
                      res.status(200).send({message:data1})
                 })
             }
-            if(average>=8){
-                restaurantController.restaurant.findOneAndUpdate({restaurantId:req.query.id},{$set:{ratingValue:average,rating:"veryGood"}},{new:true},(err,data1)=>{
+            else if(average>=8){
+                restaurantController.restaurant.findOneAndUpdate({_id:req.query.id},{$set:{ratingValue:average,rating:"Very Good"}},{new:true},(err,data1)=>{
                     if(err) throw err
                      console.log(data1)
                      res.status(200).send({message:data1})
                 })
             }
-            if(average>=7){
-                restaurantController.restaurant.findOneAndUpdate({restaurantId:req.query.id},{$set:{ratingValue:average,rating:"Good"}},{new:true},(err,data1)=>{
+            else if(average>=7){
+                restaurantController.restaurant.findOneAndUpdate({_id:req.query.id},{$set:{ratingValue:average,rating:"Good"}},{new:true},(err,data1)=>{
+                    if(err) throw err
+                     console.log(data1)
+                     res.status(200).send({message:data1})
+                })
+            }
+            else{
+                restaurantController.restaurant.findOneAndUpdate({_id:req.query.id},{$set:{ratingValue:average,rating:"Pleasant"}},{new:true},(err,data1)=>{
                     if(err) throw err
                      console.log(data1)
                      res.status(200).send({message:data1})
