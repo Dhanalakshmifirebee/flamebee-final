@@ -33,6 +33,7 @@ const restaurantTimeSchema = mongoose.Schema({
     openingTime:String,
     closingTime:String
 })
+
 const restaurantSchema = mongoose.Schema({
     restaurantName:String,
     restaurantEmail:String,
@@ -56,11 +57,11 @@ const restaurantSchema = mongoose.Schema({
         restaurantLatitude:Number,
         restaurantLongitude:Number
     },
-    cuisine:String,
+    cuisine:[String],
     review:[reviewSchema],
     ratingValue:Number,
     rating:String,
-    foodList:Object,
+    foodList:[Object],
     deleteFlag:{
         type:String,
         default:"false"

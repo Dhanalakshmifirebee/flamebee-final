@@ -13,7 +13,7 @@ const deliveryRegisterSchema=mongoose.Schema({
     jobType:String,
     deliveryCandidateId:String,
     role:{
-        type:String,
+        type:String,              
         default:'candidate'
     },
     deleteFlag:{

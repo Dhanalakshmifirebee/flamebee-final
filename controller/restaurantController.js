@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken')
 const geolib = require('geolib')
 const { Z_BEST_COMPRESSION } = require('zlib')
 const paginated=require('./adminController')
+const { type } = require('express/lib/response')
 
 
 const image = (req,res)=>{
@@ -256,31 +257,147 @@ const getRestaurantLocationByOffer = (req,res)=>{
 }
 
 const filterFood = (req,res)=>{
-    // console.log(req.body.category)
-    var y = req.body.rating
-    var z ="Good"
-    var x = req.body.category
-    var distance = req.body.distance
+//     // console.log(req.body.category)
+//     console.log(Object.keys(req.body).length);
+//     var key = [];
+//     key.push(...Object.keys(req.body))
+//     console.log(key);
+//     var l = [];
+//     var value = [];
+//     l.push(...Object.values(req.body))
+//     console.log(l);             
+// for(var i = 0 ; i < l.length; i ++){
+//    value.push(...l[i])
+// }
+// console.log(value);
+    var a = req.body.cuisine
+    console.log("line 279",a);
+    var b = req.body.rating
+    console.log("line 279",b);
+    var c = req.body.price
+    console.log("line 279",c);
+    var d = req.body.distance
+    
     restaurantController.restaurant.find({},{"foodList.restaurantDetails":0},(err,data)=>{
-        const datas=data.filter(((result)=>filterLocation(result,distance,req.query.latitude,req.query.longitude)))
-        var arr = []
-        // console.log("line 274",datas)
-        // res.send(datas)
-        for(var i=0;i<datas.length;i++){
-            var index = datas.filter((b)=>b.rating==y[i])
-            console.log(index)
-            arr.push(index)
-            if(x!==null){
-                for(var j=0;j<=arr.length;j++){
-                    var index2 = arr.map((c)=>{c.filter((e)=>e.category==x[i])})
-                    console.log(index2)
-
+        const datas=data.filter(((result)=>filterLocation(result,d,req.query.latitude,req.query.longitude)))
+        // var arr = []
+        // var cuisine = []
+        // var foodPrice = []
+        // var rating =[]
+        // data.map((x)=>{
+        //     arr.push(x.cuisine)
+        // })
+         
+        // data.map((z)=>{
+        //    rating.push(z.rating)
+        // })
+   
+        // for(var p = 0 ; p < arr.length; p++){
+        //    cuisine.push(...arr[p])
+        // }
+        // console.log("line 299",cuisine)
+        // console.log("line 300",foodPrice)
+        // console.log("line 306",rating)
+        const result = []
+        var result1 = []
+        console.log(a)
+        if(a!==null && a!==undefined){
+           for(var i=0;i<a.length;i++){
+               for(var j=0;j<datas.length;j++){
+                    for(var k=0;k<datas[j].cuisine.length;k++){
+                       if(a[i]===datas[j].cuisine[k]){
+                           console.log("dfg")
+                           result1.push(datas[j])
+                       }
+                    }
                 }
             }
+            result.push(...result1)
         }
 
-        // res.send(arr)
+        var result2 =[]
+        if(b!==null && b!==undefined){
+            for(var i=0;i<b.length;i++){
+                for(var j=0;j<datas.length;j++){
+                     if(b[i]== datas[j].rating){
+                        result2.push(datas[j])
+                     }
+                 }
+             }
+             result.push(...result2)
+        }
+       
+    
+        var result3 =[]
+        if(c!==null ||c!==undefined){
+           for(var i=0;i<datas.length;i++){
+               for(var j=0;j<datas[i].foodList.length;j++){
+                   if(c==datas[i].foodList[j].foodPrice){
+                       result3.push(datas[i])
+                   }
+               }
+           }
+           result.push(...result3)
+        }
+        console.log("line 342",result3)
+       const  uniqueElements = [...new Set(result)]
+       console.log("348",uniqueElements);
+       res.status(200).send(uniqueElements);
+
     })
+}
+        // for(var i = 0; i< key.length;i ++){           //key
+        //     for (var j  = 0 ; j< value.length; j ++){     // value
+        //         for(var r = 0 ; r < datas.length ; r ++){      //data
+        //            for(var s=0 ; s< cuisine.length ;s++){
+        //               if(data[r].cuisine[s]== value[j]){
+        //                 //  console.log(data[r])
+        //                  result.push(data[r])
+        //               }
+        //               for(var t=0;t< rating.length;t++){
+        //                   if(data[r].rating==rating[t]){
+        //                       console.log(data[r])
+        //                       result.push(data[r])
+        //                   }
+        //                 // for(var u=0;u<foodPrice.length;u++){
+        //                 //     if(data[r].f)
+        //                 // }
+        //               }
+
+        //             //    for(var t=0;t< rating.length ; t++){
+        //             //        for(var v =0;v<foodPrice.length; v++){
+
+        //             //        }
+        //             //    }
+        //            }
+                    
+        //         }
+        //     }
+        // }
+    //    console.log(result)
+    //    res.send(result1)
+    //     var arr = []
+    //     // console.log("line 274",datas)
+    //     // res.send(datas)
+    //     for(var i=0;i<datas.length;i++){
+    //         for(var j = 0 ; j<Object.values(y).length;j ++){
+
+
+    //         }
+    //         // var index = datas.filter((b)=>b.rating==y[i])
+    //         // console.log(index)
+    //         // arr.push(index)
+    //         // if(x!==null){
+    //         //     for(var j=0;j<=arr.length;j++){
+    //         //         var index2 = arr.map((c)=>{c.filter((e)=>e.category==x[i])})
+    //         //         console.log(index2)
+
+    //         //     }
+    //         // }
+    //     }
+
+    //     // res.send(arr)
+    // })
 
 
 
@@ -310,8 +427,7 @@ const filterFood = (req,res)=>{
                 
     //            })
     //         })
-    //     })
-    }
+   
     // })
 
     // {$or:[{rating:y},{"foodList.cuisine":x},{"foodList.foodPrice": z}]}
@@ -354,8 +470,8 @@ function filterLocation(result,radius,latitude,longitude)
       if (!result.restaurantLocation){ 
         return false;
       }
-      console.log('line 21',result.restaurantLocation.restaurantLatitude);
-      console.log('line 22',result.restaurantLocation.restaurantLongitude);
+    //   console.log('line 21',result.restaurantLocation.restaurantLatitude);
+    //   console.log('line 22',result.restaurantLocation.restaurantLongitude);
 
       var x = geolib.isPointWithinRadius(
         {
@@ -368,9 +484,9 @@ function filterLocation(result,radius,latitude,longitude)
            radius
       );
 
-      console.log('x',x)
+    //   console.log('x',x)
       if (x === true) {
-        console.log('line 35',result)
+        // console.log('line 35',result)
         return result;
       }
     
