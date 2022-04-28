@@ -48,11 +48,23 @@ const adminRequestSchema = mongoose.Schema({
     }
 })
 
-
-const adminPackageSchema = mongoose.Schema({
-    packageName:String,
-    packagePlan:String,
-    amount:Number
+const packagePlan = mongoose.Schema({
+    adminId:String,
+    packageDetails:Object,
+    status:String,
+    createdAt:{
+        type:String,
+        default:new Date()
+    },
+    expiredDate:String
+    // createdAt:{
+    //     type:Number,
+    //     default:new Date()
+    // },
+    // expiredDate:{
+    //     type:Number,
+    //     default:new Date(new Date().setDate(new Date().getDate() + 180))
+    // }
 })
 
 
@@ -61,7 +73,7 @@ const sendOtp = mongoose.model('sendOtpSchema', otpSchema)
 const loginSchema = mongoose.model("loginSchema", forgotPassword)
 
 const adminRequest = mongoose.model('adminRequestSchema',adminRequestSchema)
-const adminPackage = mongoose.model('adminPackageSchema',adminPackageSchema)
+const packagePlanSchema = mongoose.model('packagePlanSchema',packagePlan)
 
 
 const validation = [
@@ -70,4 +82,4 @@ const validation = [
     
 ]
 
-module.exports = { adminSchema, validation, loginSchema,sendOtp,adminRequest,adminPackage}
+module.exports = { adminSchema, validation, loginSchema,sendOtp,adminRequest,packagePlanSchema}

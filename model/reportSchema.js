@@ -4,7 +4,8 @@ const reportSchema = mongoose.Schema({
     restautantName:String,
     restaurantId:String,
     image:String,
-    message:String
+    message:String,
+    userDetails:Object
 })
 
 

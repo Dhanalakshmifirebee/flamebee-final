@@ -29,18 +29,128 @@ const createRestaurant = (req,res)=>{
     try{
         const adminToken = jwt.decode(req.headers.authorization) 
         const verifyId = adminToken.userid
-        restaurantController.restaurant.countDocuments({restaurantEmail:req.body.restaurantEmail},(err,data)=>{
-            if(data==0){
-                req.body.restaurantOwnerId = verifyId
-                restaurantController.restaurant.create(req.body,(err,data1)=>{
-                    if(err) throw err
-                    res.status(200).send({message:"Restaurant created Successfully",data1})
-                })
+        console.log(verifyId)
+        adminController.packagePlanSchema.findOne({adminId:verifyId},(err,data1)=>{
+            console.log(data1);
+            if(data1.status=="active"){
+                console.log(data1)
+                    if(data1.packageDetails.packagePlan=="Free"){
+                        console.log(data1.expiredDate);
+                        console.log(new Date().toLocaleString());
+                        if(data1.expiredDate>new Date().toLocaleString()){
+                            restaurantController.restaurant.countDocuments({restaurantOwnerId:verifyId},(err,num)=>{
+                                console.log(num)
+                                    if(num<=3){
+                                        req.body.restaurantOwnerId = verifyId
+                                        restaurantController.restaurant.create(req.body,(err,data2)=>{
+                                        res.status(200).send({message:"Restaurant created Successfully",data2})
+                                        })
+                                    }
+                                    else{
+                                        adminController.packagePlanSchema.findOneAndUpdate({adminId:verifyId},{$set:{status:"inActive"}},{new:true},(err,data3)=>{
+                                            console.log(data3)
+                                            res.status(400).send({message:'Your Free packagePlan is expired,please subscribe package plan'})
+                                        })
+                                    }
+                            }) 
+                        }
+                }
+                
+    
+                if(data1.packageDetails.packagePlan=="6 months"){
+                    if(data1.expiredDate>new Date().toLocaleString()){
+                            restaurantController.restaurant.countDocuments({restaurantEmail:req.body.restaurantEmail},(err,num)=>{
+                                console.log(num)
+                                    if(num==0){
+                                        req.body.restaurantOwnerId = verifyId
+                                        restaurantController.restaurant.create(req.body,(err,data4)=>{
+                                        res.status(200).send({message:"Restaurant created Successfully",data4})
+                                        })
+                                    }
+                                    else{
+                                        res.status(400).send({message:"Restaurant already exists"})
+                                    }
+                            })
+                    }else{
+                        adminController.packagePlanSchema.findOneAndUpdate({adminId:verifyId},{$set:{status:"inActive"}},{new:true},(err,data3)=>{
+                            console.log(data3)
+                            res.status.send({message:'Your Free packagePlan is expired,please subscribe package plan'})
+                        })
+                    }
+                }
+
+                if(data1.packageDetails.packagePlan=="12 months"){
+                    if(data1.expiredDate>new Date().toLocaleString()){
+                            restaurantController.restaurant.countDocuments({restaurantEmail:req.body.restaurantEmail},(err,num)=>{
+                                console.log(num)
+                                    if(num==0){
+                                        req.body.restaurantOwnerId = verifyId
+                                        restaurantController.restaurant.create(req.body,(err,data4)=>{
+                                        res.status(200).send({message:"Restaurant created Successfully",data4})
+                                        })
+                                    }
+                                    else{
+                                        res.status(400).send({message:"Restaurant already exists"})
+                                    }
+                            })
+                    }else{
+                        adminController.packagePlanSchema.findOneAndUpdate({adminId:verifyId},{$set:{status:"inActive"}},{new:true},(err,data3)=>{
+                            console.log(data3)
+                            res.status.send({message:'Your Free packagePlan is expired,please subscribe package plan'})
+                        })
+                    }
+                }
             }
             else{
-                res.status(400).send({message:"email id already exist"})
+                res.status(400).send({message:"please subscribe package plan"})
             }
+            
         })
+        // adminController.packagePlanSchema.aggregate([{$match:{$and:[{restaurantOwnerId:verifyId},{"packageDetails.package":"Free"}]}}],(err,data)=>{
+        //     if(data){
+        //         restaurantController.restaurant.countDocuments({restaurantOwnerId:verifyId},(err,num)=>{
+        //                 console.log(num)
+        //                 if(num<=3){
+        //                     req.body.restaurantOwnerId = verifyId
+        //                     restaurantController.restaurant.create(req.body,(err,data)=>{
+        //                         res.status(200).send({message:"Restaurant created Successfully",data})
+        //                     })
+        //                 }
+        //                 else{
+        //                     res.status(400).send({message:"error"})
+        //                 }
+        //         })
+        //     }
+        // })
+
+
+        
+        // restaurantController.restaurant.countDocuments({restaurantOwnerId:verifyId},(err,num)=>{
+        //     console.log(num)
+        //     if(num<=3){
+                
+        //         req.body.restaurantOwnerId = verifyId
+        //         restaurantController.restaurant.create(req.body,(err,data)=>{
+        //             res.status(200).send({message:"Restaurant created Successfully",data})
+        //         })
+        //     }
+        //     else{
+        //         res.status(400).send({message:"error"})
+        //     }
+        // })
+        // restaurantController.restaurant.countDocuments({restaurantEmail:req.body.restaurantEmail},(err,data)=>{
+        //     if(data==0){
+        //         restaurantController.restaurant.countDocuments({restaurantOwnerId:verifyId})
+        //         req.body.restaurantOwnerId = verifyId
+        //         restaurantController.restaurant.create(req.body,(err,data1)=>{
+        //             if(err) throw err
+        //             res.status(200).send({message:"Restaurant created Successfully",data1})
+        //         })
+        //     }
+        //     else{
+        //         res.status(400).send({message:"email id already exist"})
+        //     }
+        // })
     }
     catch(err){
         res.status(500).send({message:err})
@@ -94,14 +204,22 @@ const getSpecificRestaurant = (req,res)=>{
         const adminToken = jwt.decode(req.headers.authorization) 
         const verifyId = adminToken.userid
         console.log(verifyId)
-        restaurantController.restaurant.find({restaurantOwnerId:verifyId},(err,data)=>{
-            if(err) throw err
-            var count=data.length
-            console.log(count)
+        adminController.packagePlanSchema.findOne({adminId:verifyId,status:"active"},(err,data)=>{
+            if(data){
+                restaurantController.restaurant.find({restaurantOwnerId:verifyId},(err,data)=>{
+                    if(err) throw err
+                    var count=data.length
+                    console.log(count)
+                    const datas=paginated.paginated(data,req,res)
+                    res.status(200).send({message:datas,count})
+                })
+            }
+            else{
+                res.status(400).send({message:"plan is expired"})
+            }
            
-            const datas=paginated.paginated(data,req,res)
-            res.status(200).send({message:datas,count})
         })
+        
     }
     catch(err){
         res.status(500).send({message:err})

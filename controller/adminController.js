@@ -1,4 +1,4 @@
-const { adminSchema,sendOtp} = require('../model/adminSchema')
+const { adminSchema,sendOtp,packagePlanSchema} = require('../model/adminSchema')
 const jwt = require('jsonwebtoken')
 const { validationResult } = require('express-validator')
 const bcrypt = require('bcrypt')
@@ -12,7 +12,8 @@ const register = async (req, res) => {
         if (!errors.isEmpty()) {
             res.status(400).send({ message: errors.array() })
         }else {
-            adminSchema.countDocuments({ email: req.body.email }, async (err, data) => {
+            adminSchema.countDocuments({email:req.body.email,contact:req.body.contact}, async (err, data) => {
+                console.log(data);
                 if (data == 0){
                     const confirmPassword=req.body.confirmPassword
                    if(req.body.password==confirmPassword){
@@ -20,6 +21,7 @@ const register = async (req, res) => {
                     adminSchema.create(req.body, (err, result) => {
                         if (result) {
                             res.status(200).send({success:"true",message: 'Add admin successfully', data:result })
+
                         } else {
                             res.staus(400).send({success:"false",message: 'fail to create data' })
                         }
@@ -44,20 +46,47 @@ const login = async(req, res) => {
         if (!req.body.contact) {
             console.log('line 43',req.body.email)
             console.log('line 44',req.body.password)
-            adminSchema.findOne({ email: req.body.email}, async (err, data) => {
-                if(data){
-                    const verifyPassword = await bcrypt.compare(req.body.password,data.password)
+            adminSchema.findOne({ email: req.body.email}, async (err, data1) => {
+            //     packagePlanSchema.findOne({adminId:data1._id},async(err,data2)=>{
+            //         if(data2.packageDetails.packagePlan=="6 months"){
+            //             const verifyPassword = await bcrypt.compare(req.body.password,data1.password)
+            //             if (verifyPassword == true) {
+            //                 const token = jwt.sign({ userid: data1._id },'secret',{expiresIn: '180d'})
+            //                 console.log("line 59",data1)
+            //                 res.status(200).send({ message: data1, token })
+            //             } else {
+            //                 res.status(400).send({ message:'invalid password' })
+            //             }
+            //         }
+            //  })
+                if(data1){
+                    const verifyPassword = await bcrypt.compare(req.body.password,data1.password)
                     if (verifyPassword == true) {
-                        const token = jwt.sign({ userid: data._id }, 'secret')
-                        console.log("line 59",data)
-                        res.status(200).send({ message: data, token })
+                        const token = jwt.sign({ userid: data1._id }, 'secret')
+                        console.log("line 59",data1)
+                        res.status(200).send({ message: data1, token })
                     } else {
                         res.status(400).send({ message:'invalid password' })
                     }
                 }
                 else{
+                    // adminSchema.create(req.body,(err,data)=>{
+                    //     console.log(data)
+                    //     const otp = otpRandamString.randomString(3)
+                    //     console.log("otp", otp)
+                    //     sendOtp.create({otp: otp },async (err,datas) => {
+                    //         console.log("line 72", datas)
+                    //         if(err){throw err}
+                    //         if (datas) {
+                    //             console.log("line 75", datas)
+                    //             const to = data.email
+                    //             postMail(to,"FlameBee",otp)
+                    //             res.status(200).send({message:"otp send sucessfully",datas})
+                    //         }
+                    //     })
+                    // })
                     console.log("line 66",'please signup')
-                   res.status(400).send({message:'please register your profile'})
+                    res.status(400).send({message:'please register your profile'})
                 }  
             })
         } else {
@@ -119,6 +148,43 @@ const login = async(req, res) => {
         res.status(500).send({ message: 'please check it again' })
     }
 }
+
+const verifyContact = (req,res)=>{
+    try{
+        adminSchema.findOne({contact:req.body.contact},(err,data)=>{
+            if(data){
+                res.status(200).send({message:"exist"})
+            }
+            else{
+                res.status(400).send({message:"new"})
+            }
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err})
+    }
+}
+
+// let transport = nodemailer.createTransport({
+//     service: 'gmail',
+//     auth: {
+//         user: 'dhanamcse282@gmail.com',
+//         pass: 'dhanam282'
+//     }
+// })
+
+// let postMail = function ( to, subject, text) {
+//     transport.sendMail({
+//         from: 'dhanamcse282@gmail.com',
+//         to: to,
+//         subject: subject,
+//         text: text,
+//     })
+// }
+
+
+
+
 
 //
 const getAllOwnersUser = (req, res) => {
@@ -236,6 +302,70 @@ function paginated(model,req,res) {
     // }
 }
 
+
+const packagePlan =(req,res)=>{
+    try{
+        const token = jwt.decode(req.headers.authorization)
+        const verify = token.userid
+        req.body.adminId = verify
+        if(req.body.packageDetails.packagePlan == "Free"){
+                var createdAt = new Date();
+                console.log(createdAt.toLocaleString())
+                var noOfDays = 30;
+                var result = createdAt.setDate(createdAt.getDate() + noOfDays);
+                var expiredDate = new Date(result).toLocaleString()
+                console.log(expiredDate)
+                req.body.expiredDate = expiredDate
+            packagePlanSchema.create(req.body,(err,data)=>{
+                if(err) throw err
+                res.status(200).send({message:data})
+            })
+        }
+        if(req.body.packageDetails.packagePlan == "6 months"){
+                var createdAt = new Date();
+                console.log(createdAt.toLocaleString())
+                var noOfDays = 180;
+                var result = createdAt.setDate(createdAt.getDate() + noOfDays);
+                var expiredDate = new Date(result).toLocaleString()
+                console.log(expiredDate)
+                req.body.expiredDate = expiredDate
+            packagePlanSchema.create(req.body,(err,data)=>{
+                if(err) throw err
+                res.status(200).send({message:data})
+            })
+        }
+        if(req.body.packageDetails.packagePlan == "12 months"){
+                var createdAt = new Date();
+                console.log("line 326",createdAt)
+                var noOfDays = 365;
+                var result = createdAt.setDate(createdAt.getDate() + noOfDays);
+                var expiredDate = new Date(result).toLocaleString()
+                console.log("line 330",expiredDate)
+                req.body.expiredDate = expiredDate
+            packagePlanSchema.create(req.body,(err,data)=>{
+                if(err) throw err
+                res.status(200).send({message:data})
+            })
+        }
+        
+    }
+    catch(err){
+        res.status(400).send({message:err})
+    }
+}
+
+
+const updatePackagePlan = (req,res)=>{
+    const token = jwt.decode(req.headers.authorization)
+    const verifyId = token.userid
+    packagePlanSchema.findOneAndUpdate({adminId:verifyId},req.body,{new:true},(err,data)=>{
+        if(err) throw err
+        res.status(200).send({message:data})
+    })
+}
+
+
+
 module.exports = {
     login,
     register,
@@ -243,5 +373,8 @@ module.exports = {
     getByOwnerUserId,
     updateOwnerUser,
     deleteOwnerUser,
-    paginated
+    paginated,
+    packagePlan,
+    updatePackagePlan,
+    verifyContact
 }

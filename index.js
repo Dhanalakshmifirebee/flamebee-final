@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const dotenv = require('dotenv').config()
 
+
 const errorThrower = require('./errorHandler/error_thrower')
 const appError = require('./errorHandler/common_error_handler')
 require('./config/db_config')

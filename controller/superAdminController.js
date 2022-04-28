@@ -54,7 +54,7 @@ const superAdminLogin = (req, res) => {
 
 const createAdminPackage = (req,res)=>{
     try{
-        adminPackageController.adminPackage.create(req.body,(err,data)=>{
+        superControll.adminPackage.create(req.body,(err,data)=>{
             if(err) throw err
             console.log(data)
             res.status(200).send({message:data})
@@ -67,7 +67,7 @@ const createAdminPackage = (req,res)=>{
 
 const getPackagePlan = (req,res)=>{
     try{
-        adminPackageController.adminPackage.find({},(err,data)=>{
+        superControll.adminPackage.find({},(err,data)=>{
             if(err) throw err
             res.status(200).send({message:data})
         })

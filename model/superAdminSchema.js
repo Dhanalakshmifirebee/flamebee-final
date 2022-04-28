@@ -10,6 +10,21 @@ const registerSchema = mongoose.Schema({
     }
 })
 
-const register=mongoose.model('superAdmin',registerSchema)
+const packageDetails = mongoose.Schema({
+    packageName:String,
+    packageDays:Number,
+    packagePlan :String,
+    restaurantCount:Number
 
-module.exports={register}
+})
+
+const adminPackageSchema =mongoose.Schema({
+    package:[packageDetails]
+    
+})
+
+const register=mongoose.model('superAdmin',registerSchema)
+const adminPackage = mongoose.model("adminPackageSchema",adminPackageSchema)
+
+
+module.exports={register,adminPackage}
