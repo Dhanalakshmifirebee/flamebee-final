@@ -15,8 +15,8 @@ const createAdminRequest = (req,res)=>{
             adminRequestController.adminRequest.countDocuments({email:req.body.email},async(err,data)=>{
                 if(data==0){
                     if(req.body.password==req.body.confirmPassword){
-                        // req.body.password = await bcrypt.hash(req.body.password,10)
-                        // req.body.confirmPassword = await bcrypt.hash(req.body.confirmPassword,10)
+                        req.body.password = await bcrypt.hash(req.body.password,10)
+                        req.body.confirmPassword = await bcrypt.hash(req.body.confirmPassword,10)
                         adminRequestController.adminRequest.create(req.body,(err,data)=>{
                             if(err) throw err
                             console.log(data)
@@ -49,9 +49,11 @@ const adminLogin = (req,res)=>{
                 console.log(data)
                 if(data.status=="true"){
                     var userid=data._id
+                    const password = await bcrypt.compare(req.body.password, data.password)
+                    if (password === true) {
                     const token=jwt.sign({userid},'secret')
                     res.status(200).send({message:"Login Successfully",data,token})
-                   
+                    }
                 }
                 else{
                     res.status(400).send({message:"Invalid email"})

@@ -8,69 +8,81 @@ const mongoose = require('mongoose')
 
 
 const foodQualityRating = (req,res)=>{
-    const token = jwt.decode(req.headers.authorization)
-    const verify = token.userid
-    ratingController.foodQualityRating.create(req.body,(err,data1)=>{
-        console.log(data1)
-        ratingController.foodQualityRating.countDocuments({restaurantId:data1.restaurantId},(err,num)=>{
-            console.log(num)
-            const noOfPersons = num
-            ratingController.foodQualityRating.find({restaurantId:data1.restaurantId},{rating:1,_id:0},(err,data2)=>{
-                console.log(data2)
-                console.log(typeof data2);
-                    let a = 0;
-                    for (var i = 0; i < data2.length; i++) {
-                      a += data2[i].rating;
-                    }
-                    console.log(a);
-                    const average = a / noOfPersons;
-                    console.log(average)
-                    console.log(parseFloat(average).toFixed(2));
-                    const foodQualityRating = parseFloat(average).toFixed(2)
-                    req.body.userId = verify
-                    restaurantController.restaurantRating.create(req.body,(err,data)=>{
-                        console.log(data)
-                        restaurantController.restaurantRating.findOneAndUpdate({restaurantId:req.body.restaurantId},{$set:{foodQuality:foodQualityRating}},{new:true},(err,data3)=>{
-                        console.log(data3)
-                        res.status(200).send({message:data3})
-                    })
-                    })
-                    
-            })
-        })   
-    })
-}
-
-const locationRating = (req,res)=>{
-    const token = jwt.decode(req.headers.authorization)
-    const verify = token.userid
-    ratingController.locationRating.create(req.body,(err,data1)=>{
-        console.log(data1)
-        ratingController.locationRating.countDocuments({restaurantId:data1.restaurantId},(err,num)=>{
-            console.log(num)
-            const noOfPersons = num
-            ratingController.locationRating.find({restaurantId:data1.restaurantId},{rating:1,_id:0},(err,data2)=>{
-                console.log(data2)
-                console.log(typeof data2);
-                    let a = 0;
-                    for (var i = 0; i < data2.length; i++) {
-                      a += data2[i].rating;
-                    }
-                    console.log(a);
-                    const average = a / noOfPersons;
-                    console.log(average)
-                    console.log(parseFloat(average).toFixed(2));
-                    const locationRating = parseFloat(average).toFixed(2)
-                    req.body.userId = verify
-                    restaurantController.restaurantRating.create(req.body,(err,data)=>{
-                        restaurantController.restaurantRating.findOneAndUpdate({restaurantId:req.body.restaurantId},{$set:{location:locationRating}},{new:true},(err,data3)=>{
+    try{
+        const token = jwt.decode(req.headers.authorization)
+        const verify = token.userid
+        ratingController.foodQualityRating.create(req.body,(err,data1)=>{
+            console.log(data1)
+            ratingController.foodQualityRating.countDocuments({restaurantId:data1.restaurantId},(err,num)=>{
+                console.log(num)
+                const noOfPersons = num
+                ratingController.foodQualityRating.find({restaurantId:data1.restaurantId},{rating:1,_id:0},(err,data2)=>{
+                    console.log(data2)
+                    console.log(typeof data2);
+                        let a = 0;
+                        for (var i = 0; i < data2.length; i++) {
+                          a += data2[i].rating;
+                        }
+                        console.log(a);
+                        const average = a / noOfPersons;
+                        console.log(average)
+                        console.log(parseFloat(average).toFixed(2));
+                        const foodQualityRating = parseFloat(average).toFixed(2)
+                        req.body.userId = verify
+                        restaurantController.restaurantRating.create(req.body,(err,data)=>{
+                            console.log(data)
+                            restaurantController.restaurantRating.findOneAndUpdate({restaurantId:req.body.restaurantId},{$set:{foodQuality:foodQualityRating}},{new:true},(err,data3)=>{
                             console.log(data3)
                             res.status(200).send({message:data3})
                         })
+                        })
+                        
+                })
+            })   
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err})
+    }
+   
+}
+
+const locationRating = (req,res)=>{
+    try{
+        const token = jwt.decode(req.headers.authorization)
+        const verify = token.userid
+        ratingController.locationRating.create(req.body,(err,data1)=>{
+            console.log(data1)
+            ratingController.locationRating.countDocuments({restaurantId:data1.restaurantId},(err,num)=>{
+                console.log(num)
+                const noOfPersons = num
+                ratingController.locationRating.find({restaurantId:data1.restaurantId},{rating:1,_id:0},(err,data2)=>{
+                    console.log(data2)
+                    console.log(typeof data2);
+                        let a = 0;
+                        for (var i = 0; i < data2.length; i++) {
+                          a += data2[i].rating;
+                        }
+                        console.log(a);
+                        const average = a / noOfPersons;
+                        console.log(average)
+                        console.log(parseFloat(average).toFixed(2));
+                        const locationRating = parseFloat(average).toFixed(2)
+                        req.body.userId = verify
+                        restaurantController.restaurantRating.create(req.body,(err,data)=>{
+                            restaurantController.restaurantRating.findOneAndUpdate({restaurantId:req.body.restaurantId},{$set:{location:locationRating}},{new:true},(err,data3)=>{
+                                console.log(data3)
+                                res.status(200).send({message:data3})
+                            })
+                    })  
                 })  
-            })  
-        })   
-    })
+            })   
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err})
+    }
+  
 }
 
 const priceRating = (req,res)=>{

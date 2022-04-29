@@ -33,7 +33,7 @@ const CreateCandidate=async(req,res)=>{
 
                         deliveryController.deliveryRegister.find({_id:data._id},{deliveryCandidateId:0},(err,data)=>{
                             console.log("line33",data)                 
-                            res.status(200).send({message:"successfully created",data})
+                            res.status(200).send({success:"true",message:"successfully created",data})
                         })
                         
                         
@@ -61,7 +61,7 @@ const candidateLogin=(req,res)=>{
                 deliveryController.deliveryRegister.findOneAndUpdate({email:req.body.email},req.body,{new:true},(err,datas)=>{
                     if(err)throw err
                     console.log("line 60",datas)
-                    res.status(200).send({ message: "login successfully",datas, token })
+                    res.status(200).send({success:"true", message: "login successfully",datas, token })
                 })
                     
             }else{
@@ -163,6 +163,7 @@ const getCandidateDetails=(req,res)=>{
         res.status(500).send({message:err.message})
     }
 }
+
 const updateCandidateProfile=(req,res)=>{
     try{
         deliveryController.deliveryRegister.findById(req.params.id,{deleteFlag:'false'},(err,data)=>{
@@ -180,6 +181,7 @@ const updateCandidateProfile=(req,res)=>{
         res.status(500).send({message:err.message})
     }
 }
+
 const deleteCandidateProfile=(req,res)=>{
     try{
         deliveryController.deliveryRegister.findByIdAndUpdate(req.params.id,{deleteFlag:'true'},{returnOriginal:false},(err,data)=>{

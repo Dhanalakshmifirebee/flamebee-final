@@ -42,11 +42,18 @@ const adminRequestSchema = mongoose.Schema({
     userName:String,
     password:String,
     confirmPassword:String,
+    bankDetails:{
+        bankName:String,
+        AccountNumber:Number,
+        ifscCode:String,
+        panNumber:Number
+    },
     status:{
         type:String,
         default:false
     }
 })
+
 
 const packagePlan = mongoose.Schema({
     adminId:String,
@@ -66,6 +73,7 @@ const packagePlan = mongoose.Schema({
     //     default:new Date(new Date().setDate(new Date().getDate() + 180))
     // }
 })
+
 
 
 const adminSchema = mongoose.model('registerSchema', registerSchema)

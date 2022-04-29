@@ -6,6 +6,8 @@ const multer=require('../middleware/multer')
 
 //Restaurant
 router.post('/image',multer.upload.single('image'),restaraunt.image)
+router.post('/getLatLongByLocation',restaraunt.getLatLongByLocation)
+
 router.post('/createRestaurant',restaraunt.createRestaurant)
 router.post('/updateRestaurantWithFood/:id',restaraunt.updateRestaurantWithFood)
 
@@ -19,16 +21,17 @@ router.get('/getRestaurantLocationByOffer',restaraunt.getRestaurantLocationByOff
 router.get('/getRestaurantLocationByRating',restaraunt.getRestaurantLocationByRating)
 router.get('/getRestaurantLocationByRating1',restaraunt.getRestaurantLocationByRating1)
 
-router.get('/filterFood',restaraunt.filterFood)
+router.post('/filterFood',restaraunt.filterFood)
+
 router.get('/findlocation',restaraunt.findlocation)
 router.get('/searchAPI/:key',restaraunt.searchAPI)
 
 
 //Food
 router.post('/addFood',restaraunt.addFood)
-router.get('/getFoodByOwner/:id',restaraunt.getFoodByOwner)
-router.put('/updateFood/:id',restaraunt.updateFood)
-router.delete('/deleteFood',restaraunt.deleteFood)
+router.get('/getFoodByOwner/:restaurantId',restaraunt.getFoodByOwner)
+router.put('/updateFood/:foodId',restaraunt.updateFood)
+router.delete('/deleteFood/:foodId',restaraunt.deleteFood)
 router.get('/filterFoodByPriceLowToHigh',restaraunt.filterFoodByPriceLowToHigh)
 router.get('/filterFoodByPriceHighToLow',restaraunt.filterFoodByPriceHighToLow)
 router.get('/getCategoryList',restaraunt.getCategoryList)

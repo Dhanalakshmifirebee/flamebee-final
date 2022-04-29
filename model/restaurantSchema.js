@@ -52,8 +52,6 @@ const restaurantSchema = mongoose.Schema({
     restaurantTime:[restaurantTimeSchema],
     leaveDay:String,
     restaurantLocation:{
-        // type:{type:String},
-        // coordinates: [Number]
         restaurantLatitude:Number,
         restaurantLongitude:Number
     },
@@ -70,41 +68,41 @@ const restaurantSchema = mongoose.Schema({
 
 
 
-const restaurantSchema1 = mongoose.Schema({
-    restaurantName:String,
-    restaurantEmail:String,
-    restaurantOwner:String,
-    restaurantImage:String,
-    menuImage:[String],
-    restaurantAddress:String,
-    restaurantPhoneNo:Number,
-    restaurantOwnerId:String,
-    offer:Number,
-    rating:Number,
-    averagePrice:Number,
-    information:String,
-    service:[serviceSchema],
-    category:[categorySchema],
-    openingTime:{
-        lunch:String,
-        dinner:String
-    },
-    leaveDay:String,
-    restaurantLocation:{
-        type:{type:String},
-        coordinates: [Number]
-        // restaurantLatitude:Number,
-        // restaurantLongitude:Number
-    },
-    cuisine:[String],
-    review:[reviewSchema],
+// const restaurantSchema1 = mongoose.Schema({
+//     restaurantName:String,
+//     restaurantEmail:String,
+//     restaurantOwner:String,
+//     restaurantImage:String,
+//     menuImage:[String],
+//     restaurantAddress:String,
+//     restaurantPhoneNo:Number,
+//     restaurantOwnerId:String,
+//     offer:Number,
+//     rating:Number,
+//     averagePrice:Number,
+//     information:String,
+//     service:[serviceSchema],
+//     category:[categorySchema],
+//     openingTime:{
+//         lunch:String,
+//         dinner:String
+//     },
+//     leaveDay:String,
+//     restaurantLocation:{
+//         type:{type:String},
+//         coordinates: [Number]
+//         // restaurantLatitude:Number,
+//         // restaurantLongitude:Number
+//     },
+//     cuisine:[String],
+//     review:[reviewSchema],
    
-    deleteFlag:{
-        type:String,
-        default:"false"
-    }
-})
-restaurantSchema1.index({ restaurantLocation: '2dsphere'})
+//     deleteFlag:{
+//         type:String,
+//         default:"false"
+//     }
+// })
+// restaurantSchema1.index({ restaurantLocation: '2dsphere'})
 
 
 const ingredientSchema = mongoose.Schema({
@@ -141,7 +139,6 @@ const menuSchema = mongoose.Schema({
     cuisine:String,
     restaurantId:String,
     restaurantDetails:Object,
-    // offer:Number,
     option:[optionSchema],
     count:{
         type:Number,
@@ -193,7 +190,7 @@ const restaurantRatingSchema =mongoose.Schema({
 
 const image = mongoose.model('imageSchema',imageSchema)
 const restaurant = mongoose.model("restaurantSchema",restaurantSchema)
-const restaurant1 = mongoose.model("restaurantSchema1",restaurantSchema1)
+// const restaurant1 = mongoose.model("restaurantSchema1",restaurantSchema1)
 
 const menu = mongoose.model("menuSchema",menuSchema)
 const restaurantReview = mongoose.model("restaurantReviewSchema",restaurantReviewSchema)
@@ -202,6 +199,6 @@ const restaurantRating = mongoose.model("restaurantRatingSchema",restaurantRatin
 
 
 module.exports={
-    restaurant1,
+    // restaurant1,
     image,restaurant,menu,restaurantReview,restaurantRating
 }

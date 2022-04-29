@@ -1,5 +1,7 @@
 const paymentController = require("../model/paymentSchema")
-const razorpay = require('razorpay')
+const jwt = require('jsonwebtoken')
+const razorpay = require('razorpay');
+const { convertSpeed } = require("geolib");
 
 
 const createOrderId =(req,res)=>{
@@ -22,6 +24,9 @@ const createOrderId =(req,res)=>{
 
 
 const createPayment = (req,res)=>{
+    const token = jwt.decode(req.headerds.authorization)
+    const verify = token.userid
+    req.body.userId = verify
     paymentController.payment.create(req.body,(err,data)=>{
         if(err)throw err
         console.log(data.role);

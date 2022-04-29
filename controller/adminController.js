@@ -303,7 +303,7 @@ function paginated(model,req,res) {
 }
 
 
-const packagePlan =(req,res)=>{
+const packagePlan =(req,res)=>{ 
     try{
         const token = jwt.decode(req.headers.authorization)
         const verify = token.userid

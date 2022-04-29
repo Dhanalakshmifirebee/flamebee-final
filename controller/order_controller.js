@@ -16,6 +16,7 @@ const orderDetails = (req, res) => {
                         console.log(count)
                         restaurantController.menu.findOneAndUpdate({ _id: foodId }, { $set: { count: count } }, { new: true }, (err, data3) => {
                             if(err) throw err
+                            console.log(data3)
                             console.log(data1.foodSchema)
                             var result = data1.foodSchema
                             result.map((x)=>{
@@ -231,7 +232,11 @@ const popularFood = (req,res)=>{
         restaurantController.menu.aggregate([{$sort:{count:-1}}],(err,data)=>{
             if(err) throw err
             console.log(data)
-            res.status(200).send({message:data})
+            var count=data.length
+            console.log(count)
+            const data1=paginated.paginated(data,req,res)
+            res.status(200).send({message:data1,count})
+            
         })
     }
     catch(err){

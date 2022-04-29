@@ -1,10 +1,13 @@
 const restaurantController = require('../model/restaurantSchema')
 const responseController = require('../model/responseSchema')
 const adminController = require('../model/adminSchema')
+const {location} = require("../model/RestaurantLocation")
 const jwt = require('jsonwebtoken')
 const geolib = require('geolib')
 const { Z_BEST_COMPRESSION } = require('zlib')
 const paginated=require('./adminController')
+const nodeGeocoder = require('node-geocoder');
+
 const { type } = require('express/lib/response')
 
 
@@ -25,6 +28,18 @@ const image = (req,res)=>{
 
 // Restaurant
 
+const getLatLongByLocation = async(req,res)=>{
+    let options = { provider: 'openstreetmap'}
+    let geoCoder = nodeGeocoder(options);
+    const convertAddressToLatLon=await(geoCoder.geocode(req.body.location))
+    req.body.locationLatLong = {"latitude":convertAddressToLatLon[0].latitude,"longitude":convertAddressToLatLon[0].longitude}
+    location.create(req.body,(err,data)=>{
+        console.log(data)
+        res.status(200).send({message:data})
+    })
+}
+
+
 const createRestaurant = (req,res)=>{
     try{
         const adminToken = jwt.decode(req.headers.authorization) 
@@ -38,10 +53,15 @@ const createRestaurant = (req,res)=>{
                         console.log(data1.expiredDate);
                         console.log(new Date().toLocaleString());
                         if(data1.expiredDate>new Date().toLocaleString()){
-                            restaurantController.restaurant.countDocuments({restaurantOwnerId:verifyId},(err,num)=>{
+                            restaurantController.restaurant.countDocuments({restaurantOwnerId:verifyId},async(err,num)=>{
                                 console.log(num)
                                     if(num<=3){
                                         req.body.restaurantOwnerId = verifyId
+                                        let options = { provider: 'openstreetmap'}
+                                        let geoCoder = nodeGeocoder(options);
+                                        const convertAddressToLatLon=await(geoCoder.geocode(req.body.restaurantAddress))
+                                        console.log(convertAddressToLatLon);
+                                        req.body.restaurantLocation = {"restaurantLatitude":convertAddressToLatLon[0].latitude,"restaurantLongitude":convertAddressToLatLon[0].longitude}
                                         restaurantController.restaurant.create(req.body,(err,data2)=>{
                                         res.status(200).send({message:"Restaurant created Successfully",data2})
                                         })
@@ -54,15 +74,20 @@ const createRestaurant = (req,res)=>{
                                     }
                             }) 
                         }
-                }
+                    }
                 
     
                 if(data1.packageDetails.packagePlan=="6 months"){
                     if(data1.expiredDate>new Date().toLocaleString()){
-                            restaurantController.restaurant.countDocuments({restaurantEmail:req.body.restaurantEmail},(err,num)=>{
+                            restaurantController.restaurant.countDocuments({restaurantEmail:req.body.restaurantEmail},async(err,num)=>{
                                 console.log(num)
                                     if(num==0){
                                         req.body.restaurantOwnerId = verifyId
+                                        let options = { provider: 'openstreetmap'}
+                                        let geoCoder = nodeGeocoder(options);
+                                        const convertAddressToLatLon=await(geoCoder.geocode(req.body.restaurantAddress))
+                                        console.log(convertAddressToLatLon);
+                                        req.body.restaurantLocation = {"restaurantLatitude":convertAddressToLatLon[0].latitude,"restaurantLongitude":convertAddressToLatLon[0].longitude}
                                         restaurantController.restaurant.create(req.body,(err,data4)=>{
                                         res.status(200).send({message:"Restaurant created Successfully",data4})
                                         })
@@ -74,17 +99,22 @@ const createRestaurant = (req,res)=>{
                     }else{
                         adminController.packagePlanSchema.findOneAndUpdate({adminId:verifyId},{$set:{status:"inActive"}},{new:true},(err,data3)=>{
                             console.log(data3)
-                            res.status.send({message:'Your Free packagePlan is expired,please subscribe package plan'})
+                            res.status.send({message:'Your 6months packagePlan is expired,please subscribe package plan'})
                         })
                     }
                 }
 
                 if(data1.packageDetails.packagePlan=="12 months"){
                     if(data1.expiredDate>new Date().toLocaleString()){
-                            restaurantController.restaurant.countDocuments({restaurantEmail:req.body.restaurantEmail},(err,num)=>{
+                            restaurantController.restaurant.countDocuments({restaurantEmail:req.body.restaurantEmail},async(err,num)=>{
                                 console.log(num)
                                     if(num==0){
                                         req.body.restaurantOwnerId = verifyId
+                                        let options = { provider: 'openstreetmap'}
+                                        let geoCoder = nodeGeocoder(options);
+                                        const convertAddressToLatLon=await(geoCoder.geocode(req.body.restaurantAddress))
+                                        console.log(convertAddressToLatLon);
+                                        req.body.restaurantLocation = {"restaurantLatitude":convertAddressToLatLon[0].latitude,"restaurantLongitude":convertAddressToLatLon[0].longitude}
                                         restaurantController.restaurant.create(req.body,(err,data4)=>{
                                         res.status(200).send({message:"Restaurant created Successfully",data4})
                                         })
@@ -96,7 +126,7 @@ const createRestaurant = (req,res)=>{
                     }else{
                         adminController.packagePlanSchema.findOneAndUpdate({adminId:verifyId},{$set:{status:"inActive"}},{new:true},(err,data3)=>{
                             console.log(data3)
-                            res.status.send({message:'Your Free packagePlan is expired,please subscribe package plan'})
+                            res.status.send({message:'Your 12months packagePlan is expired,please subscribe package plan'})
                         })
                     }
                 }
@@ -172,6 +202,9 @@ const updateRestaurantWithFood = (req,res)=>{
         res.status(500).send({message:err})
     }
 }
+
+
+
 
 
 const createRestaurant1 = (req,res)=>{
@@ -276,8 +309,10 @@ const getRestaurantByLocation = (req,res)=>{
         console.log("data")
         restaurantController.restaurant.find({},(err,data)=>{
            const datas=data.filter(((result)=>filterLocation(result,5000,req.params.latitude,req.params.longitude)))
-           res.status(200).send({message:"nearby Restaurant Details",datas})
-         
+           var count=datas.length
+           console.log(count)
+           const data1=paginated.paginated(datas,req,res)
+           res.status(200).send({message:data1,count})
         })
     }
     catch(err){
@@ -305,7 +340,11 @@ const getRestaurantLocationByRating = (req,res)=>{
                   _id: "$_id",
                   data: { $push: "$data" }
                 }},{$project:{"restaurantDetails.foodList.restaurantDetails":0}}],(err,data2)=>{
-                    res.status(200).send({message:data2})
+                    var count=data2.length
+                    console.log(count)
+                    // const data1=paginated.paginated(data2,req,res)
+                    res.status(200).send({message:data2,count})
+                    
                 })
             })
         })
@@ -363,8 +402,11 @@ const getRestaurantLocationByOffer = (req,res)=>{
                 { $group: {
                   _id: "$_id",
                   data: { $push: "$data" }
-                }}],(err,data2)=>{
-                    res.status(200).send({message:data2})
+                }},{$project:{"restaurantDetails.foodList.restaurantDetails":0}}],(err,data2)=>{
+                    var count=data2.length
+                    console.log(count)
+                    // const data1=paginated.paginated(data2,req,res)
+                    res.status(200).send({message:data2,count})
                 })
             })
         })
@@ -374,95 +416,94 @@ const getRestaurantLocationByOffer = (req,res)=>{
     }
 }
 
+
+
 const filterFood = (req,res)=>{
-//     // console.log(req.body.category)
-//     console.log(Object.keys(req.body).length);
-//     var key = [];
-//     key.push(...Object.keys(req.body))
-//     console.log(key);
-//     var l = [];
-//     var value = [];
-//     l.push(...Object.values(req.body))
-//     console.log(l);             
-// for(var i = 0 ; i < l.length; i ++){
-//    value.push(...l[i])
-// }
-// console.log(value);
-    var a = req.body.cuisine
-    console.log("line 279",a);
-    var b = req.body.rating
-    console.log("line 279",b);
-    var c = req.body.price
-    console.log("line 279",c);
-    var d = req.body.distance
+    try{
+        console.log(req.body)
+        console.log(req.query);
     
-    restaurantController.restaurant.find({},{"foodList.restaurantDetails":0},(err,data)=>{
-        const datas=data.filter(((result)=>filterLocation(result,d,req.query.latitude,req.query.longitude)))
-        // var arr = []
-        // var cuisine = []
-        // var foodPrice = []
-        // var rating =[]
-        // data.map((x)=>{
-        //     arr.push(x.cuisine)
-        // })
-         
-        // data.map((z)=>{
-        //    rating.push(z.rating)
-        // })
-   
-        // for(var p = 0 ; p < arr.length; p++){
-        //    cuisine.push(...arr[p])
-        // }
-        // console.log("line 299",cuisine)
-        // console.log("line 300",foodPrice)
-        // console.log("line 306",rating)
-        const result = []
-        var result1 = []
-        console.log(a)
-        if(a!==null && a!==undefined){
-           for(var i=0;i<a.length;i++){
-               for(var j=0;j<datas.length;j++){
-                    for(var k=0;k<datas[j].cuisine.length;k++){
-                       if(a[i]===datas[j].cuisine[k]){
-                           console.log("dfg")
-                           result1.push(datas[j])
-                       }
+    //     console.log(Object.keys(req.body).length);
+    //     var key = [];
+    //     key.push(...Object.keys(req.body))
+    //     console.log(key);
+    //     var l = [];
+    //     var value = [];
+    //     l.push(...Object.values(req.body))
+    //     console.log(l);             
+    // for(var i = 0 ; i < l.length; i ++){
+    //    value.push(...l[i])
+    // }
+    // console.log(value);
+        var a = req.body.cuisine
+        console.log("line 279",a);
+        var b = req.body.rating
+        console.log("line 425",b);
+        var c = req.body.price
+        console.log("line 427",c);
+        var d = req.body.distance
+        
+        restaurantController.restaurant.find({},{"foodList.restaurantDetails":0},(err,data)=>{
+            if(data){
+                const datas=data.filter(((result)=>filterLocation(result,d,req.body.latitude,req.body.longitude)))
+           
+                const result = []
+                var result1 = []
+                console.log(a)
+                if(a!==null && a!==undefined){
+                   for(var i=0;i<a.length;i++){
+                       for(var j=0;j<datas.length;j++){
+                            for(var k=0;k<datas[j].cuisine.length;k++){
+                               if(a[i]===datas[j].cuisine[k]){
+                                   console.log("dfg")
+                                   result1.push(datas[j])
+                               }
+                            }
+                        }
                     }
+                    result.push(...result1)
                 }
-            }
-            result.push(...result1)
-        }
-
-        var result2 =[]
-        if(b!==null && b!==undefined){
-            for(var i=0;i<b.length;i++){
-                for(var j=0;j<datas.length;j++){
-                     if(b[i]== datas[j].rating){
-                        result2.push(datas[j])
+        
+                var result2 =[]
+                if(b!==null && b!==undefined){
+                    for(var i=0;i<b.length;i++){
+                        for(var j=0;j<datas.length;j++){
+                             if(b[i]== datas[j].rating){
+                                result2.push(datas[j])
+                             }
+                         }
                      }
-                 }
-             }
-             result.push(...result2)
-        }
-       
-    
-        var result3 =[]
-        if(c!==null ||c!==undefined){
-           for(var i=0;i<datas.length;i++){
-               for(var j=0;j<datas[i].foodList.length;j++){
-                   if(c==datas[i].foodList[j].foodPrice){
-                       result3.push(datas[i])
+                    result.push(...result2)
+                }
+               
+            
+                var result3 =[]
+                if(c!==null ||c!==undefined){
+                   for(var i=0;i<datas.length;i++){
+                       for(var j=0;j<datas[i].foodList.length;j++){
+                           if(c<datas[i].foodList[j].foodPrice){
+                               result3.push(datas[i])
+                           }
+                       }
                    }
-               }
-           }
-           result.push(...result3)
-        }
-        console.log("line 342",result3)
-       const  uniqueElements = [...new Set(result)]
-       console.log("348",uniqueElements);
-       res.status(200).send(uniqueElements);
-
-    })
+                   result.push(...result3)
+                }
+               console.log("line 342",result3)
+               const  uniqueElements = [...new Set(result)]
+               console.log("348",uniqueElements);
+               res.status(200).send(uniqueElements);
+        
+            }
+            else{
+                res.status(400).send({message:err})
+            }
+           
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err})
+    }
+   
 }
         // for(var i = 0; i< key.length;i ++){           //key
         //     for (var j  = 0 ; j< value.length; j ++){     // value
@@ -616,7 +657,7 @@ function filterLocation(result,radius,latitude,longitude)
 const addFood =async(req,res)=>{
    try{
         console.log(req.body.restaurantId)
-        restaurantController.restaurant.findById({_id:req.body.restaurantId},(err,data)=>{
+        restaurantController.restaurant.findById({_id:req.body.restaurantId},{foodList:0},(err,data)=>{
             console.log(data)
             req.body.restaurantDetails = data
             restaurantController.menu.create(req.body, (err, data1) => {
@@ -665,7 +706,7 @@ const getFoodByOwner = (req,res)=>{
 const updateFood = (req,res)=>{
     try{
         console.log(req.body)
-        restaurantController.menu.findByIdAndUpdate(req.params.id, req.body, { new: true }, (err, data) => {
+        restaurantController.menu.findByIdAndUpdate(req.params.foodId, req.body, { new: true }, (err, data) => {
             if (err) { res.status(400).send({ message: 'invalid restarauntid' }) }
             else {
                 console.log(data)
@@ -678,7 +719,7 @@ const updateFood = (req,res)=>{
 }
 
 const deleteFood = (req, res) => {
-    restaurantController.menu.findByIdAndUpdate(req.params.id, { deleteFlag: "true" }, { new: true }, (err, data) => {
+    restaurantController.menu.findByIdAndUpdate(req.params.foodId, { deleteFlag: "true" }, { new: true }, (err, data) => {
         if (err) { res.status(400).send({ message: 'data is not deleted yet' }) }
         else {
             console.log(data)
@@ -690,10 +731,16 @@ const deleteFood = (req, res) => {
 
 const filterFoodByPriceLowToHigh = (req,res)=>{
     try{
-        restaurantController.menu.aggregate([{$sort:{foodPrice:1}}],(err,data)=>{
+        restaurantController.menu.aggregate([{$sort:{foodPrice:1}},{$project:{"restaurantDetails.foodList":0}}],(err,data)=>{
+            const datas=data.filter(((result)=>filterLocationForFood(result,5000,req.query.latitude,req.query.longitude)))
             if(err) throw err
-            console.log(data)
-            res.status(200).send({message:data})
+            console.log(datas.length)
+            // console.log(data.length)
+            var count=datas.length
+            console.log(count)
+            const data1=paginated.paginated(datas,req,res)
+            res.status(200).send({message:data1,count})
+            
         })
     }
     catch(err){
@@ -705,10 +752,15 @@ const filterFoodByPriceLowToHigh = (req,res)=>{
 
 const filterFoodByPriceHighToLow = (req,res)=>{
     try{
-        restaurantController.menu.aggregate([{$sort:{foodPrice:-1}}],(err,data)=>{
+        restaurantController.menu.aggregate([{$sort:{foodPrice:-1}},{$project:{"restaurantDetails.foodList":0}}],(err,data)=>{
+            const datas=data.filter(((result)=>filterLocationForFood(result,5000,req.query.latitude,req.query.longitude)))
             if(err) throw err
-            console.log(data)
-            res.status(200).send({message:data})
+            console.log(datas.length)
+            var count=datas.length
+            console.log(count)
+            const data1=paginated.paginated(datas,req,res)
+            res.status(200).send({message:data1,count})
+           
         })
     }
     catch(err){
@@ -885,7 +937,10 @@ const getRestaurantReview = (req,res)=>{
     try{
         restaurantController.restaurantReview.find({restaurantId:req.params.id},(err,data)=>{
             if(err) throw err
-            res.status(200).send({message:data})
+            var count=data1.length
+            console.log(count)
+            const data1=paginated.paginated(data,req,res)
+            res.status(200).send({message:data1,count})
         })
     }
     catch(err){
@@ -919,7 +974,7 @@ const searchAPI = (req,res)=>{
             req.body.data = datas
             responseController.responseRestaurant.create(req.body,(err,data1)=>{
                 console.log("line 547",data1)
-                responseController.responseRestaurant.aggregate([{$match:{_id:data1._id}},{ $unwind:"$data"},{$match:{$or:[{"data.restaurantName":req.params.key},{"data.foodList.foodName":req.params.key}]}},{ $group: {
+                responseController.responseRestaurant.aggregate([{$match:{_id:data1._id}},{ $unwind:"$data"},{$match:{$or:[{"data.restaurantName":req.params.key},{"data.foodList.foodName":req.params.key}]}},{$project:{"data.foodList.restaurantDetails":0}},{ $group: {
                     _id: "$_id",
                     data: { $push: "$data" }
                     }}],(err,data)=>{
@@ -941,8 +996,11 @@ const searchAPI = (req,res)=>{
 // {$or:[{"restaurantName":req.params.key},{"restaurantName":req.params.key}]}
 
 
+
+
 module.exports={
     image,
+    getLatLongByLocation,
     createRestaurant,
     updateRestaurantWithFood,
     createRestaurant1,
@@ -970,5 +1028,6 @@ module.exports={
     createRestaurantReview,
     getRestaurantReview,
     restaurantRating,
-    searchAPI
+    searchAPI,
+    
 }
