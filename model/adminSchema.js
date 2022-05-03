@@ -6,11 +6,40 @@ const registerSchema = mongoose.Schema({
     email: String,
     contact:Number,
     password: String,
-    confirmPassword:String,
-    deleteFlag: {
-        type: String,
-        default: false
-    }
+    // confirmPassword:String,
+    // deleteFlag: {
+    //     type: String,
+    //     default: false
+    // },
+    // subscriptionPlan:{
+    //     type:String,
+    //     default:0
+    // },
+    // paymentStatus:{
+    //     type:String,
+    //     default:"free"
+    // },
+    // subscriptionStartDate:{
+    //     type:String,
+    //     default:0
+    // },
+    // subscriptionEndDate:{
+    //     type:String,
+    //     default:0
+    // },
+    // validityDays:{
+    //     type:String,
+    //     default:0
+    // },
+    // status:{
+    //     type:String,
+    //     default:0
+    // },
+    // free:{
+    //     type:String,
+    //     default:"false"
+    // }
+
     // restaurantOwned:[]
 })
 
@@ -44,13 +73,41 @@ const adminRequestSchema = mongoose.Schema({
     confirmPassword:String,
     bankDetails:{
         bankName:String,
-        AccountNumber:Number,
+        accountNumber:Number,
         ifscCode:String,
         panNumber:Number
     },
     status:{
         type:String,
-        default:false
+        default: "false"
+    },
+    subscriptionPlan:{
+        type:String,
+        default:0
+    },
+    paymentStatus:{
+        type:String,
+        default:"free"
+    },
+    subscriptionStartDate:{
+        type:String,
+        default:0
+    },
+    subscriptionEndDate:{
+        type:String,
+        default:0
+    },
+    validityDays:{
+        type:String,
+        default:0
+    },
+    planStatus:{
+        type:String,
+        default:0
+    },
+    free:{
+        type:String,
+        default:"false"
     }
 })
 
@@ -59,19 +116,13 @@ const packagePlan = mongoose.Schema({
     adminId:String,
     packageDetails:Object,
     status:String,
-    createdAt:{
-        type:String,
-        default:new Date()
-    },
-    expiredDate:String
     // createdAt:{
-    //     type:Number,
+    //     type:String,
     //     default:new Date()
     // },
-    // expiredDate:{
-    //     type:Number,
-    //     default:new Date(new Date().setDate(new Date().getDate() + 180))
-    // }
+    expiredDate:String,
+    validityDays:Number
+    
 })
 
 

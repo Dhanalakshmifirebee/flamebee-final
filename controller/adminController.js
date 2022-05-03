@@ -4,6 +4,10 @@ const { validationResult } = require('express-validator')
 const bcrypt = require('bcrypt')
 const fast2sms=require('fast-two-sms')
 const otpRandamString=require('../controller/random_string')
+const paymentController = require('../model/paymentSchema')
+const moment = require('moment')
+const mongoose = require('mongoose')
+const nodemailer = require('nodemailer') 
 
 
 const register = async (req, res) => {
@@ -15,20 +19,20 @@ const register = async (req, res) => {
             adminSchema.countDocuments({email:req.body.email,contact:req.body.contact}, async (err, data) => {
                 console.log(data);
                 if (data == 0){
-                    const confirmPassword=req.body.confirmPassword
-                   if(req.body.password==confirmPassword){
-                    req.body.password = await bcrypt.hash(req.body.password, 10)
+                    req.body.password = await bcrypt.hash(req.body.password,10)
+                    console.log(req.body);
                     adminSchema.create(req.body, (err, result) => {
+                        if(err) throw err
+                        
+                        console.log(result);
                         if (result) {
                             res.status(200).send({success:"true",message: 'Add admin successfully', data:result })
 
                         } else {
-                            res.staus(400).send({success:"false",message: 'fail to create data' })
+                            res.status(400).send({success:"false",message: 'fail to create data' })
                         }
                     })
-                   }else{
-                       res.status(400).send({success:"false",message:"password & confirm password does not match"})
-                   }
+                  
                    
                 } else {
                     res.status(400).send({ success:"false",message: 'email is already exists' })
@@ -41,33 +45,40 @@ const register = async (req, res) => {
 
 }
 
+
 const login = async(req, res) => {
     try {
         if (!req.body.contact) {
             console.log('line 43',req.body.email)
             console.log('line 44',req.body.password)
             adminSchema.findOne({ email: req.body.email}, async (err, data1) => {
-            //     packagePlanSchema.findOne({adminId:data1._id},async(err,data2)=>{
-            //         if(data2.packageDetails.packagePlan=="6 months"){
-            //             const verifyPassword = await bcrypt.compare(req.body.password,data1.password)
-            //             if (verifyPassword == true) {
-            //                 const token = jwt.sign({ userid: data1._id },'secret',{expiresIn: '180d'})
-            //                 console.log("line 59",data1)
-            //                 res.status(200).send({ message: data1, token })
-            //             } else {
-            //                 res.status(400).send({ message:'invalid password' })
-            //             }
-            //         }
-            //  })
                 if(data1){
-                    const verifyPassword = await bcrypt.compare(req.body.password,data1.password)
-                    if (verifyPassword == true) {
-                        const token = jwt.sign({ userid: data1._id }, 'secret')
-                        console.log("line 59",data1)
-                        res.status(200).send({ message: data1, token })
-                    } else {
-                        res.status(400).send({ message:'invalid password' })
-                    }
+                        const otp = otpRandamString.randomString(3)
+                        console.log("otp", otp)
+                        sendOtp.create({otp: otp },async (err,datas) => {
+                            console.log("line 72", datas)
+                            if(err){throw err}
+                            if (datas) {
+                                console.log("line 75", datas)
+                                const to = req.body.email
+                                postMail(to,"FlameBee","Please use the following OTP to verify your email:  "+otp)
+                                // const response = await fast2sms.sendMessage({ authorization:"SLAea84yPOZ0fqdcvYMtlKgoFb5uQkpsrTDjmNhJ2En93I1i6UFdoPe6LkK0QiMsSm2qRbahY9yXtrGZ",message:otp,numbers:[req.body.contact]})
+                                console.log("line 77",otp)
+                              // const token = await jwt.sign({ userid: data._id }, 'secret')
+                              const token = jwt.sign({ userid: data1._id }, 'secret')
+                              console.log("line 59",data1)
+                              res.status(200).send({ message: "verification otp send your email",otp,data1,token})
+                                setTimeout(() => {
+                                   sendOtp.findOneAndDelete({ otp: otp },{returnOriginal:false}, (err, result) => {
+                                        console.log("line 81", result)
+                                        if(err){throw err}
+                                    })
+                                }, 30000)
+                            }else{res.status(400).send('otp does not send')}  
+                        }) 
+                       
+                        // res.status(200).send({ message: data1, token })
+                    
                 }
                 else{
                     // adminSchema.create(req.body,(err,data)=>{
@@ -104,7 +115,7 @@ const login = async(req, res) => {
                                 if(err){throw err}
                                 if (datas) {
                                 console.log("line 75", datas)
-                        const response = await fast2sms.sendMessage({ authorization: process.env.OTPKEY,message:otp,numbers:[req.body.contact]})
+                        const response = await fast2sms.sendMessage({ authorization:"SLAea84yPOZ0fqdcvYMtlKgoFb5uQkpsrTDjmNhJ2En93I1i6UFdoPe6LkK0QiMsSm2qRbahY9yXtrGZ",message:otp,numbers:[req.body.contact]})
                         console.log("line 77",response,otp)
                        // const token = await jwt.sign({ userid: data._id }, 'secret')
                     
@@ -149,6 +160,42 @@ const login = async(req, res) => {
     }
 }
 
+let transport = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'dhanamcse282@gmail.com',
+        pass: 'dhanam282'
+    }
+})
+
+let postMail = function ( to, subject, text) {
+    transport.sendMail({
+        from: 'dhanamcse282@gmail.com',
+        to: to,
+        subject: subject,
+        text: text,
+    })
+}
+
+
+const verifyEmail = (req,res)=>{
+    try{
+        adminSchema.findOne({email:req.body.email},(err,data)=>{
+            if(data){
+                res.status(200).send({message:"exist"})
+            }
+            else{
+                res.status(400).send({message:"new"})
+            }
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err})
+    }
+}
+
+
+
 const verifyContact = (req,res)=>{
     try{
         adminSchema.findOne({contact:req.body.contact},(err,data)=>{
@@ -164,6 +211,7 @@ const verifyContact = (req,res)=>{
         res.status(500).send({message:err})
     }
 }
+
 
 // let transport = nodemailer.createTransport({
 //     service: 'gmail',
@@ -187,6 +235,8 @@ const verifyContact = (req,res)=>{
 
 
 //
+
+
 const getAllOwnersUser = (req, res) => {
     try {
 
@@ -233,6 +283,7 @@ const getByOwnerUserId = (req, res) => {
     }
 }
 
+
 const updateOwnerUser = async (req, res) => {
     try {
         console.log('hai 108')
@@ -254,6 +305,7 @@ const updateOwnerUser = async (req, res) => {
     }
 }
 
+
 const deleteOwnerUser = (req, res) => {
     try {
         // console.log(req.body._id)
@@ -273,6 +325,7 @@ const deleteOwnerUser = (req, res) => {
         res.status(500).send({ message: e })
     }
 }
+
 
 function paginated(model,req,res) {
     // return () => {
@@ -303,56 +356,133 @@ function paginated(model,req,res) {
 }
 
 
-const packagePlan =(req,res)=>{ 
+const packagePlan =async(req,res)=>{ 
     try{
         const token = jwt.decode(req.headers.authorization)
         const verify = token.userid
-        req.body.adminId = verify
-        if(req.body.packageDetails.packagePlan == "Free"){
-                var createdAt = new Date();
-                console.log(createdAt.toLocaleString())
-                var noOfDays = 30;
-                var result = createdAt.setDate(createdAt.getDate() + noOfDays);
-                var expiredDate = new Date(result).toLocaleString()
-                console.log(expiredDate)
-                req.body.expiredDate = expiredDate
-            packagePlanSchema.create(req.body,(err,data)=>{
-                if(err) throw err
-                res.status(200).send({message:data})
-            })
+        console.log(verify);
+        const alreadyExists = await paymentController.packagePayment.aggregate([{$match:{adminId:verify}}])
+        console.log(alreadyExists.length)
+        if(alreadyExists.length!=0){
+            console.log("inside if");
+            const adminData = await adminSchema.aggregate([{$match:{_id:new mongoose.Types.ObjectId(verify)}}])
+            console.log(adminData)
+            const oldDate = new Date(adminData[0].subscriptionEndDate)
+            const currentDate = new Date()
+            const differInDays = moment(oldDate).diff(moment(currentDate),'days')
+            console.log(differInDays);
+            if(req.body.subscriptionPlan == "3 months"){
+                req.body.validityDays = 90+differInDays
+                req.body.subscriptionEndDate = moment(new Date()).add(90+differInDays,'days').toISOString()
+            }
+            if(req.body.subscriptionPlan == "6 months"){
+                req.body.validityDays = 180+differInDays
+                req.body.subscriptionEndDate = moment(new Date()).add(180+differInDays,'days').toISOString()
+            }
+            if(req.body.subscriptionPlan == "12 months"){
+                req.body.validityDays = 365+differInDays
+                req.body.subscriptionEndDate = moment(new Date()).add(365+differInDays,'days').toISOString()
+            }
+            req.body.adminId = verify
+            const createPaymentAgain = await paymentController.packagePayment.create(req.body)
         }
-        if(req.body.packageDetails.packagePlan == "6 months"){
-                var createdAt = new Date();
-                console.log(createdAt.toLocaleString())
-                var noOfDays = 180;
-                var result = createdAt.setDate(createdAt.getDate() + noOfDays);
-                var expiredDate = new Date(result).toLocaleString()
-                console.log(expiredDate)
-                req.body.expiredDate = expiredDate
-            packagePlanSchema.create(req.body,(err,data)=>{
-                if(err) throw err
-                res.status(200).send({message:data})
-            })
+        else{
+            console.log("inside else")
+            req.body.adminId = verify
+            req.body.subscriptionStartDate = moment().format()
+            const paymentCreated =await paymentController.packagePayment.create(req.body)
+            console.log(paymentCreated);
+            if(paymentCreated.subscriptionPlan == "Free"){
+                req.body.subscriptionEndDate = moment(paymentCreated.subscriptionStartDate).add(30,'days').toISOString()
+                console.log(req.body.subscriptionEndDate)
+                req.body.validityDays = 30
+                req.body.free = "true"
+            }
+            if(paymentCreated.subscriptionPlan == "3 months"){
+                req.body.subscriptionEndDate = moment(paymentCreated.subscriptionStartDate).add(90,'days').toISOString()
+                console.log(req.body.subscriptionEndDate)
+                req.body.validityDays = 90
+            }
+           if(paymentCreated.subscriptionPlan == "6 months"){
+                req.body.subscriptionEndDate = moment(paymentCreated.subscriptionStartDate).add(180,'days').toISOString()
+                console.log(req.body.subscriptionEndDate)
+                req.body.validityDays = 180
+            }
+            if(paymentCreated.subscriptionPlan == "12 months"){
+                req.body.subscriptionEndDate = moment(paymentCreated.subscriptionStartDate).add(365,'days').toISOString()
+                console.log(req.body.subscriptionEndDate)
+                req.body.validityDays = 365
+            }
+            req.body.orderId = paymentCreated.orderId
+            req.body.paymentStatus = "paid"
+            req.body.status="active"
         }
-        if(req.body.packageDetails.packagePlan == "12 months"){
-                var createdAt = new Date();
-                console.log("line 326",createdAt)
-                var noOfDays = 365;
-                var result = createdAt.setDate(createdAt.getDate() + noOfDays);
-                var expiredDate = new Date(result).toLocaleString()
-                console.log("line 330",expiredDate)
-                req.body.expiredDate = expiredDate
-            packagePlanSchema.create(req.body,(err,data)=>{
-                if(err) throw err
-                res.status(200).send({message:data})
-            })
-        }
+        const adminUpdate = await adminSchema.findOneAndUpdate({_id:verify},req.body,{new:true})
+        res.status(200).send({message:"payment created Successfully"})
+        // if(req.body.packageDetails.packagePlan == "Free"){
+        //         var createdAt = new Date();
+        //         console.log(createdAt.toLocaleString())
+        //         var validityDays = 30;
+        //         var result = createdAt.setDate(createdAt.getDate() + validityDays);
+        //         var expiredDate = new Date(result).toLocaleString()
+        //         console.log(expiredDate)
+        //         req.body.expiredDate = expiredDate
+        //         req.body.validityDays = validityDays
+        //     packagePlanSchema.create(req.body,(err,data)=>{
+        //         if(err) throw err
+        //         res.status(200).send({message:data})
+        //     })
+        // }
+        // if(req.body.packageDetails.packagePlan == "6 months"){
+        //         var createdAt = new Date();
+        //         console.log(createdAt.toLocaleString())
+        //         var validityDays = 180;
+        //         var result = createdAt.setDate(createdAt.getDate() + validityDays);
+        //         var expiredDate = new Date(result).toLocaleString()
+        //         console.log(expiredDate)
+        //         req.body.expiredDate = expiredDate
+        //         req.body.validityDays = validityDays
+        //     packagePlanSchema.create(req.body,(err,data)=>{
+        //         if(err) throw err
+        //         res.status(200).send({message:data})
+        //     })
+        // }
+        // if(req.body.packageDetails.packagePlan == "12 months"){
+        //         var createdAt = new Date();
+        //         console.log("line 326",createdAt)
+        //         var validityDays = 365;
+        //         var result = createdAt.setDate(createdAt.getDate() + validityDays);
+        //         var expiredDate = new Date(result).toLocaleString()
+        //         console.log("line 330",expiredDate)
+        //         req.body.expiredDate = expiredDate
+        //         req.body.validityDays = validityDays
+        //     packagePlanSchema.create(req.body,(err,data)=>{
+        //         if(err) throw err
+        //         res.status(200).send({message:data})
+        //     })
+        // }
         
     }
     catch(err){
         res.status(400).send({message:err})
     }
 }
+
+const getSingleAdminPackage = (req,res)=>{
+   
+    const token = jwt.decode(req.headers.authorization)
+    const verify = token.userid
+    adminSchema.findOne({_id:verify},(err,data)=>{
+        if(data){
+            res.status(200).send({message:data})
+        }
+        else{
+            res.status(400).send({message:"unauthorized"})
+        }
+        
+    })
+}
+
 
 
 const updatePackagePlan = (req,res)=>{
@@ -376,5 +506,7 @@ module.exports = {
     paginated,
     packagePlan,
     updatePackagePlan,
-    verifyContact
+    verifyContact,
+    verifyEmail,
+    getSingleAdminPackage
 }

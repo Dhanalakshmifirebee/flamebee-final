@@ -30,6 +30,7 @@ app.use('/flame/admin', admin)
 app.use('/flame/superAdmin', superAdmin)
 app.use('/flame/restaurant', restaraunt)
 // app.use('/f/r', restaraunt)
+
 // app.use('/flame/starRating',rating)
 app.use('/flame/delivery',delivery)
 // app.use('/flame/cardDetails',cardDetails)
@@ -52,8 +53,8 @@ app.use((req, res, next) => {
 
 app.use(errorThrower)
 
-app.listen(process.env.PORT, () => {
-    console.log("port running on ", process.env.PORT)
+app.listen(8613, () => {
+    console.log("port running on ", 8613)
 })
 
 

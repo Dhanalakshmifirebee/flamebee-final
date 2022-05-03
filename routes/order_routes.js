@@ -13,7 +13,9 @@ router.put('/deliveryCandidateUpdateStatusDetails',orderControllDetails.delivery
 router.put('/deliveryCandidateUpdateOrderDetails',orderControllDetails.deliveryCandidateUpdateOrderDetails)
 
 
+
 router.get('/popularFood',orderControllDetails.popularFood)
 router.get('/getSingleDeliveryCandidate/:id',orderControllDetails.getSingleDeliveryCandidate)
+router.put('/orderStatusUpdate/:id',orderControllDetails.orderStatusUpdate)
 
 module.exports=router

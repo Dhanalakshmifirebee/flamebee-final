@@ -2,6 +2,7 @@ const orderControll = require('../model/order_schema')
 const deliveryControll = require('../model/delivery_schema')
 const restaurantController = require('../model/restaurantSchema')
 const geolib = require('geolib')
+const paginated=require('./adminController')
 
 const orderDetails = (req, res) => {
     try {
@@ -244,9 +245,14 @@ const popularFood = (req,res)=>{
     }
 }
 
-
+const orderStatusUpdate = (req,res)=>{
+    orderControll.order.findOneAndUpdate({_id:req.params.id},{$set:{orderStatus:req.body.orderStatus}},{new:true},(err,data)=>{
+         if(err) throw err
+         res.status(200).send({message:"update successfully",data})
+    })
+}
 
 module.exports = {
     orderDetails, getAllOrderAcceptedDetails, getAllOrderDetails, getSingleOrderDetails,
-    adminUpdateOrderDetails, deliveryCandidateUpdateStatusDetails, deliveryCandidateUpdateOrderDetails,popularFood,getSingleDeliveryCandidate
+    adminUpdateOrderDetails, deliveryCandidateUpdateStatusDetails, deliveryCandidateUpdateOrderDetails,popularFood,getSingleDeliveryCandidate,orderStatusUpdate
 }

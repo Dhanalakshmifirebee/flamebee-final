@@ -48,7 +48,6 @@ const CreateCandidate=async(req,res)=>{
 }
 
 
-
 const candidateLogin=(req,res)=>{
     try{
     deliveryController.deliveryRegister.findOne({email:req.body.email,deleteFlag:"false"},(err,data)=>{
@@ -75,37 +74,41 @@ const candidateLogin=(req,res)=>{
     res.status(500).send({message:err.message})
 }
 }
+
+
 const CandidateSelection=(req,res)=>{
     try{
-        deliveryController.deliveryRegister.findById({_id:req.params.id},(err,data)=>{
-        console.log("line 36",data)
-        if(data){
-            if(req.body.role=="reject"){
-                postMail(data.email, 'Job information','sorry you are not qualified to our job' )
-                deliveryController.deliveryRegister.findOneAndUpdate({_id:data._id},{$set:{role:"reject",deleteFlag:'true'}},{new:true},(err,data)=>{
-                    if(err){throw err}
-                    else{
-                        console.log("line 43",data)
-                         res.status(200).send({message:"your not selected",data})}
-                })        
+            deliveryController.deliveryRegister.findById({_id:req.params.id},(err,data)=>{
+            console.log("line 36",data)
+            if(data){
+                if(req.body.role=="reject"){
+                    postMail(data.email, 'Job information','sorry you are not qualified to our job' )
+                    deliveryController.deliveryRegister.findOneAndUpdate({_id:data._id},{$set:{role:"reject",deleteFlag:'true'}},{new:true},(err,data)=>{
+                        if(err){throw err}
+                        else{
+                            console.log("line 43",data)
+                            res.status(200).send({message:"your not selected",data})}
+                    })        
+                }else{
+                    deliveryController.deliveryRegister.findOneAndUpdate({_id:req.params.id},{$set:{role:"accept",deleteFlag:"false"}},{new:true},(err,data)=>{
+                        console.log('line 83',data)
+                        if(data){
+                        postMail(data.email, 'job information(you are selected)',data.deliveryCandidateId)  
+                        res.status(200).send({message:"you are selected",data,deliveryCandidateId:data.deliveryCandidateId})
+                        }else{res.status(400).send({message:"invalid",err})}
+                    })
+                }
             }else{
-                deliveryController.deliveryRegister.findOneAndUpdate({_id:req.params.id},{$set:{role:"accept",deleteFlag:"false"}},{new:true},(err,data)=>{
-                    console.log('line 83',data)
-                    if(data){
-                    postMail(data.email, 'job information(you are selected)',data.deliveryCandidateId)  
-                    res.status(200).send({message:"you are selected",data,deliveryCandidateId:data.deliveryCandidateId})
-                    }else{res.status(400).send({message:"invalid",err})}
-                })
+                res.status(400).send('invalid id')
             }
-        }else{
-            res.status(400).send('invalid id')
-        }
-        
-    })
-}catch(err){
-    res.status(500).send({message:err.message})
+            
+        })
+    }catch(err){
+        res.status(500).send({message:err.message})
+    }
 }
-}
+
+
 const selectedCandidateList=(req,res)=>{
     try{
         console.log("line87",req.params.role)
@@ -122,6 +125,8 @@ const selectedCandidateList=(req,res)=>{
         res.status(500).send({message:err.message})
     }
 }
+
+
 let transport = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -129,6 +134,8 @@ let transport = nodemailer.createTransport({
         pass: 'dhanam282'
     }
 })
+
+
 const postMail = function ( to, subject, text) {
     return transport.sendMail({
         from: 'dhanamcse282@gmail.com',
@@ -137,6 +144,8 @@ const postMail = function ( to, subject, text) {
         text: text,
     })
 }
+
+
 const getAllCandidate=(req,res)=>{
     try{
     deliveryController.deliveryRegister.find({deleteFlag:'false',role:"candidate"},(err,data)=>{
@@ -150,6 +159,8 @@ const getAllCandidate=(req,res)=>{
     res.status(500).send({message:err.message})
 }
 }
+
+
 const getCandidateDetails=(req,res)=>{
     try{
         console.log(req.body)
@@ -163,6 +174,7 @@ const getCandidateDetails=(req,res)=>{
         res.status(500).send({message:err.message})
     }
 }
+
 
 const updateCandidateProfile=(req,res)=>{
     try{
@@ -181,6 +193,7 @@ const updateCandidateProfile=(req,res)=>{
         res.status(500).send({message:err.message})
     }
 }
+
 
 const deleteCandidateProfile=(req,res)=>{
     try{
@@ -230,6 +243,7 @@ const foodDelivery =(req,res)=>{
     })
     
 }
+
 
 function filterLocation(result,radius,latitude,longitude)
     {

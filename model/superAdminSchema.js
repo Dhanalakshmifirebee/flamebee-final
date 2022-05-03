@@ -10,18 +10,22 @@ const registerSchema = mongoose.Schema({
     }
 })
 
-const packageDetails = mongoose.Schema({
-    packageName:String,
-    packageDays:Number,
-    packagePlan :String,
-    restaurantCount:Number
+// const packageDetails = mongoose.Schema({
+   
+// })
 
-})
 
 const adminPackageSchema =mongoose.Schema({
-    package:[packageDetails]
-    
+    packageName:String,
+    amount:Number,
+    packagePlan :String,
+    description:String,
+    deleteFlag:{
+        type:String,
+        default:"false"
+    }
 })
+
 
 const register=mongoose.model('superAdmin',registerSchema)
 const adminPackage = mongoose.model("adminPackageSchema",adminPackageSchema)

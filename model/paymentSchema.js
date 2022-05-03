@@ -24,9 +24,22 @@ const paymentSchema = mongoose.Schema({
 })
 
 
+const packagePaymentSchema = mongoose.Schema({
+     orderId:String,
+     adminId:String,
+     subscriptionPlan:String,
+     packageAmount:{
+         type:String,
+         default:0
+     },
+     subscriptionStartDate:String,
+     subscriptionEndDate:String
+})
+
 
 const payment = mongoose.model("paymentSchema",paymentSchema)
+const packagePayment = mongoose.model("packageSchema",packagePaymentSchema)
 
 module.exports={
-      payment
+      payment,packagePayment
 }

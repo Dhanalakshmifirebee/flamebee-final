@@ -67,7 +67,7 @@ const createAdminPackage = (req,res)=>{
 
 const getPackagePlan = (req,res)=>{
     try{
-        superControll.adminPackage.find({},(err,data)=>{
+        superControll.adminPackage.find({deleteFlag:"false"},(err,data)=>{
             if(err) throw err
             res.status(200).send({message:data})
         })
@@ -78,5 +78,34 @@ const getPackagePlan = (req,res)=>{
    
 }
 
+const updatePackage = (req,res)=>{
+    try {
+        console.log(req.body)
+        superControll.adminPackage.findOneAndUpdate({_id:req.params.id}, req.body, { new: true }, (err, data) => {
+            if (err) { res.status(400).send({ message: 'invalid id' }) }
+            else {
+                console.log("line 143",data)
+                res.status(200).send({ message: 'updated successfully', data })
+            }
+        })
+    } catch (err) {
+        res.status(500).send({message: 'internal server error'})
+    }
+}
 
-module.exports={superAdminRegistration,superAdminLogin,createAdminPackage,getPackagePlan}
+const deletePackage = (req,res)=>{
+    try {
+        superControll.adminPackage.findByIdAndUpdate(req.params.id, { deleteFlag: "true" }, { returnOriginal: false }, (err, data) => {
+            console.log(data)
+            if (err) { res.status(400).send({ message: 'data does not deleted' }) }
+            else {
+                res.status(200).send({ message: 'data deleted successfully',data})
+            }
+        })
+    }catch (e) {
+        res.status(500).send({ message: e.message })
+    }
+}
+
+
+    module.exports={superAdminRegistration,superAdminLogin,createAdminPackage,getPackagePlan,updatePackage,deletePackage}
