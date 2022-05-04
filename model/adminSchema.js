@@ -5,7 +5,7 @@ const registerSchema = mongoose.Schema({
     name: String,
     email: String,
     contact:Number,
-    password: String,
+    // password: String,
     // confirmPassword:String,
     // deleteFlag: {
     //     type: String,
@@ -75,11 +75,11 @@ const adminRequestSchema = mongoose.Schema({
         bankName:String,
         accountNumber:Number,
         ifscCode:String,
-        panNumber:Number
+        panNumber:String
     },
     status:{
         type:String,
-        default: "false"
+        default: 0
     },
     subscriptionPlan:{
         type:String,
@@ -108,6 +108,10 @@ const adminRequestSchema = mongoose.Schema({
     free:{
         type:String,
         default:"false"
+    },
+    addAccess:{
+        type:Number,
+        default:0
     }
 })
 
@@ -137,7 +141,7 @@ const packagePlanSchema = mongoose.model('packagePlanSchema',packagePlan)
 
 const validation = [
     body('email').trim().isEmail().withMessage('email  must be valid'),
-    body('password').isLength({ min: 2}).withMessage('password is required')
+    // body('password').isLength({ min: 2}).withMessage('password is required')
     
 ]
 

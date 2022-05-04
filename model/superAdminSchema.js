@@ -20,6 +20,7 @@ const adminPackageSchema =mongoose.Schema({
     amount:Number,
     packagePlan :String,
     description:String,
+    addAccess:Number,
     deleteFlag:{
         type:String,
         default:"false"

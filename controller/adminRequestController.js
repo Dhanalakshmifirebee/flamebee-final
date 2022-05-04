@@ -132,7 +132,7 @@ let postMail = function ( to, subject, text) {
     })
 }
 
-const packagePlan1 =async(req,res)=>{ 
+const packagePlan =async(req,res)=>{ 
     try{
         const token = jwt.decode(req.headers.authorization)
         const verify = token.userid
@@ -174,6 +174,7 @@ const packagePlan1 =async(req,res)=>{
                 console.log(req.body.subscriptionEndDate)
                 req.body.validityDays = 30
                 req.body.free = "true"
+                
             }
             if(paymentCreated.subscriptionPlan == "3 months"){
                 req.body.subscriptionEndDate = moment(paymentCreated.subscriptionStartDate).add(90,'days').toISOString()
@@ -261,5 +262,5 @@ const getSingleAdminPackage = (req,res)=>{
 }
 
 module.exports={
-    createAdminRequest,acceptAdmin,adminLogin,getAdminRequest,packagePlan1,getSingleAdminPackage
+    createAdminRequest,acceptAdmin,adminLogin,getAdminRequest,packagePlan,getSingleAdminPackage
 }

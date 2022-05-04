@@ -29,10 +29,10 @@ const reviewSchema = mongoose.Schema({
     reply:[replySchema]
 })
 
-const restaurantTimeSchema = mongoose.Schema({
-    openingTime:String,
-    closingTime:String
-})
+// const restaurantTimeSchema = mongoose.Schema({
+//     openingTime:String,
+//     closingTime:String
+// })
 
 const restaurantSchema = mongoose.Schema({
     restaurantName:String,
@@ -41,6 +41,7 @@ const restaurantSchema = mongoose.Schema({
     restaurantImage:String,
     menuImage:[String],
     restaurantAddress:String,
+    address:String,
     restaurantPhoneNo:Number,
     restaurantOwnerId:String,
     offer:Number,
@@ -49,7 +50,10 @@ const restaurantSchema = mongoose.Schema({
     service:String,
     commonService:String,
     category:[categorySchema],
-    restaurantTime:[restaurantTimeSchema],
+    restaurantTime:{
+        openingTime:String,
+        closingTime:String
+    },
     leaveDay:String,
     restaurantLocation:{
         restaurantLatitude:Number,
@@ -107,7 +111,7 @@ const restaurantSchema = mongoose.Schema({
 
 const ingredientSchema = mongoose.Schema({
     ingredient:String,
-    price:Number,
+    ingredientPrice:Number,
     status:{
         type:String,
         default:false
@@ -117,7 +121,7 @@ const ingredientSchema = mongoose.Schema({
 
 const sizeSchema = mongoose.Schema({
     size:String,
-    price:Number,
+    sizePrice:Number,
     status:{
         type:String,
         default:false

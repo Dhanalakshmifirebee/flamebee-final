@@ -1,6 +1,7 @@
 const restaurantController = require('../model/restaurantSchema')
 const responseController = require('../model/responseSchema')
 const adminController = require('../model/adminSchema')
+// const adminRequestController = require('../model/adminSchema')
 const {location} = require("../model/RestaurantLocation")
 const jwt = require('jsonwebtoken')
 const geolib = require('geolib')
@@ -53,13 +54,13 @@ const createRestaurant = (req,res)=>{
         const adminToken = jwt.decode(req.headers.authorization) 
         const verifyId = adminToken.userid
         console.log(verifyId)
-        adminController.adminSchema.aggregate([{$match:{$and:[{_id:new mongoose.Types.ObjectId(verifyId)},{status:"active"}]}}],async(err,data)=>{
+        adminController.adminRequest.aggregate([{$match:{$and:[{_id:new mongoose.Types.ObjectId(verifyId)},{planStatus:"active"}]}}],async(err,data)=>{
             console.log(data.length);
             if(data.length!=0){
                 console.log("data");
                 let options = { provider: 'openstreetmap'}
                 let geoCoder = nodeGeocoder(options);
-                const convertAddressToLatLon=await(geoCoder.geocode(req.body.restaurantAddress))
+                const convertAddressToLatLon=await(geoCoder.geocode(req.body.address))
             
                 if(data[0].subscriptionPlan == "Free"){
                     console.log("line 58")
@@ -78,7 +79,7 @@ const createRestaurant = (req,res)=>{
                             }
                     }
                     else{
-                        adminController.adminSchema.findOneAndUpdate({_id:verifyId},{$set:{status:"inActive"}},{new:true},(err,data3)=>{
+                        adminController.adminRequest.findOneAndUpdate({_id:verifyId},{$set:{planStatus:"inActive"}},{new:true},(err,data3)=>{
                             console.log(data3)
                             res.status(400).send({message:'Your Free packagePlan is expired,please subscribe package plan'})
                         })
@@ -105,7 +106,7 @@ const createRestaurant = (req,res)=>{
                             }
                     }
                     else{
-                        adminController.adminSchema.findOneAndUpdate({_id:verifyId},{$set:{status:"inActive"}},{new:true},(err,data3)=>{
+                        adminController.adminRequest.findOneAndUpdate({_id:verifyId},{$set:{PlanStatus:"inActive"}},{new:true},(err,data3)=>{
                             console.log(data3)
                             res.status(400).send({message:'Your packagePlan is expired,please subscribe package plan'})
                         })
@@ -311,7 +312,7 @@ const getSpecificRestaurant = (req,res)=>{
         const adminToken = jwt.decode(req.headers.authorization) 
         const verifyId = adminToken.userid
         console.log(verifyId)
-        adminController.packagePlanSchema.findOne({adminId:verifyId,status:"active"},(err,data)=>{
+        adminController.adminRequest.findOne({_id:verifyId,planStatus:"active"},(err,data)=>{
             if(data){
                 restaurantController.restaurant.find({restaurantOwnerId:verifyId},(err,data)=>{
                     if(err) throw err
@@ -766,8 +767,7 @@ const addFood =async(req,res)=>{
                 else {
                     console.log(data1)
                     res.status(200).send({ message: data1, statusCode: 200 })
-                
-                restaurantController.menu.find({restaurantId:data1.restaurantId},(err,data)=>{
+                    restaurantController.menu.find({restaurantId:data1.restaurantId},(err,data)=>{
                     console.log(data)
                     restaurantController.restaurant.findOneAndUpdate({_id:data1.restaurantId},{$set:{foodList:data}},{new:true},(err,data1)=>{
                           console.log(data1)
@@ -812,6 +812,22 @@ const updateFood = (req,res)=>{
             else {
                 console.log(data)
                 res.status(200).send({ message: data, statusCode: 200 })
+                restaurantController.restaurant.aggregate([{$match:{"foodList._id":req.params.foodId}}],(err,data)=>{
+                    console.log(data)
+                        restaurantController.restaurant.findOneAndUpdate({"foodList._id":req.params.foodId},{$set:{foodList:data}},{new:true},(err,data1)=>{
+                    console.log(data1)
+                    res.status(200).send({message:data1})
+                       //     restaurantController.restaurant.findOneAndUpdate({"foodList._id":req.params.foodId},{$set:{foodList:data}},{new:true},(err,data1)=>{
+            //         console.log(data1)
+            //         res.status(200).send({message:data1})
+            //   })
+              })
+
+                })
+            //     restaurantController.restaurant.findOneAndUpdate({"foodList._id":req.params.foodId},{$set:{foodList:data}},{new:true},(err,data1)=>{
+            //         console.log(data1)
+            //         res.status(200).send({message:data1})
+            //   })
             }
         })
     }catch(err){

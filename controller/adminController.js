@@ -19,14 +19,13 @@ const register = async (req, res) => {
             adminSchema.countDocuments({email:req.body.email,contact:req.body.contact}, async (err, data) => {
                 console.log(data);
                 if (data == 0){
-                    req.body.password = await bcrypt.hash(req.body.password,10)
                     console.log(req.body);
                     adminSchema.create(req.body, (err, result) => {
                         if(err) throw err
                         
                         console.log(result);
                         if (result) {
-                            res.status(200).send({success:"true",message: 'Add admin successfully', data:result })
+                            res.status(200).send({success:"true",message: 'register successfully', data:result })
 
                         } else {
                             res.status(400).send({success:"false",message: 'fail to create data' })

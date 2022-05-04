@@ -18,10 +18,10 @@ router.put('/updateOneUser',schemaForBothSuperAndAdmin.updateOwnerUser)
 router.delete('/deleteUser',schemaForBothSuperAndAdmin.deleteOwnerUser)
 
 // router.post('/packagePlan',schemaForBothSuperAndAdmin.packagePlan)
-router.put('/updatePackagePlan',schemaForBothSuperAndAdmin.updatePackagePlan)
+// router.put('/updatePackagePlan',schemaForBothSuperAndAdmin.updatePackagePlan)
 // router.get('/getSingleAdminPackage',schemaForBothSuperAndAdmin.getSingleAdminPackage)
 
-router.post('/packagePlan1',adminRequest.packagePlan1)
+router.post('/packagePlan',adminRequest.packagePlan)
 
 router.post('/RegisterAdmin',adminRequest.createAdminRequest)
 router.post('/acceptAdmin/:id',adminRequest.acceptAdmin)
