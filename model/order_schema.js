@@ -44,45 +44,68 @@ const avaliableFoodSchema = mongoose.Schema({
   }
 })
 
-
-const ordersSchema = mongoose.Schema({
-  orderId:String,
+const orderSchema = mongoose.Schema({
   name:String,
-  contact:Number,
   email:String,
+  phoneNo:Number,
   address:String,
-  deliveryCandidateName:String,
-  candidateContactNumber:Number,
-  deliveryLocation:{
-    type:Object,
-    deliveryLatitude:Number,
-    deliveryLongitude:Number
-  },
-  userId:String,
-  orderStatus:{
-    type:String,
-    default:"orderPending"
-  },
-  deleteFlag:{
-    type:String,
-    default:false
-  },
+  area:String,
+  city:String,
+  state:String,
+  userAddress:String,
   userLocation:{
-    type:Object,
     userLatitude:Number,
     userLongitude:Number
   },
-  total:Number,
-  role:{
-      type:String,
-      default:"cash"
-  },
-  foodSchema:[avaliableFoodSchema],
- 
+  paymentType:String,
+  paymentDetails:{Object},
+  cart:[Object],
+  deliveryDate:String,
+  deliveryTime:String,
+  deliveryType:String,
+  total:String
 })
 
 
+// const ordersSchema = mongoose.Schema({
 
-const order=mongoose.model('ordersSchema', ordersSchema)
+//   orderId:String,
+//   name:String,
+//   contact:Number,
+//   email:String,
+//   address:String,
+//   area :String,
+//   deliveryCandidateName:String,
+//   candidateContactNumber:Number,
+//   deliveryLocation:{
+//     type:Object,
+//     deliveryLatitude:Number,
+//     deliveryLongitude:Number
+//   },
+//   userId:String,
+//   orderStatus:{
+//     type:String,
+//     default:"orderPending"
+//   },
+//   deleteFlag:{
+//     type:String,
+//     default:false
+//   },
+//   userLocation:{
+//     userLatitude:Number,
+//     userLongitude:Number
+//   },
+//   total:Number,
+//   role:{
+//       type:String,
+//       default:"cash"
+//   },
+//   foodSchema:[avaliableFoodSchema],
+ 
+// })
+
+
+
+const order=mongoose.model('ordersSchema', orderSchema)
 
 module.exports={order}

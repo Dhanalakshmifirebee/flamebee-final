@@ -108,4 +108,84 @@ const deletePackage = (req,res)=>{
 }
 
 
-    module.exports={superAdminRegistration,superAdminLogin,createAdminPackage,getPackagePlan,updatePackage,deletePackage}
+const createContact = (req,res)=>{
+    try{
+      const token = jwt.decode(req.headers.authorization)
+      if(token!==null){
+            const verify = token._id
+            req.body.superAdminId = verify
+            superControll.contact.create(req.body,(err,data)=>{
+                if(err) throw err
+            res.status(200).send({message:data})
+        })
+        }
+        else{
+            res.status(400).send({message:"unauthorized"})
+        }
+    }
+    catch(err){
+        res.status(400).send({message:err})
+    }
+}
+
+const getContact = (req,res)=>{
+    try{
+        superControll.contact.find({},(err,data)=>{
+            if(err) throw err
+            res.status(200).send({message:data})
+        })
+    }
+    catch(err){
+        res.status(400).send({message:err})
+    }
+}
+
+const updateContact = (req,res)=>{
+    try{
+        const token = jwt.decode(req.headers.authorization)
+        if(token!==null){
+        const verify = token._id
+        superControll.contact.findOneAndUpdate({superAdminId:verify},req.body,{new:true},(err,data)=>{
+            if(data){
+                res.status(200).send({message:'update successfully',data})
+            }
+            else{
+                res.status(200).send({message:'Invalid token'})
+            }
+        })
+        }
+        else{
+            res.status(400).send({message:"unauthorized"})
+        }
+
+    }
+    catch(err){
+        res.status(200).send({message:err})
+    }
+}
+
+const deleteContact = (req,res)=>{
+    try{
+        const token = jwt.decode(req.headers.authorization)
+        if(token!==null){
+            const verify = token._id
+            superControll.contact.findOneAndUpdate({superAdminId:verify},{$set:{deleteFlag:"true"}},{new:true},(err,data)=>{
+                if(data){
+                    res.status(200).send({message:'deleted successfully',data})
+                }
+                else{
+                    res.status(200).send({message:'Invalid token'})
+                }
+            })
+        }
+        else{
+            res.status(400).send({message:"unauthorized"})
+        }
+    
+    }
+    catch(err){
+        res.status(200).send({message:err})
+    }
+}
+
+    module.exports={superAdminRegistration,superAdminLogin,createAdminPackage,getPackagePlan,updatePackage,deletePackage,createContact,getContact,updateContact,deleteContact}

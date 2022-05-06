@@ -810,20 +810,39 @@ const updateFood = (req,res)=>{
         restaurantController.menu.findByIdAndUpdate(req.params.foodId, req.body, { new: true }, (err, data) => {
             if (err) { res.status(400).send({ message: 'invalid restarauntid' }) }
             else {
-                console.log(data)
-                res.status(200).send({ message: data, statusCode: 200 })
-                restaurantController.restaurant.aggregate([{$match:{"foodList._id":req.params.foodId}}],(err,data)=>{
-                    console.log(data)
-                        restaurantController.restaurant.findOneAndUpdate({"foodList._id":req.params.foodId},{$set:{foodList:data}},{new:true},(err,data1)=>{
+                res.status(200).send({message:data})
+                restaurantController.restaurant.findOneAndUpdate({_id:data.restaurantId},{$set:{foodList:data}},{new:true},(err,data1)=>{
                     console.log(data1)
-                    res.status(200).send({message:data1})
+                  //   res.status(200).send({message:data1})
+              })
+                // console.log("line 813",data)
+                // const data1 = req.body
+                // restaurantController.restaurant.findOne({_id:data.restaurantId},(err,data)=>{
+                //     console.log("line 815",data);
+                //     data.foodList.map((x)=>{
+                //         // console.log(x._id)
+                //         if(x._id == req.params.foodId){
+                //              req.body.foodList = data1
+                //         }
+                //     }) 
+                //     // console.log(req.body.foodList)
+                // })
+                // restaurantController.restaurant.findOne({_id:data.restaurantId},(err,data)=>{
+                //    res.send(data)
+                // })
+                // res.status(200).send({ message: data, statusCode: 200 })
+                // restaurantController.restaurant.aggregate([{$match:{"foodList._id":req.params.foodId}}],(err,data)=>{
+                //     console.log(data)
+                //         restaurantController.restaurant.findOneAndUpdate({"foodList._id":req.params.foodId},{$set:{foodList:data}},{new:true},(err,data1)=>{
+                //     console.log(data1)
+                //     res.status(200).send({message:data1})
                        //     restaurantController.restaurant.findOneAndUpdate({"foodList._id":req.params.foodId},{$set:{foodList:data}},{new:true},(err,data1)=>{
             //         console.log(data1)
             //         res.status(200).send({message:data1})
             //   })
-              })
+            //   })
 
-                })
+            //     })
             //     restaurantController.restaurant.findOneAndUpdate({"foodList._id":req.params.foodId},{$set:{foodList:data}},{new:true},(err,data1)=>{
             //         console.log(data1)
             //         res.status(200).send({message:data1})
@@ -1087,7 +1106,11 @@ const createRestaurantReview = (req,res)=>{
                 req.body.userName = data1.name
                 restaurantController.restaurantReview.create(req.body,(err,data2)=>{
                     if(err) throw err
-                    res.status(200).send({message:data2})
+                    // res.status(200).send({message:data2})
+                    restaurantController.restaurant.findOneAndUpdate({_id:req.body.restaurantId},{$set:{review:data2}},{new:true},(err,data3)=>{
+                        // console.log(data3)
+                        res.status(200).send({message:data3})
+                    })
                 })
             }
             else{
@@ -1128,6 +1151,9 @@ const restaurantRating = (req,res)=>{
             restaurantController.restaurantRating.create(req.body,(err,data2)=>{
                 if(err) throw err
                 res.status(200).send({message:data2})
+              
+
+            
             })
         }
     })

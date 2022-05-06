@@ -3,14 +3,25 @@ const deliveryControll = require('../model/delivery_schema')
 const restaurantController = require('../model/restaurantSchema')
 const geolib = require('geolib')
 const paginated=require('./adminController')
+const nodeGeocoder = require('node-geocoder')
 
-const orderDetails = (req, res) => {
+const orderDetails = async(req, res) => {
     try {
+         console.log(req.body)
+         req.body.paymentDetails = req.body.paymentDetails
+         req.body.cart = req.body.cart
+
+         let options = { provider: 'openstreetmap'}
+         let geoCoder = nodeGeocoder(options);
+         const convertAddressToLatLon=await(geoCoder.geocode(req.body.userAddress))
+         req.body.userLocation = {"userLatitude":convertAddressToLatLon[0].latitude,"userLongitude":convertAddressToLatLon[0].longitude}
+
           orderControll.order.create(req.body, (err, data1) => {
                 if (err) throw err
-                data1.foodSchema.map((x) => {
-                    console.log(x.foodId)
-                    var foodId = x.foodId
+                console.log(data1)
+                data1.cart.map((x) => {
+                    console.log(x._id)
+                    var foodId = x._id
                     restaurantController.menu.findOne({ _id: foodId }, (err, data2) => {
                         // console.log(data2.count)
                         const count = data2.count + 1
@@ -18,22 +29,23 @@ const orderDetails = (req, res) => {
                         restaurantController.menu.findOneAndUpdate({ _id: foodId }, { $set: { count: count } }, { new: true }, (err, data3) => {
                             if(err) throw err
                             console.log(data3)
-                            console.log(data1.foodSchema)
-                            var result = data1.foodSchema
+                            console.log(data1.cart)
+                            var result = data1.cart
                             result.map((x)=>{
-                                console.log(x)
-                                x.restaurantDetails.map((y)=>{
-                                    console.log(y)
-                                    const a = y.restaurantlocation.restaurantLatitude
-                                    const b = y.restaurantlocation.restaurantLongitude
-                                    console.log(y.restaurantlocation.restaurantLatitude)
-                                    console.log(y.restaurantlocation.restaurantLongitude)
+                                console.log("line 35",x)
+                                // x.map((y)=>{
+                                //     console.log("line 35",x.restaurantDetails)
+                                //     console.log(y)
+                                    const a = x.restaurantDetails.restaurantLocation.restaurantLatitude
+                                    const b = x.restaurantDetails.restaurantLocation.restaurantLongitude
+                                    // console.log(y.restaurantLocation.restaurantLatitude)
+                                    // console.log(y.restaurantLocation.restaurantLongitude)
                                     deliveryControll.deliveryRegister.find({},(err,data)=>{
                                         console.log(data)
                                         const datas=data.filter(((result)=>filterLocation(result,22000,a,b)))
                                         res.status(200).send({success:"true",message:"nearBy Delivery Candidate Details",datas})
                                     })
-                                })
+                                // })
                             })
                            
                         })

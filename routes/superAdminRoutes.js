@@ -10,4 +10,12 @@ router.get('/getPackagePlan',superAdmin.getPackagePlan)
 router.put('/updatePackage/:id',superAdmin.updatePackage)
 router.delete('/removePackage/:id',superAdmin.deletePackage)
 
+
+router.post('/createContact',superAdmin.createContact)
+router.get('/getContact',superAdmin.getContact)
+router.put('/updateContact',superAdmin.updateContact)
+router.delete('/deleteContact',superAdmin.deleteContact)
+
+
+
 module.exports=router

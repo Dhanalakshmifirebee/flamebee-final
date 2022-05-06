@@ -3,5 +3,7 @@ const blog = require('../controller/blogController')
 
 router.post('/createBlog',blog.createBlog)
 router.get('/getBlog',blog.getBlog)
+router.put('/updateBlog/:id',blog.updateBlog)
+router.delete('/deleteBlog/:id',blog.deleteBlog)
 
 module.exports=router

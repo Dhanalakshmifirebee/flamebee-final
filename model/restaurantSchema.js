@@ -25,6 +25,7 @@ const replySchema = mongoose.Schema({
 const reviewSchema = mongoose.Schema({
     userId:String,
     userName:String,
+    heading:String,
     content:String,
     reply:[replySchema]
 })
@@ -49,6 +50,7 @@ const restaurantSchema = mongoose.Schema({
     information:String,
     service:String,
     commonService:String,
+    aboutMenu:String,
     category:[categorySchema],
     restaurantTime:{
         openingTime:String,
@@ -60,7 +62,7 @@ const restaurantSchema = mongoose.Schema({
         restaurantLongitude:Number
     },
     cuisine:[String],
-    review:[reviewSchema],
+    review:[Object],
     ratingValue:Number,
     rating:String,
     foodList:[Object],
@@ -143,6 +145,10 @@ const menuSchema = mongoose.Schema({
     cuisine:String,
     restaurantId:String,
     restaurantDetails:Object,
+    foodTimes:{
+        type:Number,
+        default: 1
+    },
     option:[optionSchema],
     count:{
         type:Number,
@@ -162,8 +168,10 @@ const menuSchema = mongoose.Schema({
 const restaurantReviewSchema=mongoose.Schema({
     userId:String,
     userName:String,
+    heading:String,
     content:String,
     restaurantId:String,
+    reply:[replySchema]
 })
 
 
