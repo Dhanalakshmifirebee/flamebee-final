@@ -10,6 +10,7 @@ const mongoose = require('mongoose')
 const nodemailer = require('nodemailer') 
 
 
+
 const register = async (req, res) => {
     try {
         const errors = await validationResult(req)
@@ -22,7 +23,6 @@ const register = async (req, res) => {
                     console.log(req.body);
                     adminSchema.create(req.body, (err, result) => {
                         if(err) throw err
-                        
                         console.log(result);
                         if (result) {
                             res.status(200).send({success:"true",message: 'register successfully', data:result })
@@ -31,8 +31,6 @@ const register = async (req, res) => {
                             res.status(400).send({success:"false",message: 'fail to create data' })
                         }
                     })
-                  
-                   
                 } else {
                     res.status(400).send({ success:"false",message: 'email is already exists' })
                 }
@@ -80,21 +78,6 @@ const login = async(req, res) => {
                     
                 }
                 else{
-                    // adminSchema.create(req.body,(err,data)=>{
-                    //     console.log(data)
-                    //     const otp = otpRandamString.randomString(3)
-                    //     console.log("otp", otp)
-                    //     sendOtp.create({otp: otp },async (err,datas) => {
-                    //         console.log("line 72", datas)
-                    //         if(err){throw err}
-                    //         if (datas) {
-                    //             console.log("line 75", datas)
-                    //             const to = data.email
-                    //             postMail(to,"FlameBee",otp)
-                    //             res.status(200).send({message:"otp send sucessfully",datas})
-                    //         }
-                    //     })
-                    // })
                     console.log("line 66",'please signup')
                     res.status(400).send({message:'please register your profile'})
                 }  
@@ -114,11 +97,8 @@ const login = async(req, res) => {
                                 if(err){throw err}
                                 if (datas) {
                                 console.log("line 75", datas)
-                        const response = await fast2sms.sendMessage({ authorization:"SLAea84yPOZ0fqdcvYMtlKgoFb5uQkpsrTDjmNhJ2En93I1i6UFdoPe6LkK0QiMsSm2qRbahY9yXtrGZ",message:otp,numbers:[req.body.contact]})
-                        console.log("line 77",response,otp)
-                       // const token = await jwt.sign({ userid: data._id }, 'secret')
-                    
-                        res.status(200).send({ message: "verification otp send your mobile number",response,otp,data })
+                        const response = await fast2sms.sendMessage({ authorization:"7AMS5DChNOQakW4RbGtZzPy8njrvJsHXiFIUp9f6V23wqKBm0E90ZS7gEBN2pVurRXAD4cC3Jei81WKI",message:otp,numbers:[req.body.contact]})
+                        res.status(200).send({ message: "verification otp send your mobile number",datas })
                                     setTimeout(() => {
                                        sendOtp.findOneAndDelete({ otp: otp },{returnOriginal:false}, (err, result) => {
                                             console.log("line 81", result)
@@ -159,6 +139,7 @@ const login = async(req, res) => {
     }
 }
 
+
 let transport = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -166,6 +147,7 @@ let transport = nodemailer.createTransport({
         pass: 'dhanam282'
     }
 })
+
 
 let postMail = function ( to, subject, text) {
     transport.sendMail({
@@ -354,7 +336,7 @@ function paginated(model,req,res) {
     // }
 }
 
-
+ 
 const packagePlan =async(req,res)=>{ 
     try{
         const token = jwt.decode(req.headers.authorization)

@@ -42,16 +42,20 @@ const createAdminRequest = (req,res)=>{
     }
 }
 
-const getAdminRequest = (req,res)=>{
-    adminRequestController.adminRequest.find({},(err,data)=>{
-        if(err) throw err
-        var count=data.length
-        console.log(count)
-        const datas=paginated.paginated(data,req,res)
-        res.status(200).send({message:datas,count})
-      
 
-    })
+const getAdminRequest = (req,res)=>{
+    try{
+        adminRequestController.adminRequest.find({},(err,data)=>{
+            if(err) throw err
+            var count=data.length
+            console.log(count)
+            const datas=paginated.paginated(data,req,res)
+            res.status(200).send({message:datas,count})
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
 }
 
 
@@ -69,8 +73,8 @@ const adminLogin = (req,res)=>{
                         var userid=data._id
                         const password = await bcrypt.compare(req.body.password, data.password)
                         if (password === true) {
-                        const token=jwt.sign({userid},'secret')
-                        res.status(200).send({message:"Login Successfully",data,token})
+                            const token=jwt.sign({userid},'secret')
+                            res.status(200).send({message:"Login Successfully",data,token})
                         }
                     }
                     else{
@@ -80,7 +84,6 @@ const adminLogin = (req,res)=>{
                 else{
                     res.status(400).send({message:"Invalid username or password"})
                 }
-                
             })
         }
     }
@@ -90,28 +93,34 @@ const adminLogin = (req,res)=>{
 }
 
 
-const acceptAdmin =(req,res)=>{
-    adminRequestController.adminRequest.findOne({_id:req.params.id},(err,data)=>{
-        console.log(data.email)
-        if(req.body.role=="accept"){
-             const to = data.email
-             postMail(to,"FlameBee","Your Restaurant is approved")
-             adminRequestController.adminRequest.findOneAndUpdate({_id:req.params.id},{$set:{status:"true"}},{new:true},(err,data1)=>{
-                 if(err) throw err
-                 console.log(data1)
-                 res.status(200).send({message:data1})
-             })
-         }
-         else{
-            const to = data.email
-            postMail(to,"FlameBee","Your Restaurant is rejected")
-            adminRequestController.adminRequest.findOneAndUpdate({_id:req.params.id},{$set:{status:"false"}},{new:true},(err,data1)=>{
-                if(err) throw err
-                console.log(data1)
-                res.status(200).send({message:data1})
-            })
-         }
-    })
+const adminSelection =(req,res)=>{
+    try{
+        adminRequestController.adminRequest.findOne({_id:req.params.id},(err,data)=>{
+            console.log(data.email)
+             if(req.body.role=="accept"){
+                 const to = data.email
+                 postMail(to,"FlameBee","Your Restaurant is approved")
+                 adminRequestController.adminRequest.findOneAndUpdate({_id:req.params.id},{$set:{status:"true"}},{new:true},(err,data1)=>{
+                     if(err) throw err
+                     console.log(data1)
+                     res.status(200).send({message:data1})
+                 })
+             }
+             else{
+                const to = data.email
+                postMail(to,"FlameBee","Your Restaurant is rejected")
+                adminRequestController.adminRequest.findOneAndUpdate({_id:req.params.id},{$set:{status:"false"}},{new:true},(err,data1)=>{
+                    if(err) throw err
+                    console.log(data1)
+                    res.status(200).send({message:data1})
+                })
+             }
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err})
+    }
+    
 }
 
 
@@ -131,6 +140,7 @@ let postMail = function ( to, subject, text) {
         text: text,
     })
 }
+
 
 const packagePlan =async(req,res)=>{ 
     try{
@@ -198,69 +208,38 @@ const packagePlan =async(req,res)=>{
         const adminUpdate = await adminRequestController.adminRequest.findOneAndUpdate({_id:verify},req.body,{new:true})
         console.log(adminUpdate);
         res.status(200).send({message:"payment created Successfully"})
-        // if(req.body.packageDetails.packagePlan == "Free"){
-        //         var createdAt = new Date();
-        //         console.log(createdAt.toLocaleString())
-        //         var validityDays = 30;
-        //         var result = createdAt.setDate(createdAt.getDate() + validityDays);
-        //         var expiredDate = new Date(result).toLocaleString()
-        //         console.log(expiredDate)
-        //         req.body.expiredDate = expiredDate
-        //         req.body.validityDays = validityDays
-        //     packagePlanSchema.create(req.body,(err,data)=>{
-        //         if(err) throw err
-        //         res.status(200).send({message:data})
-        //     })
-        // }
-        // if(req.body.packageDetails.packagePlan == "6 months"){
-        //         var createdAt = new Date();
-        //         console.log(createdAt.toLocaleString())
-        //         var validityDays = 180;
-        //         var result = createdAt.setDate(createdAt.getDate() + validityDays);
-        //         var expiredDate = new Date(result).toLocaleString()
-        //         console.log(expiredDate)
-        //         req.body.expiredDate = expiredDate
-        //         req.body.validityDays = validityDays
-        //     packagePlanSchema.create(req.body,(err,data)=>{
-        //         if(err) throw err
-        //         res.status(200).send({message:data})
-        //     })
-        // }
-        // if(req.body.packageDetails.packagePlan == "12 months"){
-        //         var createdAt = new Date();
-        //         console.log("line 326",createdAt)
-        //         var validityDays = 365;
-        //         var result = createdAt.setDate(createdAt.getDate() + validityDays);
-        //         var expiredDate = new Date(result).toLocaleString()
-        //         console.log("line 330",expiredDate)
-        //         req.body.expiredDate = expiredDate
-        //         req.body.validityDays = validityDays
-        //     packagePlanSchema.create(req.body,(err,data)=>{
-        //         if(err) throw err
-        //         res.status(200).send({message:data})
-        //     })
-        // }
-        
     }
     catch(err){
         res.status(400).send({message:err})
     }
 }
 
+
 const getSingleAdminPackage = (req,res)=>{
-    const token = jwt.decode(req.headers.authorization)
-    const verify = token.userid
-    adminRequestController.adminRequest.findOne({_id:verify},(err,data)=>{
-        if(data){
-            res.status(200).send({message:data})
-        }
-        else{
-            res.status(400).send({message:"unauthorized"})
-        }
-        
-    })
+    try{
+        const token = jwt.decode(req.headers.authorization)
+        const verify = token.userid
+        adminRequestController.adminRequest.findOne({_id:verify},(err,data)=>{
+            if(data){
+                res.status(200).send({message:data})
+            }
+            else{
+                res.status(400).send({message:"unauthorized"})
+            }
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+  
 }
 
+
 module.exports={
-    createAdminRequest,acceptAdmin,adminLogin,getAdminRequest,packagePlan,getSingleAdminPackage
+    createAdminRequest,
+    adminSelection,
+    adminLogin,
+    getAdminRequest,
+    packagePlan,
+    getSingleAdminPackage
 }

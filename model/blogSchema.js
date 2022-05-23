@@ -15,6 +15,7 @@ const commandSchema = mongoose.Schema({
     reply:[replySchema]
 })
 
+
 const blogSchema = mongoose.Schema({
     adminId:String,
     blogImage:String,

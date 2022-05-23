@@ -24,13 +24,10 @@ router.delete('/deleteUser',schemaForBothSuperAndAdmin.deleteOwnerUser)
 router.post('/packagePlan',adminRequest.packagePlan)
 
 router.post('/RegisterAdmin',adminRequest.createAdminRequest)
-router.post('/acceptAdmin/:id',adminRequest.acceptAdmin)
+router.post('/acceptAdmin/:id',adminRequest.adminSelection)
 router.post('/adminLogin',adminRequest.adminLogin)
 router.get('/getAdminRequestList',adminRequest.getAdminRequest)
 router.get('/getSingleAdminPackage',adminRequest.getSingleAdminPackage)
-
-
-
 
 
 

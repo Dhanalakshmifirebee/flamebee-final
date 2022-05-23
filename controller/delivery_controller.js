@@ -272,8 +272,15 @@ function filterLocation(result,radius,latitude,longitude)
 }
 
 
-module.exports={CreateCandidate,getAllCandidate,getCandidateDetails,
-                 updateCandidateProfile,deleteCandidateProfile,
-                 CandidateSelection,selectedCandidateList,
-                 notification,candidateLogin,foodDelivery
-                }
+module.exports={
+    CreateCandidate,
+    getAllCandidate,
+    getCandidateDetails,
+    updateCandidateProfile,
+    deleteCandidateProfile,
+    CandidateSelection,
+    selectedCandidateList,
+    notification,
+    candidateLogin,
+    foodDelivery
+}

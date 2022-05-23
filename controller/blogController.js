@@ -64,6 +64,7 @@ const updateBlog = (req,res)=>{
     }
 }
 
+
 const deleteBlog = (req,res)=>{
     try{
         const token = jwt.decode(req.headers.authorization)
@@ -87,5 +88,8 @@ const deleteBlog = (req,res)=>{
 
 
 module.exports={
-    createBlog,getBlog,updateBlog,deleteBlog
+    createBlog,
+    getBlog,
+    updateBlog,
+    deleteBlog
 }

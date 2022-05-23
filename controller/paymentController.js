@@ -27,6 +27,7 @@ const createOrderId =(req,res)=>{
 
 
 
+
 const createPayment = (req,res)=>{
     try{
         const token = jwt.decode(req.headerds.authorization)
@@ -117,5 +118,10 @@ const createPackagePlanPayment = (req,res)=>{
 
 
 module.exports={
-    createOrderId,createPayment,getPaymentList,updatePaymentStatus,onlinePayment,createPackagePlanPayment
+    createOrderId,
+    createPayment,
+    getPaymentList,
+    updatePaymentStatus,
+    onlinePayment,
+    createPackagePlanPayment
 }

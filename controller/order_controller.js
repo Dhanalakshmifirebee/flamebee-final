@@ -16,7 +16,7 @@ const orderDetails = async(req, res) => {
          const convertAddressToLatLon=await(geoCoder.geocode(req.body.userAddress))
          req.body.userLocation = {"userLatitude":convertAddressToLatLon[0].latitude,"userLongitude":convertAddressToLatLon[0].longitude}
 
-          orderControll.order.create(req.body, (err, data1) => {
+         orderControll.order.create(req.body, (err, data1) => {
                 if (err) throw err
                 console.log(data1)
                 data1.cart.map((x) => {
@@ -94,40 +94,6 @@ const getSingleDeliveryCandidate = (req,res)=>{
 }
 
 
-// restaurantController.menu.findOneAndUpdate({foodName:data.foodSchema.foodName},{$set:{count:count+1}},{new:true},(err,data)=>{
-//     console.log(data)
-// })
-// orderControll.order.findOneAndUpdate({_id:data.id},{$set:{"data.foodSchema.count":count}},{new:true},(err,data)=>{
-//     console.log(data)
-//     res.status(200).send({message: data})
-// })
-
-
-// const foodName = req.body.foodSchema
-// foodName.map((x)=>{
-//    console.log("line 9",x.foodName)
-//    var y = x.foodName
-//    orderControll.order.findOne({"foodSchema.foodName":y},(err,data)=>{
-//     console.log(data)
-//     if(data==0){
-//         orderControll.order.create(req.body, (err, data) => {
-//             console.log(data)
-//             if (err) throw err
-//             res.status(200).send({ message: data})
-//         })
-//     }
-//     else{
-//         orderControll.order.fi(req.body, (err, data) => {
-//             console.log(data)
-//             if (err) throw err
-//             res.status(200).send({ message: data})
-//         })
-//     }
-//    })
-// })
-// console.log("line 13",arr)
-
-
 const getAllOrderDetails = (req, res) => {
     try {
         orderControll.order.find({ deleteFlag: 'false' }, (err, data) => {
@@ -139,6 +105,7 @@ const getAllOrderDetails = (req, res) => {
     }
 }
 
+
 const getSingleOrderDetails = (req, res) => {
     try {
         orderControll.order.findOne({ _id: req.params.id, deleteFlag: "false" }, (err, data) => {
@@ -149,6 +116,7 @@ const getSingleOrderDetails = (req, res) => {
         res.status(500).send({ message: err.message })
     }
 }
+
 
 const adminUpdateOrderDetails = (req, res) => {
     //  var deliveryDetails={}
@@ -174,6 +142,7 @@ const adminUpdateOrderDetails = (req, res) => {
         res.status(500).send({ message: err.message })
     }
 }
+
 
 const deliveryCandidateUpdateStatusDetails = (req, res) => {
     try {
@@ -202,6 +171,7 @@ const deliveryCandidateUpdateStatusDetails = (req, res) => {
         res.status(500).send({ message: err.message })
     }
 }
+
 
 const getAllOrderAcceptedDetails = (req, res) => {
     try {
@@ -257,14 +227,32 @@ const popularFood = (req,res)=>{
     }
 }
 
+
 const orderStatusUpdate = (req,res)=>{
-    orderControll.order.findOneAndUpdate({_id:req.params.id},{$set:{orderStatus:req.body.orderStatus}},{new:true},(err,data)=>{
-         if(err) throw err
-         res.status(200).send({message:"update successfully",data})
-    })
+    try{
+        orderControll.order.findOneAndUpdate({_id:req.params.id},{$set:{orderStatus:req.body.orderStatus}},{new:true},(err,data)=>{
+            if(err) throw err
+            res.status(200).send({message:"update successfully",data})
+       })
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+  
 }
 
+
+
+
 module.exports = {
-    orderDetails, getAllOrderAcceptedDetails, getAllOrderDetails, getSingleOrderDetails,
-    adminUpdateOrderDetails, deliveryCandidateUpdateStatusDetails, deliveryCandidateUpdateOrderDetails,popularFood,getSingleDeliveryCandidate,orderStatusUpdate
+    orderDetails,
+    getAllOrderAcceptedDetails,
+    getAllOrderDetails, 
+    getSingleOrderDetails,
+    adminUpdateOrderDetails, 
+    deliveryCandidateUpdateStatusDetails, 
+    deliveryCandidateUpdateOrderDetails,
+    popularFood,
+    getSingleDeliveryCandidate,
+    orderStatusUpdate
 }

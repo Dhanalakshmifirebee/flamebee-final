@@ -10,12 +10,15 @@ const paginated=require('./adminController')
 const nodeGeocoder = require('node-geocoder');
 const moment = require('moment')
 const mongoose = require('mongoose')
-
 const { type } = require('express/lib/response')
+
+
+
 
 
 const image = (req,res)=>{
     try{
+        console.log(req.file);
         req.body.image = `http://192.168.0.112:8613/uploads/${req.file.filename}`
         console.log(req.body)
         restaurantController.image.create(req.body,(err,data)=>{
@@ -117,145 +120,6 @@ const createRestaurant = (req,res)=>{
                 res.status(400).send({message:"please subscribe package plan"})
             }
         })
-
-
-
-        // adminController.packagePlanSchema.findOne({adminId:verifyId},(err,data1)=>{
-        //     console.log(data1);
-        //     if(data1.status=="active"){
-        //         console.log(data1)
-        //             if(data1.packageDetails.packagePlan=="Free"){
-        //                 console.log(data1.expiredDate);
-        //                 console.log(new Date().toLocaleString());
-        //                 if(data1.expiredDate>new Date().toLocaleString()){
-        //                     restaurantController.restaurant.countDocuments({restaurantOwnerId:verifyId},async(err,num)=>{
-        //                         console.log(num)
-        //                             if(num<=3){
-        //                                 req.body.restaurantOwnerId = verifyId
-        //                                 let options = { provider: 'openstreetmap'}
-        //                                 let geoCoder = nodeGeocoder(options);
-        //                                 const convertAddressToLatLon=await(geoCoder.geocode(req.body.restaurantAddress))
-        //                                 console.log(convertAddressToLatLon);
-        //                                 req.body.restaurantLocation = {"restaurantLatitude":convertAddressToLatLon[0].latitude,"restaurantLongitude":convertAddressToLatLon[0].longitude}
-        //                                 restaurantController.restaurant.create(req.body,(err,data2)=>{
-        //                                 res.status(200).send({message:"Restaurant created Successfully",data2})
-        //                                 })
-        //                             }
-        //                             else{
-        //                                 adminController.packagePlanSchema.findOneAndUpdate({adminId:verifyId},{$set:{status:"inActive"}},{new:true},(err,data3)=>{
-        //                                     console.log(data3)
-        //                                     res.status(400).send({message:'Your Free packagePlan is expired,please subscribe package plan'})
-        //                                 })
-        //                             }
-        //                     }) 
-        //                 }
-        //             }
-                
-    
-        //         if(data1.packageDetails.packagePlan=="6 months"){
-        //             if(data1.expiredDate>new Date().toLocaleString()){
-        //                     restaurantController.restaurant.countDocuments({restaurantEmail:req.body.restaurantEmail},async(err,num)=>{
-        //                         console.log(num)
-        //                             if(num==0){
-        //                                 req.body.restaurantOwnerId = verifyId
-        //                                 let options = { provider: 'openstreetmap'}
-        //                                 let geoCoder = nodeGeocoder(options);
-        //                                 const convertAddressToLatLon=await(geoCoder.geocode(req.body.restaurantAddress))
-        //                                 console.log(convertAddressToLatLon);
-        //                                 req.body.restaurantLocation = {"restaurantLatitude":convertAddressToLatLon[0].latitude,"restaurantLongitude":convertAddressToLatLon[0].longitude}
-        //                                 restaurantController.restaurant.create(req.body,(err,data4)=>{
-        //                                 res.status(200).send({message:"Restaurant created Successfully",data4})
-        //                                 })
-        //                             }
-        //                             else{
-        //                                 res.status(400).send({message:"Restaurant already exists"})
-        //                             }
-        //                     })
-        //             }else{
-        //                 adminController.packagePlanSchema.findOneAndUpdate({adminId:verifyId},{$set:{status:"inActive"}},{new:true},(err,data3)=>{
-        //                     console.log(data3)
-        //                     res.status.send({message:'Your 6months packagePlan is expired,please subscribe package plan'})
-        //                 })
-        //             }
-        //         }
-
-        //         if(data1.packageDetails.packagePlan=="12 months"){
-        //             if(data1.expiredDate>new Date().toLocaleString()){
-        //                     restaurantController.restaurant.countDocuments({restaurantEmail:req.body.restaurantEmail},async(err,num)=>{
-        //                         console.log(num)
-        //                             if(num==0){
-        //                                 req.body.restaurantOwnerId = verifyId
-        //                                 let options = { provider: 'openstreetmap'}
-        //                                 let geoCoder = nodeGeocoder(options);
-        //                                 const convertAddressToLatLon=await(geoCoder.geocode(req.body.restaurantAddress))
-        //                                 console.log(convertAddressToLatLon);
-        //                                 req.body.restaurantLocation = {"restaurantLatitude":convertAddressToLatLon[0].latitude,"restaurantLongitude":convertAddressToLatLon[0].longitude}
-        //                                 restaurantController.restaurant.create(req.body,(err,data4)=>{
-        //                                 res.status(200).send({message:"Restaurant created Successfully",data4})
-        //                                 })
-        //                             }
-        //                             else{
-        //                                 res.status(400).send({message:"Restaurant already exists"})
-        //                             }
-        //                     })
-        //             }else{
-        //                 adminController.packagePlanSchema.findOneAndUpdate({adminId:verifyId},{$set:{status:"inActive"}},{new:true},(err,data3)=>{
-        //                     console.log(data3)
-        //                     res.status.send({message:'Your 12months packagePlan is expired,please subscribe package plan'})
-        //                 })
-        //             }
-        //         }
-        //     }
-        //     else{
-        //         res.status(400).send({message:"please subscribe package plan"})
-        //     }
-            
-        // })
-        // adminController.packagePlanSchema.aggregate([{$match:{$and:[{restaurantOwnerId:verifyId},{"packageDetails.package":"Free"}]}}],(err,data)=>{
-        //     if(data){
-        //         restaurantController.restaurant.countDocuments({restaurantOwnerId:verifyId},(err,num)=>{
-        //                 console.log(num)
-        //                 if(num<=3){
-        //                     req.body.restaurantOwnerId = verifyId
-        //                     restaurantController.restaurant.create(req.body,(err,data)=>{
-        //                         res.status(200).send({message:"Restaurant created Successfully",data})
-        //                     })
-        //                 }
-        //                 else{
-        //                     res.status(400).send({message:"error"})
-        //                 }
-        //         })
-        //     }
-        // })
-
-
-        
-        // restaurantController.restaurant.countDocuments({restaurantOwnerId:verifyId},(err,num)=>{
-        //     console.log(num)
-        //     if(num<=3){
-                
-        //         req.body.restaurantOwnerId = verifyId
-        //         restaurantController.restaurant.create(req.body,(err,data)=>{
-        //             res.status(200).send({message:"Restaurant created Successfully",data})
-        //         })
-        //     }
-        //     else{
-        //         res.status(400).send({message:"error"})
-        //     }
-        // })
-        // restaurantController.restaurant.countDocuments({restaurantEmail:req.body.restaurantEmail},(err,data)=>{
-        //     if(data==0){
-        //         restaurantController.restaurant.countDocuments({restaurantOwnerId:verifyId})
-        //         req.body.restaurantOwnerId = verifyId
-        //         restaurantController.restaurant.create(req.body,(err,data1)=>{
-        //             if(err) throw err
-        //             res.status(200).send({message:"Restaurant created Successfully",data1})
-        //         })
-        //     }
-        //     else{
-        //         res.status(400).send({message:"email id already exist"})
-        //     }
-        // })
     }
     catch(err){
         res.status(500).send({message:err})
@@ -279,47 +143,20 @@ const updateRestaurantWithFood = (req,res)=>{
 }
 
 
-
-
-
-const createRestaurant1 = (req,res)=>{
-    try{
-        const adminToken = jwt.decode(req.headers.authorization) 
-        const verifyId = adminToken.userid
-        restaurantController.restaurant1.countDocuments({restaurantEmail:req.body.restaurantEmail},(err,data)=>{
-            if(data==0){
-                req.body.restaurantOwnerId = verifyId
-                restaurantController.restaurant1.create(req.body,async(err,data1)=>{
-                    if(err) throw err
-                    console.log(data1)
-                    res.status(200).send({message:"Restaurant created Successfully",data1})
-                  var data1 = await restaurantController.restaurant1.createIndexes({restaurantLocation:"2dsphere"})
-                  console.log(data1)
-                })
-            }
-            else{
-                res.status(400).send({message:"email id already exist"})
-            }
-        })
-    }
-    catch(err){
-        res.status(500).send({message:err})
-    }
-}
-
 const getSpecificRestaurant = (req,res)=>{
     try{
         const adminToken = jwt.decode(req.headers.authorization) 
         const verifyId = adminToken.userid
         console.log(verifyId)
+
         adminController.adminRequest.findOne({_id:verifyId,planStatus:"active"},(err,data)=>{
             if(data){
                 restaurantController.restaurant.find({restaurantOwnerId:verifyId},(err,data)=>{
                     if(err) throw err
                     var count=data.length
                     console.log(count)
-                    const datas=paginated.paginated(data,req,res)
-                    res.status(200).send({message:datas,count})
+                    // const datas=paginated.paginated(data,req,res)
+                    res.status(200).send({message:data,count})
                 })
             }
             else{
@@ -333,6 +170,7 @@ const getSpecificRestaurant = (req,res)=>{
         res.status(500).send({message:err})
     }
 }
+
 
 const getOneRestaurant = (req,res)=>{
     try{
@@ -362,6 +200,7 @@ const updateRestaurant = (req,res)=>{
         res.status(500).send({message: 'internal server error'})
     }
 }
+
 
 const removeRestaurant = (req,res)=>{
     console.log(req.params.id)
@@ -480,7 +319,7 @@ const getRestaurantLocationByOffer = (req,res)=>{
            const datas=data.filter(((result)=>filterLocation(result,5000,req.query.latitude,req.query.longitude)))
             console.log(typeof(datas))
             req.body.data = datas
-            // console.log(req.body.data)
+                // console.log(req.body.data)
             responseController.responseRestaurant.create(req.body,(err,data1)=>{
                 // console.log(data1)
                 responseController.responseRestaurant.aggregate([{$match:{_id:data1._id}},
@@ -607,7 +446,8 @@ const filterFood = (req,res)=>{
     }
    
 }
-        // for(var i = 0; i< key.length;i ++){           //key
+
+    // for(var i = 0; i< key.length;i ++){           //key
         //     for (var j  = 0 ; j< value.length; j ++){     // value
         //         for(var r = 0 ; r < datas.length ; r ++){      //data
         //            for(var s=0 ; s< cuisine.length ;s++){
@@ -804,6 +644,7 @@ const getFoodByOwner = (req,res)=>{
 }
 
 
+
 const updateFood = (req,res)=>{
     try{
         console.log(req.body)
@@ -940,36 +781,6 @@ const getCategoryList = (req,res)=>{
     })
 }
 
-function compressArray(original) {
- 
-	var compressed = [];
-	// make a copy of the input array
-	var copy = original.slice(0);
- 
-	// first loop goes over every element
-	for (var i = 0; i < original.length; i++) {
- 
-		var myCount = 0;	
-		// loop over every element in the copy and see if it's the same
-		for (var w = 0; w < copy.length; w++) {
-			if (original[i] == copy[w]) {
-				// increase amount of times duplicate is found
-				myCount++;
-				// sets item to undefined
-				delete copy[w];
-			}
-		}
- 
-		if (myCount > 0) {
-			var a = new Object();
-			a.value = original[i];
-			a.count = myCount;
-			compressed.push(a);
-		}
-	}
- 
-	return compressed;
-};
 
 
 
@@ -1001,50 +812,6 @@ function filterLocationForFood(result,radius,latitude,longitude)
 }
 
 
-// const getFoodByPrice1 = (req,res)=>{
-//     restaurantController.menu.find({ foodPrice : { $gte :  0, $lte : 50}},(err,data)=>{
-//         if(err) throw err
-//         console.log(data)
-//         res.status(200).send({message:data})
-//     })
-// }
-
-// const getFoodByPrice2 = (req,res)=>{
-//     restaurantController.menu.find({ foodPrice : { $gte :  50, $lte : 100}},(err,data)=>{
-//         if(err) throw err
-//         console.log(data)
-//         res.status(200).send({message:data})
-//     })
-// }
-
-// const getFoodByPrice3 = (req,res)=>{
-//     restaurantController.menu.find({ foodPrice : { $gte :  100, $lte : 150}},(err,data)=>{
-//         if(err) throw err
-//         console.log(data)
-//         res.status(200).send({message:data})
-//     })
-// }
-
-// const getFoodByPrice4 = (req,res)=>{
-//     restaurantController.menu.find({ foodPrice : { $gt :  150, $lt : 200}},(err,data)=>{
-//         if(err) throw err
-//         console.log(data)
-//         res.status(200).send({message:data})
-//     })
-// }
-
-// const filterFood = (req,res)=>{
-//     restaurantController.menu.find({ foodPrice : { $gte :  0, $lte : 100},"restaurantDetails.rating":"100"},(err,data)=>{
-//         console.log(data)
-
-//     })
-// }
-
-
-
-
-
-
 const findlocation = (req,res)=>{
 try
 {
@@ -1070,28 +837,8 @@ try
         catch(err){
             console.log(err)
         } 
-    // restaurantController.restaurant.createIndexes((err,data)=>{
-
-    // })
-    //     const long = req.query.long
-    //     const lat = req.query.lat
-    //     restaurantController.restaurant.aggregate([{
-    //         $geoNear: {
-    //            near: { 
-    //              type: "Point",
-    //              coordinates: [ 78.0947840335 , 9.93095681364]
-    //            },
-    //         //    distanceField:"dist.calculated",
-    //            maxDistance: 1000000,
-    //         //    spherical: true
-    //         }
-    //       }],(err,data2)=>{
-           
-    //           console.log(data2)
-    //       })
 }
-// {foodPrice: { $gte:0,$lte:50}}
-// ,{"restaurantDetails.rating":{$gte:0,$lte:100}}
+
 
 //Restaurant Review
 
@@ -1106,9 +853,7 @@ const createRestaurantReview = (req,res)=>{
                 req.body.userName = data1.name
                 restaurantController.restaurantReview.create(req.body,(err,data2)=>{
                     if(err) throw err
-                    // res.status(200).send({message:data2})
-                    restaurantController.restaurant.findOneAndUpdate({_id:req.body.restaurantId},{$set:{review:data2}},{new:true},(err,data3)=>{
-                        // console.log(data3)
+                        restaurantController.restaurant.findOneAndUpdate({_id:req.body.restaurantId},{$set:{review:data2}},{new:true},(err,data3)=>{
                         res.status(200).send({message:data3})
                     })
                 })
@@ -1183,6 +928,7 @@ const searchAPI = (req,res)=>{
         res.status(500).send({message:err})
     }
 }
+
 // ,{$match:{$or:[{"data.restaurantName":req.params.key},{"data.foodList.foodName":req.params.key}]}}
 
 // ,{$match: {$or:[{"data.restaurantName":req.params.key},{"data.foodList.foodName":req.params.key}]}}
@@ -1197,7 +943,6 @@ module.exports={
     getLatLongByLocation,
     createRestaurant,
     updateRestaurantWithFood,
-    createRestaurant1,
     getSpecificRestaurant,
     getOneRestaurant,
     updateRestaurant,
@@ -1214,10 +959,6 @@ module.exports={
     filterFoodByPriceLowToHigh,
     filterFoodByPriceHighToLow,
     getCategoryList,
-    // getFoodByPrice1,
-    // getFoodByPrice2,
-    // getFoodByPrice3,
-    // getFoodByPrice4,
     filterFood,
     createRestaurantReview,
     getRestaurantReview,

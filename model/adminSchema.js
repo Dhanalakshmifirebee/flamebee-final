@@ -4,43 +4,7 @@ const { body } = require('express-validator')
 const registerSchema = mongoose.Schema({
     name: String,
     email: String,
-    contact:Number,
-    // password: String,
-    // confirmPassword:String,
-    // deleteFlag: {
-    //     type: String,
-    //     default: false
-    // },
-    // subscriptionPlan:{
-    //     type:String,
-    //     default:0
-    // },
-    // paymentStatus:{
-    //     type:String,
-    //     default:"free"
-    // },
-    // subscriptionStartDate:{
-    //     type:String,
-    //     default:0
-    // },
-    // subscriptionEndDate:{
-    //     type:String,
-    //     default:0
-    // },
-    // validityDays:{
-    //     type:String,
-    //     default:0
-    // },
-    // status:{
-    //     type:String,
-    //     default:0
-    // },
-    // free:{
-    //     type:String,
-    //     default:"false"
-    // }
-
-    // restaurantOwned:[]
+    contact:Number
 })
 
 const otpSchema = mongoose.Schema({

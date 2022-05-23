@@ -29,6 +29,7 @@ const superAdminRegistration =(req, res) => {
     }
 }
 
+
 const superAdminLogin = (req, res) => {
     try {
         superControll.register.findOne({ email: req.body.email }, async (err, data) => {
@@ -65,6 +66,7 @@ const createAdminPackage = (req,res)=>{
     }
 }
 
+
 const getPackagePlan = (req,res)=>{
     try{
         superControll.adminPackage.find({deleteFlag:"false"},(err,data)=>{
@@ -77,6 +79,7 @@ const getPackagePlan = (req,res)=>{
     }
    
 }
+
 
 const updatePackage = (req,res)=>{
     try {
@@ -92,6 +95,7 @@ const updatePackage = (req,res)=>{
         res.status(500).send({message: 'internal server error'})
     }
 }
+
 
 const deletePackage = (req,res)=>{
     try {
@@ -128,6 +132,7 @@ const createContact = (req,res)=>{
     }
 }
 
+
 const getContact = (req,res)=>{
     try{
         superControll.contact.find({},(err,data)=>{
@@ -139,6 +144,7 @@ const getContact = (req,res)=>{
         res.status(400).send({message:err})
     }
 }
+
 
 const updateContact = (req,res)=>{
     try{
@@ -164,6 +170,7 @@ const updateContact = (req,res)=>{
     }
 }
 
+
 const deleteContact = (req,res)=>{
     try{
         const token = jwt.decode(req.headers.authorization)
@@ -188,4 +195,20 @@ const deleteContact = (req,res)=>{
     }
 }
 
-    module.exports={superAdminRegistration,superAdminLogin,createAdminPackage,getPackagePlan,updatePackage,deletePackage,createContact,getContact,updateContact,deleteContact}
+
+
+
+
+
+module.exports={
+    superAdminRegistration,
+    superAdminLogin,
+    createAdminPackage,
+    getPackagePlan,
+    updatePackage,
+    deletePackage,
+    createContact,
+    getContact,
+    updateContact,
+    deleteContact
+}

@@ -20,5 +20,6 @@ const getReportList = (req,res)=>{
 
 
 module.exports={
-    createReport,getReportList
+    createReport,
+    getReportList
 }

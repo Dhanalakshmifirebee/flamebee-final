@@ -4,10 +4,10 @@ const fs=require('fs')
 const storage=multer.diskStorage({
     // console
     destination:(req,res,cb)=>{
-         var k = fs.existsSync('/home/fbnode/uploads/flamebee1');
+         var k = fs.existsSync('/home/fbnode/Dhanalakshmi/flameBeeImage');
             console.log(k);
                 if(!k)
-                 fs.mkdir('/home/fbnode/uploads/flamebee1',(err,path)=>{
+                 fs.mkdir('/home/fbnode/Dhanalakshmi/flameBeeImage',(err,path)=>{
                 if(err){
                     console.log(err)
                 }
@@ -15,9 +15,9 @@ const storage=multer.diskStorage({
                     console.log(path)
                 }
                 })
-                cb(null,'/home/fbnode/uploads/flamebee1')
+                cb(null,'/home/fbnode/Dhanalakshmi/flameBeeImage')
 
-        cb(null,'/home/fbnode/uploads/flamebee1')
+        cb(null,'/home/fbnode/Dhanalakshmi/flameBeeImage')
     },
     filename:(req,file,cb)=>{
         cb(null,Date.now().toString() + file.originalname)
@@ -28,7 +28,7 @@ const storage=multer.diskStorage({
 const fileFilters=(req,file,cb)=>{
     // console.log('inside filefilter')
     // const fileTypes=/jpeg|jpg|png|zip/;
-    if(file.mimetype=='image/png'||file.mimetype=='image/jpg'||file.mimetype=='image/jpeg'||file.mimetype=='image/gif'){
+    if(file.mimetype=='image/png'||file.mimetype=='image/jpg'||file.mimetype=='image/jpeg'||file.mimetype=='image/gif'|| file.mimetype=='text/plain' || file.mimetype=='application/pdf'){
         cb(null,true)
     }else{
     cb(null,false)
