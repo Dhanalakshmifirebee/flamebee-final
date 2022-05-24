@@ -609,6 +609,7 @@ const addFood =async(req,res)=>{
                     res.status(200).send({ message: data1, statusCode: 200 })
                     restaurantController.menu.find({restaurantId:data1.restaurantId},(err,data)=>{
                     console.log(data)
+                    
                     restaurantController.restaurant.findOneAndUpdate({_id:data1.restaurantId},{$set:{foodList:data}},{new:true},(err,data1)=>{
                           console.log(data1)
                         //   res.status(200).send({message:data1})

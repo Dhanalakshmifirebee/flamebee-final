@@ -27,12 +27,21 @@ const faqSchema = mongoose.Schema({
     }
 })
 
+
+const subscriberSchema = mongoose.Schema({
+    subscriberEmail:String,
+    subscriberType:String,
+})
+
+
 const content = mongoose.model("contentSchema",contentSchema)
 const faq = mongoose.model("faqSchema",faqSchema)
+const subscriber = mongoose.model("subscriberSchema",subscriberSchema)
 
 
 
 module.exports={
     content,
-    faq
+    faq,
+    subscriber
 }

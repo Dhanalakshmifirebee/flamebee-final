@@ -21,6 +21,7 @@ const paymentSchema = mongoose.Schema({
         default:"pending"
     },
     foodSchema:[Object]
+    
 })
 
 

@@ -1,4 +1,4 @@
-const { adminSchema,sendOtp,packagePlanSchema} = require('../model/adminSchema')
+const { adminSchema,sendOtp,packagePlanSchema,command} = require('../model/adminSchema')
 const jwt = require('jsonwebtoken')
 const { validationResult } = require('express-validator')
 const bcrypt = require('bcrypt')
@@ -465,7 +465,6 @@ const getSingleAdminPackage = (req,res)=>{
 }
 
 
-
 const updatePackagePlan = (req,res)=>{
     const token = jwt.decode(req.headers.authorization)
     const verifyId = token.userid
@@ -474,6 +473,45 @@ const updatePackagePlan = (req,res)=>{
         res.status(200).send({message:data})
     })
 }
+
+
+const createCommand = (req,res)=>{
+    try{
+       command.create(req.body,(err,data)=>{
+           if(err){
+               throw err
+           }
+           else{
+               res.status(200).send({message:data})
+           }
+       })
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+}
+
+const getCommandList = (req,res)=>{
+    try{
+        command.find({},(err,data)=>{
+            if(err){
+                throw err
+            }
+            if(data.length==0){
+                res.status(400).send({message:"data not found"})
+            }
+            else{
+                res.status(200).send({message:data})
+            }
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+}
+
+
+
 
 
 
@@ -489,5 +527,7 @@ module.exports = {
     updatePackagePlan,
     verifyContact,
     verifyEmail,
-    getSingleAdminPackage
+    getSingleAdminPackage,
+    createCommand,
+    getCommandList
 }

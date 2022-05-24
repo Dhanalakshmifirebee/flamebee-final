@@ -67,6 +67,15 @@ const orderSchema = mongoose.Schema({
 })
 
 
+const cancellationReasonSchema = mongoose.Schema({
+     reason:String,
+     cancellationFor:String,
+     status:String
+})
+
+
+
+
 // const ordersSchema = mongoose.Schema({
 
 //   orderId:String,
@@ -107,5 +116,9 @@ const orderSchema = mongoose.Schema({
 
 
 const order=mongoose.model('ordersSchema', orderSchema)
+const cancellationReason = mongoose.model("cancellationReasonSchema",cancellationReasonSchema)
 
-module.exports={order}
+module.exports={
+  order,
+  cancellationReason
+}

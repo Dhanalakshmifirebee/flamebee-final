@@ -93,11 +93,18 @@ const packagePlan = mongoose.Schema({
     
 })
 
+const commandSchema = mongoose.Schema({
+    name:String,
+    email:String,
+    website:String,
+    command:String
+})
 
 
 const adminSchema = mongoose.model('registerSchema', registerSchema)
 const sendOtp = mongoose.model('sendOtpSchema', otpSchema)
 const loginSchema = mongoose.model("loginSchema", forgotPassword)
+const command = mongoose.model('commandSchema',commandSchema)
 
 const adminRequest = mongoose.model('adminRequestSchema',adminRequestSchema)
 const packagePlanSchema = mongoose.model('packagePlanSchema',packagePlan)
@@ -106,7 +113,14 @@ const packagePlanSchema = mongoose.model('packagePlanSchema',packagePlan)
 const validation = [
     body('email').trim().isEmail().withMessage('email  must be valid'),
     // body('password').isLength({ min: 2}).withMessage('password is required')
-    
 ]
 
-module.exports = { adminSchema, validation, loginSchema,sendOtp,adminRequest,packagePlanSchema}
+
+module.exports = { 
+    adminSchema, 
+    validation, 
+    loginSchema,
+    sendOtp,
+    adminRequest,
+    packagePlanSchema
+}

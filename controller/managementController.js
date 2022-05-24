@@ -24,6 +24,9 @@ const getContentList = (req,res)=>{
             if(err){
                 throw err
             }
+            if(data.length==0){
+                res.status(400).send({message:"data not found"})
+            }
             else{
                 res.status(200).send({message:data})
             }
@@ -134,6 +137,45 @@ const deleteFAQ = (req,res)=>{
     }
 }
 
+///////////////// Subscriber
+
+const addSubscriber = (req,res)=>{
+    try{
+        managementController.subscriber.create(req.body,(err,data)=>{
+            console.log(data);
+            if(err){
+                throw err
+            }
+            else{
+                res.status(200).send({message:data})
+            }
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+}
+
+const getSubscriberList = (req,res)=>{
+    try{
+        managementController.subscriber.find({},(err,data)=>{
+            if(err){
+                throw err
+            }
+            if(data.length==0){
+                res.status(400).send({message:"data not found"})
+            }
+            else{
+                res.status(200).send({message:data})
+            }
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+}
+
+
 
 module.exports={
     createContent,
@@ -143,5 +185,7 @@ module.exports={
     createFAQ,
     getFAQ,
     updateFAQ,
-    deleteFAQ
+    deleteFAQ,
+    addSubscriber,
+    getSubscriberList
 }

@@ -86,11 +86,17 @@ function filterLocation(result,radius,latitude,longitude)
 
 
 const getSingleDeliveryCandidate = (req,res)=>{
-    console.log("data")
-     deliveryControll.deliveryRegister.findOne({_id:req.params.id},(err,data)=>{
-         console.log(data)
-         res.status(200).send({success:"true",message:"Single delivery Candidate",data})
-     })
+    try{
+        console.log("data")
+        deliveryControll.deliveryRegister.findOne({_id:req.params.id},(err,data)=>{
+            console.log(data)
+            res.status(200).send({success:"true",message:"Single delivery Candidate",data})
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+    
 }
 
 
@@ -241,6 +247,41 @@ const orderStatusUpdate = (req,res)=>{
   
 }
 
+const cancellationReason = (req,res)=>{
+    try{
+        orderControll.cancellationReason.create(req.body,(err,data)=>{
+            if(err){
+                throw err
+            }
+            else{
+                res.status(200).send({message:data})
+            }
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+}
+
+
+const getCancellationList = (req,res)=>{
+    try{
+        orderControll.cancellationReason.find({},(err,data)=>{
+            if(err){
+                throw err
+            }
+            if(data.length==0){
+                res.status(400).send({messahe:"data not found"})
+            }
+            else{
+                res.status(200).send({message:data})
+            }
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+}
 
 
 
@@ -254,5 +295,7 @@ module.exports = {
     deliveryCandidateUpdateOrderDetails,
     popularFood,
     getSingleDeliveryCandidate,
-    orderStatusUpdate
+    orderStatusUpdate,
+    cancellationReason,
+    getCancellationList
 }

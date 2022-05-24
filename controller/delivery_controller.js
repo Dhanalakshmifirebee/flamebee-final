@@ -235,12 +235,17 @@ const notification=(req,res)=>{
 
 
 const foodDelivery =(req,res)=>{
-  
-    deliveryController.deliveryRegister.find({},(err,data)=>{
-        console.log(data)
-        const datas=data.filter(((result)=>filterLocation(result,5000,req.params.latitude,req.params.longitude)))
-        res.status(200).send({message:"nearBy Delivery Candidate Details",datas})
-    })
+    try{
+        deliveryController.deliveryRegister.find({},(err,data)=>{
+            console.log(data)
+            const datas=data.filter(((result)=>filterLocation(result,5000,req.params.latitude,req.params.longitude)))
+            res.status(200).send({message:"nearBy Delivery Candidate Details",datas})
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+    
     
 }
 

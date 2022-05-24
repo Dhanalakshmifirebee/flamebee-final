@@ -7,6 +7,7 @@ const { adminSchema } = require("../model/adminSchema");
 
 
 
+
 const createOrderId =(req,res)=>{
     try{
         var instance = new razorpay({ key_id: 'rzp_test_g9dMQWCjray0qF', key_secret: '93A4bFLXPuLVXWGanF0ZM6n2' })
@@ -24,7 +25,6 @@ const createOrderId =(req,res)=>{
         res.status(400).send({message:err})
     }
 }
-
 
 
 

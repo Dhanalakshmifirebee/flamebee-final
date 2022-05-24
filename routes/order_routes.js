@@ -13,9 +13,12 @@ router.put('/deliveryCandidateUpdateStatusDetails',orderControllDetails.delivery
 router.put('/deliveryCandidateUpdateOrderDetails',orderControllDetails.deliveryCandidateUpdateOrderDetails)
 
 
-
 router.get('/popularFood',orderControllDetails.popularFood)
 router.get('/getSingleDeliveryCandidate/:id',orderControllDetails.getSingleDeliveryCandidate)
 router.put('/orderStatusUpdate/:id',orderControllDetails.orderStatusUpdate)
+
+router.post('/cancellationReason',orderControllDetails.cancellationReason)
+router.get('/getCancellationList',orderControllDetails.getCancellationList)
+
 
 module.exports=router
