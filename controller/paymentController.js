@@ -96,7 +96,6 @@ const updatePaymentStatus = (req,res)=>{
 }
 
 
-
 const createPackagePlanPayment = (req,res)=>{
     console.log("data")
     const token = jwt.decode(req.headers.authorization)
@@ -116,6 +115,23 @@ const createPackagePlanPayment = (req,res)=>{
 }
 
 
+const trackPayment = (req,res)=>{
+    try{
+        paymentController.payment.findOne({transactionId:req.params.id},(err,data)=>{
+            if(err){
+                throw err
+            }
+            else{
+                res.status(200).send({message:data})
+            }
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+}
+
+
 
 module.exports={
     createOrderId,
@@ -123,5 +139,6 @@ module.exports={
     getPaymentList,
     updatePaymentStatus,
     onlinePayment,
-    createPackagePlanPayment
+    createPackagePlanPayment,
+    trackPayment
 }

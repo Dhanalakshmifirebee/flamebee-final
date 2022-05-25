@@ -9,6 +9,7 @@ const multer=require('../middleware/multer')
 
 router.post('/register',valid.validation,adminController.register)
 router.post('/login',adminController.login)
+router.post('/verifyOtp',adminController.verifyOtp)
 router.post('/verifyContact',adminController.verifyContact)
 router.post('/verifyEmail',adminController.verifyEmail)
 

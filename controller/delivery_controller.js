@@ -277,6 +277,7 @@ function filterLocation(result,radius,latitude,longitude)
 }
 
 
+
 module.exports={
     CreateCandidate,
     getAllCandidate,

@@ -235,8 +235,6 @@ const getRestaurantByLocation = (req,res)=>{
 }
 
 
-
-
 const getRestaurantLocationByRating = (req,res)=>{
     try{
         restaurantController.restaurant.find({},(err,data)=>{
@@ -614,8 +612,8 @@ const addFood =async(req,res)=>{
                           console.log(data1)
                         //   res.status(200).send({message:data1})
                     })
-                })
-            }
+                  })
+                }
             })
         }) 
     }

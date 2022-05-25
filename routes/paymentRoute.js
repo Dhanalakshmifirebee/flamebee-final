@@ -10,5 +10,6 @@ router.put('/updatePayment/:id',payment.updatePaymentStatus)
 
 router.post('/createPackagePayment',payment.createPackagePlanPayment)
 
+router.get('/trackPayment/:id',payment.trackPayment)
 
 module.exports=router

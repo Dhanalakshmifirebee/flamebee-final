@@ -16,6 +16,7 @@ const blog=require('./routes/blogRoute')
 const report=require('./routes/reportRoute')
 const management = require('./routes/managementRoute')
 const offer = require('./routes/offerRoute')
+const help = require('./routes/helpRoute')
 
 
 const app = express()
@@ -34,6 +35,7 @@ app.use('/flame/blog',blog)
 app.use('/flame/report',report)
 app.use('/flame/management',management)
 app.use('/flame/offer',offer)
+app.use('/flame/help',help)
 
 
 
@@ -55,3 +57,4 @@ app.listen(8613, () => {
 })
 
 
+ 

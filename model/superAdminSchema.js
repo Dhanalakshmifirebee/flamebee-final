@@ -47,6 +47,9 @@ const contactSchema = mongoose.Schema({
     }
 })
 
+
+
+
 const register=mongoose.model('superAdmin',registerSchema)
 const adminPackage = mongoose.model("adminPackageSchema",adminPackageSchema)
 const contact = mongoose.model('contactSchema',contactSchema)

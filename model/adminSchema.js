@@ -122,5 +122,6 @@ module.exports = {
     loginSchema,
     sendOtp,
     adminRequest,
-    packagePlanSchema
+    packagePlanSchema,
+    command
 }

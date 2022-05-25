@@ -22,7 +22,8 @@ router.delete('/deleteFAQ/:id',management.deleteFAQ)
 
 router.post('/addSubscriber',management.addSubscriber)
 router.get('/getSubscriberList',management.getSubscriberList)
-
+router.put('/updateSubscriber',management.updateContent)
+router.delete('/deleteSubscriber',management.deleteContent)
 
 module.exports=router
 

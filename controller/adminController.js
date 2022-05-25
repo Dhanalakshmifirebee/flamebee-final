@@ -84,58 +84,78 @@ const login = async(req, res) => {
             })
         } else {
             if(req.body.otp==null){
-            console.log('line 55',req.body.contact)
-            adminSchema.findOne({ contact: req.body.contact }, async (err, data) => {
-                if(data){
-                    if(data.contact==req.body.contact){
-                        console.log("line 66",data.contact)
-                        console.log("line 67",req.body.contact)
-                        const otp = otpRandamString.randomString(3)
-                            console.log("otp", otp)
-                            sendOtp.create({otp: otp },async (err,datas) => {
-                                console.log("line 72", datas)
-                                if(err){throw err}
-                                if (datas) {
-                                console.log("line 75", datas)
-                        const response = await fast2sms.sendMessage({ authorization:"7AMS5DChNOQakW4RbGtZzPy8njrvJsHXiFIUp9f6V23wqKBm0E90ZS7gEBN2pVurRXAD4cC3Jei81WKI",message:otp,numbers:[req.body.contact]})
-                        res.status(200).send({ message: "verification otp send your mobile number",datas })
-                                    setTimeout(() => {
-                                       sendOtp.findOneAndDelete({ otp: otp },{returnOriginal:false}, (err, result) => {
-                                            console.log("line 81", result)
-                                            if(err){throw err}
-                                        })
-                                    }, 30000)
-                                }else{res.status(400).send('otp does not send')}  
-                            }) 
-                    }else{res.status(400).send('contact does not match')}
-                }else{
-                    console.log("line 66",'please signup')
-                    res.status(400).send({message:'please register your profile'})
-                }
-                
-            })
-        }else{
-           sendOtp.findOne({otp:req.body.otp},(err,data)=>{
-               console.log("line 94",data)
-                    if(data!=null){
-                        adminSchema.findOne({contact:req.body.contact},async(err,datas)=>{
-                            console.log("line 99",datas)
-                            if(err){throw err}
-                            else{
-                                const token=await jwt.sign({userid:datas._id},'SECRET')
-                                res.status(200).send({datas:datas,token})
-                                }
-                        })
+                console.log('line 55',req.body.contact)
+                adminSchema.findOne({ contact: req.body.contact }, async (err, data) => {
+                    if(data){
+                        if(data.contact==req.body.contact){
+                            console.log("line 66",data.contact)
+                            console.log("line 67",req.body.contact)
+                            const otp = otpRandamString.randomString(3)
+                                console.log("otp", otp)
+                                sendOtp.create({otp: otp },async (err,datas) => {
+                                    console.log("line 72", datas)
+                                    if(err){throw err}
+                                    if (datas) {
+                                    console.log("line 75", datas)
+                                    fast2sms.sendMessage({ authorization:"7AMS5DChNOQakW4RbGtZzPy8njrvJsHXiFIUp9f6V23wqKBm0E90ZS7gEBN2pVurRXAD4cC3Jei81WKI",message:otp,numbers:[req.body.contact]})
+                                    res.status(200).send({ message: "verification otp send your mobile number",datas})
+                                            setTimeout(() => {
+                                        sendOtp.findOneAndDelete({ otp: otp },{returnOriginal:false}, (err, result) => {
+                                                console.log("line 81", result)
+                                                if(err){throw err}
+                                            })
+                                        }, 30000)
+                                    }else{res.status(400).send('otp does not send')}  
+                                }) 
+                        }else{res.status(400).send('contact does not match')}
                     }else{
-                        res.status(400).send({message:"otp expired"})
+                        console.log("line 66",'please signup')
+                        res.status(400).send({message:'please register your profile'})
                     }
-            })        
+                })
+            }else{
+                    sendOtp.findOne({otp:req.body.otp},(err,data)=>{
+                        console.log("line 94",data)
+                                if(data!=null){
+                                    adminSchema.findOne({contact:req.body.contact},async(err,datas)=>{
+                                        console.log("line 99",datas)
+                                        if(err){throw err}
+                                        else{
+                                            const token=await jwt.sign({userid:datas._id},'SECRET')
+                                            res.status(200).send({datas:datas,token})
+                                            }
+                                    })
+                                }else{
+                                    res.status(400).send({message:"otp expired"})
+                                }
+                    })        
+            } 
         }
-    }
     } 
     catch (err) {
         console.log(err.message)
         res.status(500).send({ message: 'please check it again' })
+    }
+}
+
+
+const verifyOtp = (req,res)=>{
+    try{
+        sendOtp.findOne({otp:req.body.otp},async(err,data)=>{
+            if(data!=null){
+                adminSchema.findOne({contact:req.body.contact},async(err,datas)=>{
+                    console.log("line 99",datas)
+                    const token=await jwt.sign({userid:datas._id},'SECRET')
+                    res.status(200).send({message:data,token})
+                })
+            }
+            else{
+                res.status(400).send({message:"Invalied otp"})
+            }
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
     }
 }
 
@@ -449,6 +469,7 @@ const packagePlan =async(req,res)=>{
     }
 }
 
+
 const getSingleAdminPackage = (req,res)=>{
    
     const token = jwt.decode(req.headers.authorization)
@@ -491,6 +512,7 @@ const createCommand = (req,res)=>{
     }
 }
 
+
 const getCommandList = (req,res)=>{
     try{
         command.find({},(err,data)=>{
@@ -517,6 +539,7 @@ const getCommandList = (req,res)=>{
 
 module.exports = {
     login,
+    verifyOtp,
     register,
     getAllOwnersUser,
     getByOwnerUserId,

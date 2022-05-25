@@ -1,12 +1,13 @@
 const mongoose = require('mongoose')
 
+
 const paymentSchema = mongoose.Schema({
+    transactionId:String,
     name:String,
     email:String,
     contact:Number,
     userId:String,
     address:String,
-    userId:String,
     userLocation:{
         userLatitude:String,
         userLongitude:String
@@ -21,7 +22,6 @@ const paymentSchema = mongoose.Schema({
         default:"pending"
     },
     foodSchema:[Object]
-    
 })
 
 
@@ -38,9 +38,13 @@ const packagePaymentSchema = mongoose.Schema({
 })
 
 
+
+
+
 const payment = mongoose.model("paymentSchema",paymentSchema)
 const packagePayment = mongoose.model("packageSchema",packagePaymentSchema)
 
 module.exports={
-      payment,packagePayment
+      payment,
+      packagePayment
 }

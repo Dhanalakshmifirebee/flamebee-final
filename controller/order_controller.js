@@ -132,7 +132,7 @@ const adminUpdateOrderDetails = (req, res) => {
             console.log("line 18", data)
             if (data) {
                 req.body.deliveryCandidateName = data.name,
-                    req.body.candidateContactNumber = data.contact
+                req.body.candidateContactNumber = data.contact
                 req.body.orderStatus = "orderAccepted"
                 console.log("line 23", req.body)
                 orderControll.order.findOneAndUpdate({ _id: req.query.orderId, deleteFlag: "false" }, req.body, { new: true }, (err, datas) => {
@@ -160,7 +160,6 @@ const deliveryCandidateUpdateStatusDetails = (req, res) => {
                 console.log(data.name)
                 Location.deliveryLatitude = data.deliveryLocation.deliveryLatitude
                 Location.deliveryLongitude = data.deliveryLocation.deliveryLongitude
-
                 req.body.deliveryLocation = Location
                 req.body.orderStatus = "orderTakeOver"
                 console.log("line 40", req.body)
