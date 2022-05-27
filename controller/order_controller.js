@@ -4,13 +4,18 @@ const restaurantController = require('../model/restaurantSchema')
 const geolib = require('geolib')
 const paginated=require('./adminController')
 const nodeGeocoder = require('node-geocoder')
+const jwt = require('jsonwebtoken')
+const moment = require("moment")
 
 const orderDetails = async(req, res) => {
     try {
-         console.log(req.body)
+        //  console.log(req.body)
          req.body.paymentDetails = req.body.paymentDetails
          req.body.cart = req.body.cart
-
+         const date = "2022-05-28"
+        //  const date =moment(new Date()).toISOString().slice(0,10)
+         console.log('line 15',date);
+         req.body.date = date
          let options = { provider: 'openstreetmap'}
          let geoCoder = nodeGeocoder(options);
          const convertAddressToLatLon=await(geoCoder.geocode(req.body.userAddress))
@@ -25,14 +30,14 @@ const orderDetails = async(req, res) => {
                     restaurantController.menu.findOne({ _id: foodId }, (err, data2) => {
                         // console.log(data2.count)
                         const count = data2.count + 1
-                        console.log(count)
+                        // console.log(count)
                         restaurantController.menu.findOneAndUpdate({ _id: foodId }, { $set: { count: count } }, { new: true }, (err, data3) => {
                             if(err) throw err
-                            console.log(data3)
-                            console.log(data1.cart)
+                            // console.log(data3)
+                            // console.log(data1.cart)
                             var result = data1.cart
                             result.map((x)=>{
-                                console.log("line 35",x)
+                                // console.log("line 35",x)
                                 // x.map((y)=>{
                                 //     console.log("line 35",x.restaurantDetails)
                                 //     console.log(y)
@@ -41,7 +46,7 @@ const orderDetails = async(req, res) => {
                                     // console.log(y.restaurantLocation.restaurantLatitude)
                                     // console.log(y.restaurantLocation.restaurantLongitude)
                                     deliveryControll.deliveryRegister.find({},(err,data)=>{
-                                        console.log(data)
+                                        // console.log(data)
                                         const datas=data.filter(((result)=>filterLocation(result,22000,a,b)))
                                         res.status(200).send({success:"true",message:"nearBy Delivery Candidate Details",datas})
                                     })
@@ -246,6 +251,7 @@ const orderStatusUpdate = (req,res)=>{
   
 }
 
+
 const cancellationReason = (req,res)=>{
     try{
         orderControll.cancellationReason.create(req.body,(err,data)=>{
@@ -283,6 +289,164 @@ const getCancellationList = (req,res)=>{
 }
 
 
+const getPendingOrderCount = (req,res)=>{
+    try{
+        orderControll.order.find({orderStatus:"pending"},(err,data)=>{
+            if(err){
+                throw err
+            }
+            if(data.length==0){
+                res.status(400).send({message:"data not found"})
+            }
+            else{
+                const count = data.length
+                res.status(200).send({message:count})
+            }
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+}
+
+
+const getFinishedOrderCount = (req,res)=>{
+    try{
+        orderControll.order.find({orderStatus:"finished"},(err,data)=>{
+             if(err){
+                 throw err
+             }
+             if(data.length==0){
+                 res.status(400).send({message:"data not found"})
+             }
+             else{
+                 const count = data.length
+                 res.status(500).send({message:count})
+             }
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+}
+
+
+
+const getTodayOrderList = (req,res)=>{
+    try{
+         const token = req.headers.authorization
+         if(token!=null){
+             const decoded = jwt.decode(token)
+             const verify = decoded.userid
+             orderControll.order.aggregate([{$match:{$and:[{date:req.query.date},{"cart.restaurantDetails.adminId":verify}]}}],(err,data)=>{
+                if(err){
+                    throw err
+                }
+                else{
+                    res.status(200).send({message:data})
+                }
+            })
+         }
+         else{
+             res.status(400).send({message:"unauthorized"})
+         }
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+}
+
+
+const getTotalRevenue = (req,res)=>{
+    try{
+        const token = req.headers.authorization
+        if(token!=null){
+            const decoded = jwt.decode(token)
+            const verify = decoded.userid
+            console.log(verify);
+            orderControll.order.aggregate([{$match:{"cart.restaurantDetails.adminId":verify}},{$group: {"_id": null,"TotalRevenue": { $sum: "$paymentDetails.amount"}}}],(err,data)=>{
+                if(err){
+                    throw err
+                }
+                else{
+                    res.status(200).send({message:data})
+                }
+            })
+        }
+        else{
+            res.status(400).send({message:"unAuthorized"})
+        }
+     }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+}
+
+
+
+const getTodayRevenue = (req,res)=>{
+    try{
+        const token = req.headers.authorization
+        if(token!=null){
+            const decoded = jwt.decode(token)
+            const verify = decoded.userid
+            console.log(verify);
+            orderControll.order.aggregate([{$match:{$and:[{date:req.query.date},{"cart.restaurantDetails.adminId":verify}]}},{$group:{"_id":null,"TodayRevenue":{$sum:"$paymentDetails.amount"}}}],(err,data)=>{
+                  if(err){
+                      throw err
+                  }
+                  else{
+                      res.status(200).send({message:data})
+                  }
+            })
+        }
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+}
+
+
+const acceptOrderByDeliveryCandidate = (req,res)=>{
+    try{
+        const token = req.headers.authorization
+        if(token!=null){
+            const decoded = jwt.decode(token)
+            const verify = decoded.userid
+            orderControll.order.findOne({_id:req.params.id},(err,data)=>{
+                if(role=="accept"){
+                    deliveryControll.deliveryRegister.findOneAndUpdate({_id:verify},{$set:{orderDetails:data}},{new:true},(err,data)=>{
+                        if(err){
+                            throw err
+                        }
+                        else{
+                            res.status(200).send({message:data})
+                        }
+                    })
+                }
+            })
+        }
+        else{
+            res.status(400).send({message:"unAuthorized"})
+        }
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+}
+
+
+
+
+
+
+// {$group:{_id:"$paymentDetails.amount"}}
+
+
+
+
+
+
 
 module.exports = {
     orderDetails,
@@ -296,5 +460,11 @@ module.exports = {
     getSingleDeliveryCandidate,
     orderStatusUpdate,
     cancellationReason,
-    getCancellationList
+    getCancellationList,
+    getPendingOrderCount,
+    getFinishedOrderCount,
+    getTodayOrderList,
+    getTotalRevenue,
+    getTodayRevenue,
+    acceptOrderByDeliveryCandidate
 }

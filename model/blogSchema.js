@@ -17,6 +17,7 @@ const commandSchema = mongoose.Schema({
 
 
 const blogSchema = mongoose.Schema({
+    id:String,
     adminId:String,
     blogImage:String,
     blogName:String,

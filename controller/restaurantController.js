@@ -431,7 +431,6 @@ const filterFood = (req,res)=>{
                const  uniqueElements = [...new Set(result)]
                console.log("348",uniqueElements);
                res.status(200).send(uniqueElements);
-        
             }
             else{
                 res.status(400).send({message:err})
@@ -693,6 +692,7 @@ const updateFood = (req,res)=>{
         res.status(500).send({message:err.message})
     }
 }
+
 
 const deleteFood = (req, res) => {
     restaurantController.menu.findByIdAndUpdate(req.params.foodId, { deleteFlag: "true" }, { new: true }, (err, data) => {

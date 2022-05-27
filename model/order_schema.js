@@ -58,12 +58,17 @@ const orderSchema = mongoose.Schema({
     userLongitude:Number
   },
   paymentType:String,
-  paymentDetails:{Object},
+  paymentDetails:Object,
   cart:[Object],
   deliveryDate:String,
   deliveryTime:String,
   deliveryType:String,
-  total:String
+  total:String,
+  date:String,
+  status:{
+    type:String,
+    default:"pending"
+  }
 })
 
 

@@ -30,15 +30,21 @@ const createOrderId =(req,res)=>{
 
 const createPayment = (req,res)=>{
     try{
-        const token = jwt.decode(req.headerds.authorization)
-        const verify = token.userid
-        req.body.userId = verify
-        paymentController.payment.create(req.body,(err,data)=>{
-            if(err)throw err
-            console.log(data.role);
-            console.log(data)
-            res.status(200).send({message:data})
-        })
+        const token =jwt.decode(req.headers.authorization)
+        if(token!==null){
+            const verify = token.userid
+            req.body.userId = verify
+            paymentController.payment.create(req.body,(err,data)=>{
+                if(err)throw err
+                console.log(data.role);
+                console.log(data)
+                res.status(200).send({message:data})
+            })
+        }
+        else{
+            res.status(400).send({message:"unAuthorized"})
+        }
+       
     }
     catch(err){
         res.status(500).send({message:err})
@@ -61,7 +67,6 @@ const onlinePayment = (req,res)=>{
     catch(err){
         res.status(500).send({message:err})
     }
-    
 }
 
 
@@ -76,7 +81,6 @@ const getPaymentList = (req,res)=>{
     catch(err){
         res.status(500).send({message:err})
     }
-    
 }
 
 
@@ -92,7 +96,6 @@ const updatePaymentStatus = (req,res)=>{
     catch(err){
         res.status(500).send({message:err})
     }
-  
 }
 
 
@@ -113,6 +116,7 @@ const createPackagePlanPayment = (req,res)=>{
             })
         })
 }
+
 
 
 const trackPayment = (req,res)=>{

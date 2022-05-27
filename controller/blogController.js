@@ -83,13 +83,28 @@ const deleteBlog = (req,res)=>{
     }
 }
 
-
-
+const unsetField = (req,res)=>{ 
+    try{
+        console.log("1");
+        blogController.blog.aggregate([{$unset:"commands.reply.content"}],(err,data)=>{
+            if(err){
+                throw err
+            }
+           console.log(data)
+           res.status(200).send({message:data})
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+}
+    
 
 
 module.exports={
     createBlog,
     getBlog,
     updateBlog,
-    deleteBlog
+    deleteBlog,
+    unsetField
 }

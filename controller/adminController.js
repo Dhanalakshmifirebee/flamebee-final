@@ -163,15 +163,15 @@ const verifyOtp = (req,res)=>{
 let transport = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'dhanamcse282@gmail.com',
-        pass: 'dhanam282'
+        user: 'nishagowsalya339@gmail.com',
+        pass: '8760167075'
     }
 })
 
 
 let postMail = function ( to, subject, text) {
     transport.sendMail({
-        from: 'dhanamcse282@gmail.com',
+        from: 'nishagowsalya339@gmail.com',
         to: to,
         subject: subject,
         text: text,

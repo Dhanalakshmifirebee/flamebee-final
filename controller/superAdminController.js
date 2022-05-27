@@ -3,6 +3,8 @@ const { validationResult } = require('express-validator')
 const jwt = require('jsonwebtoken')
 const superControll=require('../model/superAdminSchema')
 const adminPackageController = require('../model/adminSchema')
+const restaurantController = require('../model/restaurantSchema')
+const { ResultWithContext } = require('express-validator/src/chain')
 
 
 
@@ -196,6 +198,81 @@ const deleteContact = (req,res)=>{
 }
 
 
+const addRestaurantBySuperAdmin = (req,res)=>{
+    try{
+        const token = req.headers.authorization
+        if(token!==null){
+            const verify = jwt.decode(token)
+            req.body.adminId = verify
+            restaurantController.restaurant.create(req.body,(err,data)=>{
+                if(err){
+                    throw err
+                }
+                else{
+                    res.status(200).send({message:"restaurant added successfully",data})
+                }
+            })
+
+        }
+        else{
+            res.status(500).send({message:"unAuthorized"})
+        }
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+}
+
+
+const createTermsAndCondition = (req,res)=>{
+    try{
+        superControll.termsAndCondition.create(req.body,(err,data)=>{
+            if(err){
+                throw err
+            }
+            else{
+                res.status(200).send({message:data})
+            }
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+}
+
+
+const getTermsAndCondition = (req,res)=>{
+    try{
+        superControll.termsAndCondition.find({},(err,data)=>{
+            if(err){
+                throw err
+            }
+            else{
+                res.status(200).send({message:data})
+            }
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+}
+
+
+const updateTermsAndCondition = (req,res)=>{
+    try{
+        superControll.termsAndCondition.findOneAndUpdate({_id:req.params.id},req.body,{new:true},(err,data)=>{
+            if(err){
+                throw err
+            }
+            else{
+                res.status(200).send({message:data})
+            }
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+}
 
 
 
@@ -210,5 +287,10 @@ module.exports={
     createContact,
     getContact,
     updateContact,
-    deleteContact
+    deleteContact,
+    addRestaurantBySuperAdmin,
+    createTermsAndCondition,
+    getTermsAndCondition,
+    updateTermsAndCondition
+
 }

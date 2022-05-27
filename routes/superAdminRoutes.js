@@ -16,6 +16,11 @@ router.get('/getContact',superAdmin.getContact)
 router.put('/updateContact',superAdmin.updateContact)
 router.delete('/deleteContact',superAdmin.deleteContact)
 
+router.post('/addRestaurantBySuperAdmin',superAdmin.addRestaurantBySuperAdmin)
+
+router.post('/createTermsAndCondition',superAdmin.createTermsAndCondition)
+router.get('/getTermsAndCondition',superAdmin.getTermsAndCondition)
+router.put('/updateTermsAndCondition/:id',superAdmin.updateTermsAndCondition)
 
 
 module.exports=router

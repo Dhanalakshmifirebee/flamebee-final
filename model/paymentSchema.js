@@ -39,8 +39,6 @@ const packagePaymentSchema = mongoose.Schema({
 
 
 
-
-
 const payment = mongoose.model("paymentSchema",paymentSchema)
 const packagePayment = mongoose.model("packageSchema",packagePaymentSchema)
 

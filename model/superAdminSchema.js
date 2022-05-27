@@ -47,11 +47,21 @@ const contactSchema = mongoose.Schema({
     }
 })
 
+const termsAndconditionSchema = mongoose.Schema({
+    content:String,
+    agree:Boolean
+})
 
 
 
 const register=mongoose.model('superAdmin',registerSchema)
 const adminPackage = mongoose.model("adminPackageSchema",adminPackageSchema)
 const contact = mongoose.model('contactSchema',contactSchema)
+const termsAndCondition = mongoose.model('termsAndconditionSchema',termsAndconditionSchema)
 
-module.exports={register,adminPackage,contact}
+module.exports={
+    register,
+    adminPackage,
+    contact,
+    termsAndCondition
+}

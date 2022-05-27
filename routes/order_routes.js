@@ -21,4 +21,10 @@ router.post('/cancellationReason',orderControllDetails.cancellationReason)
 router.get('/getCancellationList',orderControllDetails.getCancellationList)
 
 
+
+router.get('/getTodayOrderList',orderControllDetails.getTodayOrderList)
+router.get('/getTotalRevenue',orderControllDetails.getTotalRevenue)
+router.get('/getTodayRevenue',orderControllDetails.getTodayRevenue)
+
+
 module.exports=router

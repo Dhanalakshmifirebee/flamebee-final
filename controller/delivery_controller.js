@@ -1,4 +1,3 @@
-
 const deliveryController=require('../model/delivery_schema')
 const orderControll = require('../model/order_schema')
 const {validationResult}=require('express-validator')
@@ -6,6 +5,7 @@ const nodemailer=require('nodemailer')
 const makeId=require('../controller/random_string')
 const jwt=require('jsonwebtoken')
 const geolib = require('geolib')
+
 
 
 const CreateCandidate=async(req,res)=>{
@@ -277,6 +277,24 @@ function filterLocation(result,radius,latitude,longitude)
 }
 
 
+const totalDeliveryCandidateCount = (req,res)=>{
+    try{
+        deliveryController.deliveryRegister.find({},(err,data)=>{
+            if(err){
+                throw err
+            }
+            else{
+                const count = data.length
+                res.status(200).send({message:count})
+            }
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+}
+
+
 
 module.exports={
     CreateCandidate,
@@ -288,5 +306,6 @@ module.exports={
     selectedCandidateList,
     notification,
     candidateLogin,
-    foodDelivery
+    foodDelivery,
+    totalDeliveryCandidateCount
 }

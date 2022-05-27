@@ -47,6 +47,7 @@ const foodQualityRating = (req,res)=>{
    
 }
 
+
 const locationRating = (req,res)=>{
     try{
         const token = jwt.decode(req.headers.authorization)
@@ -84,6 +85,7 @@ const locationRating = (req,res)=>{
     }
   
 }
+
 
 const priceRating = (req,res)=>{
     const token = jwt.decode(req.headers.authorization)
@@ -193,8 +195,6 @@ const ratingForRestaurant = (req,res)=>{
     
 }
 
-
-
 const createInterestedPersons=async(req,res)=>{
     try{
         if(req.headers.authorization){
@@ -254,6 +254,7 @@ const UserFavoriteList=async(req,res)=>{
 }
 
 // {$match:{$and:[{"userDetails._id":new mongoose.Types.ObjectId(token.userid)},{interested:"true"}]}}
+
 module.exports={
     foodQualityRating,
     locationRating,

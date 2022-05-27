@@ -128,7 +128,6 @@ const sizeSchema = mongoose.Schema({
         type:String,
         default:false
     }
-
 })
 
 const optionSchema = mongoose.Schema({
