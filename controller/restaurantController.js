@@ -6,13 +6,11 @@ const {location} = require("../model/RestaurantLocation")
 const jwt = require('jsonwebtoken')
 const geolib = require('geolib')
 const { Z_BEST_COMPRESSION } = require('zlib')
-const paginated=require('./adminController')
+const paginated=require('./userController')
 const nodeGeocoder = require('node-geocoder');
 const moment = require('moment')
 const mongoose = require('mongoose')
 const { type } = require('express/lib/response')
-
-
 
 
 
@@ -31,6 +29,7 @@ const image = (req,res)=>{
         res.status(500).send({message:err.message})
     }
 }
+
 
 // Restaurant
 

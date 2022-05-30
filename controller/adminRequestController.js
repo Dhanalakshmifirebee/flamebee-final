@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt')
 const { validationResult } = require('express-validator')
 const nodemailer = require('nodemailer')
 const jwt = require('jsonwebtoken')
-const paginated=require('./adminController')
+const paginated=require('./userController')
 const paymentController = require('../model/paymentSchema')
 const moment = require('moment')
 const mongoose = require('mongoose')
@@ -132,6 +132,7 @@ let transport = nodemailer.createTransport({
     }
 })
 
+
 let postMail = function ( to, subject, text) {
     transport.sendMail({
         from: 'dhanamcse282@gmail.com',
@@ -234,8 +235,41 @@ const getSingleAdminPackage = (req,res)=>{
   
 }
 
+const createCommand = (req,res)=>{
+    try{
+       command.create(req.body,(err,data)=>{
+           if(err){
+               throw err
+           }
+           else{
+               res.status(200).send({message:data})
+           }
+       })
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+}
 
 
+const getCommandList = (req,res)=>{
+    try{
+        command.find({},(err,data)=>{
+            if(err){
+                throw err
+            }
+            if(data.length==0){
+                res.status(400).send({message:"data not found"})
+            }
+            else{
+                res.status(200).send({message:data})
+            }
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+}
 
 
 
@@ -245,5 +279,7 @@ module.exports={
     adminLogin,
     getAdminRequest,
     packagePlan,
-    getSingleAdminPackage
+    getSingleAdminPackage,
+    createCommand,
+    getCommandList
 }

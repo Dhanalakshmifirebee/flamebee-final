@@ -2,10 +2,11 @@ const orderControll = require('../model/order_schema')
 const deliveryControll = require('../model/delivery_schema')
 const restaurantController = require('../model/restaurantSchema')
 const geolib = require('geolib')
-const paginated=require('./adminController')
+const paginated=require('./userController')
 const nodeGeocoder = require('node-geocoder')
 const jwt = require('jsonwebtoken')
 const moment = require("moment")
+
 
 const orderDetails = async(req, res) => {
     try {
@@ -407,33 +408,7 @@ const getTodayRevenue = (req,res)=>{
 }
 
 
-const acceptOrderByDeliveryCandidate = (req,res)=>{
-    try{
-        const token = req.headers.authorization
-        if(token!=null){
-            const decoded = jwt.decode(token)
-            const verify = decoded.userid
-            orderControll.order.findOne({_id:req.params.id},(err,data)=>{
-                if(role=="accept"){
-                    deliveryControll.deliveryRegister.findOneAndUpdate({_id:verify},{$set:{orderDetails:data}},{new:true},(err,data)=>{
-                        if(err){
-                            throw err
-                        }
-                        else{
-                            res.status(200).send({message:data})
-                        }
-                    })
-                }
-            })
-        }
-        else{
-            res.status(400).send({message:"unAuthorized"})
-        }
-    }
-    catch(err){
-        res.status(500).send({message:err.message})
-    }
-}
+
 
 
 
@@ -466,5 +441,5 @@ module.exports = {
     getTodayOrderList,
     getTotalRevenue,
     getTodayRevenue,
-    acceptOrderByDeliveryCandidate
+    
 }

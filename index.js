@@ -3,10 +3,12 @@ const cors = require('cors')
 const dotenv = require('dotenv').config()
 
 
+
 const errorThrower = require('./errorHandler/error_thrower')
 const appError = require('./errorHandler/common_error_handler')
 require('./config/db_config')
 const admin = require('./routes/adminRoutes')
+const user = require('./routes/userRoute')
 const superAdmin=require('./routes/superAdminRoutes')
 const restaraunt = require('./routes/restaurantRoutes')
 const delivery=require('./routes/delivery_routes')
@@ -25,6 +27,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use('/uploads', express.static('/home/fbnode/Dhanalakshmi/flameBeeImage'))
 
+app.use('/flame/user',user)
 app.use('/flame/admin', admin)
 app.use('/flame/superAdmin', superAdmin)
 app.use('/flame/restaurant', restaraunt)
@@ -53,6 +56,5 @@ app.use(errorThrower)
 app.listen(8613, () => {
     console.log("port running on ", 8613)
 })
-
 
  

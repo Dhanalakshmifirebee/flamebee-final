@@ -28,11 +28,12 @@ const bankSchema = mongoose.Schema({
 const deliveryCandidateRegisterSchema = mongoose.Schema({
     firstName:String,
     lastName:String,
+    deliveryCandidateId:String,
     mobileNumber:Number,
     device:String,
     streetAddress:String,
     socialSecurityNumber:Number,
-    emailAddress:String,
+    email:String,
     password:String,
     postalCode:Number,
     state:String,
@@ -42,6 +43,7 @@ const deliveryCandidateRegisterSchema = mongoose.Schema({
     licenseDetails:licenseSchema,
     insuranceDetails:insuranceSchema,
     bankDetails:bankSchema,
+    orderdetails:[Object],
     status:{
         type:String,
         default:"0"
