@@ -7,6 +7,7 @@ const registerSchema = mongoose.Schema({
     contact:Number
 })
 
+
 const otpSchema = mongoose.Schema({
     otp: Number
 })

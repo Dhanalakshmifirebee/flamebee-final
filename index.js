@@ -3,7 +3,6 @@ const cors = require('cors')
 const dotenv = require('dotenv').config()
 
 
-
 const errorThrower = require('./errorHandler/error_thrower')
 const appError = require('./errorHandler/common_error_handler')
 require('./config/db_config')
@@ -22,7 +21,7 @@ const help = require('./routes/helpRoute')
 
 
 const app = express()
-app.use(cors())
+app.use(cors({credentials: true, origin: true}))
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use('/uploads', express.static('/home/fbnode/Dhanalakshmi/flameBeeImage'))
@@ -39,7 +38,6 @@ app.use('/flame/report',report)
 app.use('/flame/management',management)
 app.use('/flame/offer',offer)
 app.use('/flame/help',help)
-
 
 
 app.get('/',(req,res)=>{

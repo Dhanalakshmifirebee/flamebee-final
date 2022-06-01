@@ -1,6 +1,6 @@
 const managementController = require('../model/managementSchema')
 
-//////// Content
+////////   Content
 
 const createContent = (req,res)=>{
     try{

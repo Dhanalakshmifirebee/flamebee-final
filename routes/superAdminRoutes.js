@@ -16,6 +16,7 @@ router.get('/getContact',superAdmin.getContact)
 router.put('/updateContact',superAdmin.updateContact)
 router.delete('/deleteContact',superAdmin.deleteContact)
 
+router.post('/addAdmin',superAdmin.addAdmin)
 router.post('/addRestaurantBySuperAdmin',superAdmin.addRestaurantBySuperAdmin)
 
 router.post('/createTermsAndCondition',superAdmin.createTermsAndCondition)

@@ -3,19 +3,17 @@ const { stringify } = require('querystring')
 
 
 const licenseSchema = mongoose.Schema({
-    firstName:String,
-    lastName:String,
+    fullName:String,
     dateOfBirth:String,
     licenseNumber:Number,
     expirationDate:String,
-    licenseImage:String,
+    // licenseImage:String,
 })
 
 
 const insuranceSchema = mongoose.Schema({
     insuranceProvider:String,
     insurancePolicyNumber:Number,
-   
 })
 
 
@@ -32,7 +30,6 @@ const deliveryCandidateRegisterSchema = mongoose.Schema({
     mobileNumber:Number,
     device:String,
     streetAddress:String,
-    socialSecurityNumber:Number,
     email:String,
     password:String,
     postalCode:Number,

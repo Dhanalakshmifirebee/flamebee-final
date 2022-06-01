@@ -170,26 +170,43 @@ const acceptOrderByDeliveryCandidate = (req,res)=>{
         if(token!=null){
             const decoded = jwt.decode(token)
             const verify = decoded.userid
-            orderControll.order.findOne({_id:req.params.id},(err,data)=>{
-                console.log(data);
-                if(req.body.role=="accept"){
-                    req.body.orderdetails = data
-                    console.log("line 177",req.body.orderdetails);
-                    deliveryController.deliveryCandidateRegister.findOneAndUpdate({_id:verify},req.body,{new:true},(err,data)=>{
-                        console.log(data);
+            orderControll.order.findOne({_id:req.params.id},(err,data1)=>{
+                if(data1){
+                    deliveryController.deliveryCandidateRegister.findOne({_id:verify},(err,data2)=>{
+                        var arr =[]
                         if(err){
                             throw err
                         }
                         else{
-                            res.status(200).send({message:data})
+                            data2.orderdetails.map((x)=>{
+                                console.log(x);
+                                arr.push(x)
+                            })
                         }
+                        console.log(arr);
                     })
+                    //     console.log("line 174",data);
+                    //     if(req.body.role=="accept"){
+                    //         let a = []
+                    //         a.push(data)
+                    //         console.log("line 180",a);
+                    //         req.body.orderdetails = a
+                        
+                    //         deliveryController.deliveryCandidateRegister.findOneAndUpdate({_id:verify},req.body,{new:true},(err,data)=>{
+                    //             console.log(data);
+                    //             if(err){
+                    //                 throw err
+                    //             }
+                    //             else{
+                    //                 res.status(200).send({message:data})
+                    //             }
+                    //         })
+                    //     }
                 }
+               
             })
         }
         else{ 
-         
-            
             res.status(400).send({message:"unAuthorized"})
         }
     }

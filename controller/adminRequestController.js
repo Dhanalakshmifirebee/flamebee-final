@@ -9,12 +9,11 @@ const moment = require('moment')
 const mongoose = require('mongoose')
 
 
-
 const createAdminRequest = (req,res)=>{
     try{
         const errors = validationResult(req)
         if (!errors.isEmpty()) {
-            res.status(400).send({ message: errors.array() })
+            res.status(400).send({ message: errors.array()})
         }else{
             adminRequestController.adminRequest.countDocuments({email:req.body.email,userName:req.body.userName},async(err,data)=>{
                 if(data==0){
@@ -145,99 +144,111 @@ let postMail = function ( to, subject, text) {
 
 const packagePlan =async(req,res)=>{ 
     try{
-        const token = jwt.decode(req.headers.authorization)
-        const verify = token.userid
-        console.log(verify);
-        const alreadyExists = await paymentController.packagePayment.aggregate([{$match:{adminId:verify}}])
-        console.log(alreadyExists.length)
-        if(alreadyExists.length!=0){
-            console.log("inside if");
-            // const adminData =  adminRequestController.adminRequest.findOne({userName:"dhanam1"})
-            const adminData = await adminRequestController.adminRequest.aggregate([{$match:{_id:new mongoose.Types.ObjectId(verify)}}])
-            console.log(adminData)
-            const oldDate = new Date(adminData[0].subscriptionEndDate)
-            const currentDate = new Date()
-            const differInDays = moment(oldDate).diff(moment(currentDate),'days')
-            console.log(differInDays);
-            if(req.body.subscriptionPlan == "3 months"){
-                req.body.validityDays = 90+differInDays
-                req.body.subscriptionEndDate = moment(new Date()).add(90+differInDays,'days').toISOString()
+        const token = req.headers.authorization
+        if(token!=null){
+            const decoded = jwt.decode(token)
+            const verify = decoded.userid
+            console.log(verify);
+            const alreadyExists = await paymentController.packagePayment.aggregate([{$match:{adminId:verify}}])
+            console.log(alreadyExists.length)
+            if(alreadyExists.length!=0){
+                console.log("inside if");
+                const adminData = await adminRequestController.adminRequest.aggregate([{$match:{_id:new mongoose.Types.ObjectId(verify)}}])
+                console.log(adminData)
+                const oldDate = new Date(adminData[0].subscriptionEndDate)
+                const currentDate = new Date()
+                const differInDays = moment(oldDate).diff(moment(currentDate),'days')
+                console.log(differInDays);
+                if(req.body.subscriptionPlan == "3 months"){
+                    req.body.validityDays = 90+differInDays
+                    req.body.subscriptionEndDate = moment(new Date()).add(90+differInDays,'days').toISOString()
+                }
+                if(req.body.subscriptionPlan == "6 months"){
+                    req.body.validityDays = 180+differInDays
+                    req.body.subscriptionEndDate = moment(new Date()).add(180+differInDays,'days').toISOString()
+                }
+                if(req.body.subscriptionPlan == "12 months"){
+                    req.body.validityDays = 365+differInDays
+                    req.body.subscriptionEndDate = moment(new Date()).add(365+differInDays,'days').toISOString()
+                }
+                req.body.adminId = verify
+                const createPaymentAgain = await paymentController.packagePayment.create(req.body)
             }
-            if(req.body.subscriptionPlan == "6 months"){
-                req.body.validityDays = 180+differInDays
-                req.body.subscriptionEndDate = moment(new Date()).add(180+differInDays,'days').toISOString()
+            else{
+                console.log("inside else")
+                req.body.adminId = verify
+                req.body.subscriptionStartDate = moment().format()
+                const paymentCreated =await paymentController.packagePayment.create(req.body)
+                console.log(paymentCreated);
+                if(paymentCreated.subscriptionPlan == "Free"){
+                    req.body.subscriptionEndDate = moment(paymentCreated.subscriptionStartDate).add(30,'days').toISOString()
+                    console.log(req.body.subscriptionEndDate)
+                    req.body.validityDays = 30
+                    req.body.free = "true"
+                    
+                }
+                if(paymentCreated.subscriptionPlan == "3 months"){
+                    req.body.subscriptionEndDate = moment(paymentCreated.subscriptionStartDate).add(90,'days').toISOString()
+                    console.log(req.body.subscriptionEndDate)
+                    req.body.validityDays = 90
+                }
+               if(paymentCreated.subscriptionPlan == "6 months"){
+                    req.body.subscriptionEndDate = moment(paymentCreated.subscriptionStartDate).add(180,'days').toISOString()
+                    console.log(req.body.subscriptionEndDate)
+                    req.body.validityDays = 180
+                }
+                if(paymentCreated.subscriptionPlan == "12 months"){
+                    req.body.subscriptionEndDate = moment(paymentCreated.subscriptionStartDate).add(365,'days').toISOString()
+                    console.log(req.body.subscriptionEndDate)
+                    req.body.validityDays = 365
+                }
+                req.body.orderId = paymentCreated.orderId
+                req.body.paymentStatus = "paid"
+                req.body.planStatus="active"
             }
-            if(req.body.subscriptionPlan == "12 months"){
-                req.body.validityDays = 365+differInDays
-                req.body.subscriptionEndDate = moment(new Date()).add(365+differInDays,'days').toISOString()
-            }
-            req.body.adminId = verify
-            const createPaymentAgain = await paymentController.packagePayment.create(req.body)
+            const adminUpdate = await adminRequestController.adminRequest.findOneAndUpdate({_id:verify},req.body,{new:true})
+            console.log(adminUpdate);
+            res.status(200).send({message:"payment created Successfully"})
         }
         else{
-            console.log("inside else")
-            req.body.adminId = verify
-            req.body.subscriptionStartDate = moment().format()
-            const paymentCreated =await paymentController.packagePayment.create(req.body)
-            console.log(paymentCreated);
-            if(paymentCreated.subscriptionPlan == "Free"){
-                req.body.subscriptionEndDate = moment(paymentCreated.subscriptionStartDate).add(30,'days').toISOString()
-                console.log(req.body.subscriptionEndDate)
-                req.body.validityDays = 30
-                req.body.free = "true"
-                
-            }
-            if(paymentCreated.subscriptionPlan == "3 months"){
-                req.body.subscriptionEndDate = moment(paymentCreated.subscriptionStartDate).add(90,'days').toISOString()
-                console.log(req.body.subscriptionEndDate)
-                req.body.validityDays = 90
-            }
-           if(paymentCreated.subscriptionPlan == "6 months"){
-                req.body.subscriptionEndDate = moment(paymentCreated.subscriptionStartDate).add(180,'days').toISOString()
-                console.log(req.body.subscriptionEndDate)
-                req.body.validityDays = 180
-            }
-            if(paymentCreated.subscriptionPlan == "12 months"){
-                req.body.subscriptionEndDate = moment(paymentCreated.subscriptionStartDate).add(365,'days').toISOString()
-                console.log(req.body.subscriptionEndDate)
-                req.body.validityDays = 365
-            }
-            req.body.orderId = paymentCreated.orderId
-            req.body.paymentStatus = "paid"
-            req.body.planStatus="active"
+            res.status(400).send({message:"unAuthorized"})
         }
-        const adminUpdate = await adminRequestController.adminRequest.findOneAndUpdate({_id:verify},req.body,{new:true})
-        console.log(adminUpdate);
-        res.status(200).send({message:"payment created Successfully"})
+        
     }
     catch(err){
-        res.status(400).send({message:err})
+        res.status(500).send({message:err.message})
     }
 }
 
 
 const getSingleAdminPackage = (req,res)=>{
     try{
-        const token = jwt.decode(req.headers.authorization)
-        const verify = token.userid
-        adminRequestController.adminRequest.findOne({_id:verify},(err,data)=>{
-            if(data){
-                res.status(200).send({message:data})
-            }
-            else{
-                res.status(400).send({message:"unauthorized"})
-            }
-        })
+        const token = req.headers.authorization
+        if(token!=null){
+            const decoded = jwt.decode(token)
+            const verify = decoded.userid
+            adminRequestController.adminRequest.findOne({_id:verify},(err,data)=>{
+                if(data){
+                    res.status(200).send({message:data})
+                }
+                else{
+                    res.status(400).send({message:"Invalid token"})
+                }
+            })
+        }
+        else{
+            res.status(400).send({message:"unAuthorized"})
+        }
     }
     catch(err){
         res.status(500).send({message:err.message})
     }
-  
 }
+
 
 const createCommand = (req,res)=>{
     try{
-       command.create(req.body,(err,data)=>{
+        adminRequestController.command.create(req.body,(err,data)=>{
            if(err){
                throw err
            }
@@ -254,7 +265,7 @@ const createCommand = (req,res)=>{
 
 const getCommandList = (req,res)=>{
     try{
-        command.find({},(err,data)=>{
+        adminRequestController.command.find({},(err,data)=>{
             if(err){
                 throw err
             }

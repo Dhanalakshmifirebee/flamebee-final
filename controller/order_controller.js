@@ -10,59 +10,45 @@ const moment = require("moment")
 
 const orderDetails = async(req, res) => {
     try {
-        //  console.log(req.body)
-         req.body.paymentDetails = req.body.paymentDetails
-         req.body.cart = req.body.cart
-         const date = "2022-05-28"
-        //  const date =moment(new Date()).toISOString().slice(0,10)
+        req.body.paymentDetails = req.body.paymentDetails
+        req.body.cart = req.body.cart
+        const date =moment(new Date()).toISOString().slice(0,10)
          console.log('line 15',date);
          req.body.date = date
          let options = { provider: 'openstreetmap'}
          let geoCoder = nodeGeocoder(options);
          const convertAddressToLatLon=await(geoCoder.geocode(req.body.userAddress))
          req.body.userLocation = {"userLatitude":convertAddressToLatLon[0].latitude,"userLongitude":convertAddressToLatLon[0].longitude}
-
-         orderControll.order.create(req.body, (err, data1) => {
+          orderControll.order.create(req.body, (err, data1) => {
                 if (err) throw err
                 console.log(data1)
                 data1.cart.map((x) => {
                     console.log(x._id)
                     var foodId = x._id
                     restaurantController.menu.findOne({ _id: foodId }, (err, data2) => {
-                        // console.log(data2.count)
-                        const count = data2.count + 1
-                        // console.log(count)
-                        restaurantController.menu.findOneAndUpdate({ _id: foodId }, { $set: { count: count } }, { new: true }, (err, data3) => {
+                         const count = data2.count + 1
+                         restaurantController.menu.findOneAndUpdate({ _id: foodId }, { $set: { count: count } }, { new: true }, (err, data3) => {
                             if(err) throw err
-                            // console.log(data3)
-                            // console.log(data1.cart)
-                            var result = data1.cart
+                             var result = data1.cart
                             result.map((x)=>{
-                                // console.log("line 35",x)
-                                // x.map((y)=>{
-                                //     console.log("line 35",x.restaurantDetails)
-                                //     console.log(y)
                                     const a = x.restaurantDetails.restaurantLocation.restaurantLatitude
                                     const b = x.restaurantDetails.restaurantLocation.restaurantLongitude
-                                    // console.log(y.restaurantLocation.restaurantLatitude)
-                                    // console.log(y.restaurantLocation.restaurantLongitude)
                                     deliveryControll.deliveryRegister.find({},(err,data)=>{
-                                        // console.log(data)
-                                        const datas=data.filter(((result)=>filterLocation(result,22000,a,b)))
-                                        res.status(200).send({success:"true",message:"nearBy Delivery Candidate Details",datas})
+                                       const datas=data.filter(((result)=>filterLocation(result,22000,a,b)))
+                                       res.status(200).send({success:"true",message:"nearBy Delivery Candidate Details",datas})
                                     })
-                                // })
                             })
                            
                         })
                     })
                 })
-                // res.status(200).send({success:"true",message: 'order placed successfully',data1})
             })
-        } catch (err) {
+    } catch (err) {
             res.status(500).send({ message: err.message })
-        }
+    }
 }      
+
+
 
 function filterLocation(result,radius,latitude,longitude)
     {
@@ -118,6 +104,7 @@ const getAllOrderDetails = (req, res) => {
 }
 
 
+
 const getSingleOrderDetails = (req, res) => {
     try {
         orderControll.order.findOne({ _id: req.params.id, deleteFlag: "false" }, (err, data) => {
@@ -128,6 +115,7 @@ const getSingleOrderDetails = (req, res) => {
         res.status(500).send({ message: err.message })
     }
 }
+
 
 
 const adminUpdateOrderDetails = (req, res) => {
@@ -384,7 +372,6 @@ const getTotalRevenue = (req,res)=>{
 }
 
 
-
 const getTodayRevenue = (req,res)=>{
     try{
         const token = req.headers.authorization
@@ -408,17 +395,7 @@ const getTodayRevenue = (req,res)=>{
 }
 
 
-
-
-
-
-
-
-
 // {$group:{_id:"$paymentDetails.amount"}}
-
-
-
 
 
 

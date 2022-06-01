@@ -30,9 +30,10 @@ const createOrderId =(req,res)=>{
 
 const createPayment = (req,res)=>{
     try{
-        const token =jwt.decode(req.headers.authorization)
+        const token =req.headers.authorization
         if(token!==null){
-            const verify = token.userid
+            const decoded =jwt.decode(token)
+            const verify = decoded.userid
             req.body.userId = verify
             paymentController.payment.create(req.body,(err,data)=>{
                 if(err)throw err

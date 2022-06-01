@@ -5,6 +5,7 @@ const superControll=require('../model/superAdminSchema')
 const adminPackageController = require('../model/adminSchema')
 const restaurantController = require('../model/restaurantSchema')
 const { ResultWithContext } = require('express-validator/src/chain')
+const {adminSchema} = require('../model/adminSchema')
 
 
 
@@ -116,9 +117,10 @@ const deletePackage = (req,res)=>{
 
 const createContact = (req,res)=>{
     try{
-      const token = jwt.decode(req.headers.authorization)
+      const token = req.headers.authorization
       if(token!==null){
-            const verify = token._id
+            const decoded = jwt.decode(token)
+            const verify = decoded._id
             req.body.superAdminId = verify
             superControll.contact.create(req.body,(err,data)=>{
                 if(err) throw err
@@ -150,9 +152,10 @@ const getContact = (req,res)=>{
 
 const updateContact = (req,res)=>{
     try{
-        const token = jwt.decode(req.headers.authorization)
+        const token = req.headers.authorization
         if(token!==null){
-        const verify = token._id
+        const decoded = jwt.decode(token)
+        const verify = decoded._id
         superControll.contact.findOneAndUpdate({superAdminId:verify},req.body,{new:true},(err,data)=>{
             if(data){
                 res.status(200).send({message:'update successfully',data})
@@ -175,7 +178,7 @@ const updateContact = (req,res)=>{
 
 const deleteContact = (req,res)=>{
     try{
-        const token = jwt.decode(req.headers.authorization)
+        const token = req.headers.authorization
         if(token!==null){
             const verify = token._id
             superControll.contact.findOneAndUpdate({superAdminId:verify},{$set:{deleteFlag:"true"}},{new:true},(err,data)=>{
@@ -190,10 +193,9 @@ const deleteContact = (req,res)=>{
         else{
             res.status(400).send({message:"unauthorized"})
         }
-    
-    }
+    }                                                                 
     catch(err){
-        res.status(200).send({message:err})
+        res.status(200).send({message:err})         
     }
 }
 
@@ -220,6 +222,38 @@ const addRestaurantBySuperAdmin = (req,res)=>{
     }
     catch(err){
         res.status(500).send({message:err.message})
+    }
+}
+
+
+const addAdmin = async(req,res)=>{
+    try{
+        const token = req.headers.authorization
+        if(token!=null){
+            const errors = await validationResult(req)
+            if (!errors.isEmpty()) {
+                res.status(400).send({ message: errors.array() })
+            }else{
+                adminSchema.countDocuments({email:req.body.email}, async (err, data) => {
+                    console.log(data);
+                    if(data == 0){
+                        console.log(req.body);
+                        adminSchema.create(req.body, (err, result) => {
+                            if(err) throw err
+                            res.status(200).send({message:result})
+                        })
+                    }else{
+                        res.status(400).send({ success:"false",message: 'email is already exists' })
+                    }
+                })
+            }
+        }
+        else{
+            res.status(400).send({message:"unAuthorized"})
+        }
+    
+    }catch (e) {
+        res.status(500).send({ message: 'internal server error' })
     }
 }
 
@@ -291,6 +325,7 @@ module.exports={
     addRestaurantBySuperAdmin,
     createTermsAndCondition,
     getTermsAndCondition,
-    updateTermsAndCondition
+    updateTermsAndCondition,
+    addAdmin
 
 }
