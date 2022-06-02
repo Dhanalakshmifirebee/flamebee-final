@@ -160,11 +160,26 @@ const getSpecificRestaurant = (req,res)=>{
     
             adminController.adminRequest.findOne({_id:verifyId,planStatus:"active"},(err,data)=>{
                 if(data){
-                    restaurantController.restaurant.find({restaurantOwnerId:verifyId},(err,data)=>{
-                        if(err) throw err
-                        var count=data.length
-                        console.log(count)
-                        res.status(200).send({message:data,count})
+                    // restaurantController.restaurant.aggregate([{$match:{$and:[{restaurantOwnerId:verifyId},{deleteFlag:"false"}]}}, 
+                    // { $unwind: "$foodList" },
+                    // { $group: { _id: "$_id", data: { $push: "$foodList" }}}],(err,data)=>{
+                    //     if(err){
+                    //         throw err
+                    //     }
+                    //     else{
+                    //         res.status(200).send({message:data})
+                    //     }
+                    // })
+                    restaurantController.restaurant.find({restaurantOwnerId:verifyId,deleteFlag:"false"},(err,data)=>{
+                        if(err) {
+                            throw err
+                        }
+                        else{
+                            var count=data.length
+                            console.log(count)
+                            res.status(200).send({message:data,count})
+                        }
+                        
                     })
                 }
                 else{
@@ -183,7 +198,7 @@ const getSpecificRestaurant = (req,res)=>{
 }
 
 
-const getOneRestaurant = (req,res)=>{
+const getOneRestaurantById = (req,res)=>{
     try{
         restaurantController.restaurant.findOne({_id:req.params.id},(err,data)=>{
             console.log(data)
@@ -514,32 +529,27 @@ const updateFood = (req,res)=>{
                 }
                 else{
                     var result = data.foodList.map((x)=>{
-                        //  console.log(x);
                          if(x._id.toString()===req.params.foodId.toString()){
                              console.log("1");
-                            //   x = req.body
                              x.foodName = req.body.foodName
                              x.foodImage = req.body.foodImage
                              x.foodPrice = req.body.foodPrice
                              x.category = req.body.category
                              x.cuisine = req.body.cuisine
-                        }
+                        }              
                         return x
                      })
                     console.log(result)
-                    restaurantController.restaurant.findOne({_id:data._id},(err,data)=>{
-                        
+                    restaurantController.restaurant.findOneAndUpdate({_id:req.params.restaurantId},{$set:{foodList:result}},{new:true},(err,data)=>{
+                        if(err){
+                            throw err
+                        }
+                        else{
+                            res.status(200).send({message:data})
+                        }
                     })
                 }
             })
-            // restaurantController.menu.findOneAndUpdate({_id:req.params.foodId},req.body,{new:true},(err,data)=>{
-            //     if(err){
-            //         throw err
-            //     }
-            //     else{
-            //         res.status(200).send({messag:data})
-            //     }
-            // })
         }
         else{ 
            res.status(400).send({message:"unAuthorized"})
@@ -552,14 +562,47 @@ const updateFood = (req,res)=>{
 
 
 const deleteFood = (req, res) => {
-    try{
-        restaurantController.menu.findByIdAndUpdate(req.params.foodId, { deleteFlag: "true" }, { new: true }, (err, data) => {
-            if (err) { res.status(400).send({ message: 'data is not deleted yet' }) }
-            else {
-                console.log(data)
-                res.status(200).send({ message: 'data deleted successfully' })
-            }
-        })
+    try{ 
+        const token = req.headers.authorization
+        if(token != null){
+             restaurantController.restaurant.findOne({_id:req.params.restaurantId},(err,data)=>{
+                 const a = []
+                 if(err){
+                     throw err
+                 }
+                 else{
+                    const result = data.foodList.map((x)=>{
+                         if(x._id.toString()===req.params.foodId.toString()){
+                             console.log(x.deleteFlag);
+                             x.deleteFlag = true
+                        }
+                        return x
+                     })
+                     console.log(result);
+                     restaurantController.restaurant.findOneAndUpdate({_id:req.params.restaurantId},{$set:{foodList:result}},{new:true},(err,data)=>{
+                         if(err){
+                             throw err
+                         }
+                         else{
+                             res.status(400).send({message:data})
+                         }
+                     })
+                 }
+               
+             })
+        }
+        else{
+            res.status(400).send({message:"unAuthorized"})
+        }
+
+
+        // restaurantController.menu.findByIdAndUpdate(req.params.foodId, { deleteFlag: "true" }, { new: true }, (err, data) => {
+        //     if (err) { res.status(400).send({ message: 'data is not deleted yet' }) }
+        //     else {
+        //         console.log(data)
+        //         res.status(200).send({ message: 'data deleted successfully' })
+        //     }
+        // })
     }
     catch(err){
         res.status(500).send({message:err.message})
@@ -792,7 +835,7 @@ module.exports={
     createRestaurant,
     updateRestaurantWithFood,
     getSpecificRestaurant,
-    getOneRestaurant,
+    getOneRestaurantById,
     updateRestaurant,
     removeRestaurant,
     getRestaurantByLocation,
