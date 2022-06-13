@@ -216,8 +216,8 @@ const popularFood = (req,res)=>{
             console.log(data)
             var count=data.length
             console.log(count)
-            const data1=paginated.paginated(data,req,res)
-            res.status(200).send({message:data1,count})
+            // const data1=paginated.paginated(data,req,res)
+            res.status(200).send({message:data,count})
             
         })
     }

@@ -97,8 +97,8 @@ const adminSelection =(req,res)=>{
         adminRequestController.adminRequest.findOne({_id:req.params.id},(err,data)=>{
             console.log(data.email)
              if(req.body.role=="accept"){
-                 const to = data.email
-                 postMail(to,"FlameBee","Your Restaurant is approved")
+                //  const to = data.email
+                //  postMail(to,"FlameBee","Your Restaurant is approved")
                  adminRequestController.adminRequest.findOneAndUpdate({_id:req.params.id},{$set:{status:"true"}},{new:true},(err,data1)=>{
                      if(err) throw err
                      console.log(data1)
@@ -106,8 +106,8 @@ const adminSelection =(req,res)=>{
                  })
              }
              else{
-                const to = data.email
-                postMail(to,"FlameBee","Your Restaurant is rejected")
+                // const to = data.email
+                // postMail(to,"FlameBee","Your Restaurant is rejected")
                 adminRequestController.adminRequest.findOneAndUpdate({_id:req.params.id},{$set:{status:"false"}},{new:true},(err,data1)=>{
                     if(err) throw err
                     console.log(data1)

@@ -38,13 +38,13 @@ const superAdminLogin = (req, res) => {
         superControll.register.findOne({ email: req.body.email }, async (err, data) => {
             console.log(data)
             if (data) {
-                const password = await bcrypt.compare(req.body.password, data.password)
+                // const password = await bcrypt.compare(req.body.password, data.password)
                 // console.log(password)
-                if (password === true) {
+                // if (password === true) {
                     const token = jwt.sign({ _id: data._id }, 'secret')
                     res.status(200).send({ message: "login successfully",data, token })
-                }
-                else { res.status(400).send('invalid password') }
+                // }
+                // else { res.status(400).send('invalid password') }
             }
             else {
                 res.status(400).send({ message: 'invalid email/password '})

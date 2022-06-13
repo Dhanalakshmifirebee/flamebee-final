@@ -24,7 +24,7 @@ router.get('/foodDelivery/:latitude/:longitude',deliveryControl.foodDelivery)
 
 // ---------------------------------------------------------------------------------------------------------
 
-router.post('/deliveryRegister',delivery.deliveryRegister)
+
 router.post('/deliveryLogin',delivery.deliveryLogin)
 router.get('/getDeliveryCandidateList',delivery.getDeliveryCandidateList)
 router.post('/deliveryCandidateSelection/:id',delivery.deliveryCandidateSelection)
@@ -34,6 +34,7 @@ router.get('/getRejectedCandidateList',delivery.getRejectedCandidateList)
 router.get('/acceptOrderByDeliveryCandidate/:id',delivery.acceptOrderByDeliveryCandidate)
 router.get('/acceptanceOrderCount',delivery.acceptanceOrderCount)
 
+router.post('/riderRegister',delivery.riderRegister)
 
 
 

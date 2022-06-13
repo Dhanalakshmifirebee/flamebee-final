@@ -6,7 +6,7 @@ const multer=require('../middleware/multer')
 
 ////////////// admin request
 
-router.post('/RegisterAdmin',adminRequest.createAdminRequest)
+router.post('/RegisterAdmin',valid.validation,adminRequest.createAdminRequest)
 router.post('/acceptAdmin/:id',adminRequest.adminSelection)
 router.post('/adminLogin',adminRequest.adminLogin)
 router.get('/getAdminRequestList',adminRequest.getAdminRequest)

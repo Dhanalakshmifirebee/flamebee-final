@@ -92,13 +92,37 @@ const deliveryRegisterSchema=mongoose.Schema({
 })
 
 
+const riderRegisterSchema = mongoose.Schema({
+    country :String,
+    state:String,
+    vehicleType:String,
+    aboutUs:String,
+    name:String,
+    email:String,
+    phoneNo:Number,
+    age:Number,
+    male:String,
+    female:String,
+    deleteFlag:{
+        type:String,
+        default:"false"
+    },
+    status:{
+        type:String,
+        default:"0"
+    }
+
+})
+
 
 const deliveryRegister=mongoose.model("deliveryRegisterSchema",deliveryRegisterSchema)
 
 const deliveryCandidateRegister = mongoose.model("deliveryRegister",deliveryCandidateRegisterSchema)
 
+const rider = mongoose.model("riderRegisterSchema",riderRegisterSchema)
 
 module.exports={
     deliveryRegister,
-    deliveryCandidateRegister
+    deliveryCandidateRegister,
+    rider
 }

@@ -6,41 +6,9 @@ const makeId=require('../controller/random_string')
 const jwt = require('jsonwebtoken')
 
 
-
-const deliveryRegister = (req,res)=>{
-    try{
-        deliveryController.deliveryCandidateRegister.findOne({email:req.body.email},(err,data)=>{
-            console.log(data);
-            if(data==null){
-                const unique = makeId.makeId(6)
-                console.log("line12",unique)
-                const date = Date.now().toString()
-                console.log("line14",date)
-                req.body.deliveryCandidateId = unique + date   
-                deliveryController.deliveryCandidateRegister.create(req.body,(err,data)=>{
-                     if(err){
-                         throw err
-                     }
-                     else{
-                         console.log(data);
-                         res.status(200).send({message:"Register successfully",data})
-                     }
-                })
-            }
-            else{
-                res.status(400).send({message:"email id already exists"})
-            }
-        })
-    }
-    catch(err){
-        res.status(500).send({message:err.message})
-    }
-}
-
-
 const deliveryLogin = (req,res)=>{
     try{
-        deliveryController.deliveryCandidateRegister.aggregate([{$match:{$and:[{deliveryCandidateId:req.body.id},{status:"active"},{deleteFlag:"false"}]}}],(err,data)=>{
+        deliveryController.rider.aggregate([{$match:{$and:[{email:req.body.email},{status:"true"},{deleteFlag:"false"}]}}],(err,data)=>{
             if(data.length!=0){
                 console.log(data[0]);
                 const token = jwt.sign({userid:data[0]._id},"secret")
@@ -59,9 +27,39 @@ const deliveryLogin = (req,res)=>{
 }
 
 
+const riderRegister = (req,res)=>{
+    try{
+        deliveryController.rider.findOne({email:req.body.email},(err,data)=>{
+            console.log(data);
+            if(data==null){
+                // const unique = makeId.makeId(6)
+                // console.log("line12",unique)
+                // const date = Date.now().toString()
+                // console.log("line14",date)
+                // req.body.deliveryCandidateId = unique + date   
+                deliveryController.rider.create(req.body,(err,data)=>{
+                    if(err){
+                        throw err
+                    }
+                    else{
+                        console.log(data);
+                        res.status(200).send({message:"Register successfully",data})
+                    }
+                })
+            }
+            else{
+                res.status(400).send({message:"email id already exists"})
+            }
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+}
+
 const getDeliveryCandidateList = (req,res)=>{
     try{
-        deliveryController.deliveryCandidateRegister.find({},(err,data)=>{
+        deliveryController.rider.aggregate([{$match:{$and:[{status:"true"},{deleteFlag:"false"}]}}],(err,data)=>{
             if(err){
                 throw err
             }
@@ -80,22 +78,22 @@ const getDeliveryCandidateList = (req,res)=>{
 
 const deliveryCandidateSelection = (req,res)=>{
     try{
-        deliveryController.deliveryCandidateRegister.findOne({_id:req.params.id},(err,data)=>{
+        deliveryController.rider.findOne({_id:req.params.id},(err,data)=>{
             console.log(data);
             if(req.body.role=="accept"){
-                const to = data.email
-                const id = data.deliveryCandidateId
-                postMail(to,"FlameBee","Your are selected for this job \nYour candidate id is "+id)
-                deliveryController.deliveryCandidateRegister.findOneAndUpdate({_id:req.params.id},{$set:{status:"active"}},{new:true},(err,data1)=>{
+                // const to = data.email
+                // const id = data.deliveryCandidateId
+                // postMail(to,"FlameBee","Your are selected for this job")
+                deliveryController.rider.findOneAndUpdate({_id:req.params.id},{$set:{status:"true"}},{new:true},(err,data1)=>{
                     if(err) throw err
                     console.log(data1)
                     res.status(200).send({message:data1})
                 })
             }
             if(req.body.role=="reject"){
-                const to = data.emailAddress
-                postMail(to,"FlameBee","Your are not selected for this job")
-                deliveryController.deliveryCandidateRegister.findOneAndUpdate({_id:req.params.id},{$set:{status:"inActive"}},{new:true},(err,data1)=>{
+                // const to = data.emailAddress
+                // postMail(to,"FlameBee","Your are not selected for this job")
+                deliveryController.rider.findOneAndUpdate({_id:req.params.id},{$set:{status:"false"}},{new:true},(err,data1)=>{
                     if(err) throw err
                     console.log(data1)
                     res.status(200).send({message:data1})
@@ -242,12 +240,12 @@ const acceptanceOrderCount = (req,res)=>{
 
 
 module.exports={
-    deliveryRegister,
-    deliveryLogin,
+   deliveryLogin,
     getDeliveryCandidateList,
     deliveryCandidateSelection,
     getApprovedCandidateList,
     getRejectedCandidateList,
     acceptOrderByDeliveryCandidate,
-    acceptanceOrderCount
+    acceptanceOrderCount,
+    riderRegister
 }

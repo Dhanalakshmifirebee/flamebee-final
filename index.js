@@ -24,6 +24,7 @@ const app = express()
 app.use(cors({credentials: true, origin: true}))
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
+
 app.use('/uploads', express.static('/home/fbnode/Dhanalakshmi/flameBeeImage'))
 
 app.use('/flame/user',user)

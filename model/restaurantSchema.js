@@ -45,8 +45,8 @@ const restaurantSchema = mongoose.Schema({
     averagePrice:Number,
     information:String,
     paymentAcceptMethod:String,
-    yourServices:String,
-    commonService:String,
+    service:String,
+    // commonService:String,
     aboutMenu:String,
     category:[categorySchema],
     restaurantTime:{
@@ -60,6 +60,10 @@ const restaurantSchema = mongoose.Schema({
     },
     cuisine:[String],
     review:[Object],
+    reviewCount:{
+        type:Number,
+        default:0
+    },
     ratingValue:Number,
     rating:String,
     foodList:[Object],

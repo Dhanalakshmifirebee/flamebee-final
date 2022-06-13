@@ -6,23 +6,24 @@ const storage=multer.diskStorage({
     destination:(req,res,cb)=>{
          var k = fs.existsSync('/home/fbnode/Dhanalakshmi/flameBeeImage');
             console.log(k);
-                if(!k)
-                 fs.mkdir('/home/fbnode/Dhanalakshmi/flameBeeImage',(err,path)=>{
-                if(err){
-                    console.log(err)
+                if(!k){
+                    fs.mkdir('/home/fbnode/Dhanalakshmi/flameBeeImage',(err,path)=>{
+                        if(err){
+                            console.log(err)
+                        }
+                        else{
+                            console.log(path)
+                        }
+                    })
+                    cb(null,'/home/fbnode/Dhanalakshmi/flameBeeImage')
                 }
                 else{
-                    console.log(path)
+                    cb(null,'/home/fbnode/Dhanalakshmi/flameBeeImage')
                 }
-                })
-                cb(null,'/home/fbnode/Dhanalakshmi/flameBeeImage')
-
-        cb(null,'/home/fbnode/Dhanalakshmi/flameBeeImage')
     },
     filename:(req,file,cb)=>{
         cb(null,Date.now().toString() + file.originalname)
     },
-
 })
 
 const fileFilters=(req,file,cb)=>{

@@ -1,4 +1,4 @@
-const { adminSchema,sendOtp,packagePlanSchema,command} = require('../model/adminSchema')
+const { adminSchema,sendOtp,packagePlanSchema,command, loginSchema} = require('../model/adminSchema')
 const jwt = require('jsonwebtoken')
 const { validationResult } = require('express-validator')
 const bcrypt = require('bcrypt')
@@ -24,24 +24,25 @@ const register = async (req, res) => {
                         if(err) throw err
                         console.log(result);
                         if (result) {
-                            const otp = otpRandamString.randomString(3)
-                            console.log("otp", otp)
-                            sendOtp.create({otp: otp },async (err,datas) => {
-                                if (datas){
-                                    const to = result.email
-                                    postMail(to,"FlameBee","Please use the following OTP to verify your email:  "+otp)
-                                    res.status(200).send({success:"true",message: 'Verification otp send to your email', otp,data:result })
-                                    setTimeout(() => {
-                                        sendOtp.findOneAndDelete({ otp: otp },{returnOriginal:false}, (err, result) => {
-                                             console.log("line 81", result)
-                                             if(err){throw err}
-                                         })
-                                    }, 30000)
-                                }
-                                else{
-                                    res.status(400).send({message:"otp does not send"})
-                                }
-                            })
+                            res.status(200).send({message:"register successfully",result})
+                            // const otp = otpRandamString.randomString(3)
+                            // console.log("otp", otp)
+                            // sendOtp.create({otp: otp },async (err,datas) => {
+                                // if (datas){
+                                    // const to = result.email
+                                    // postMail(to,"FlameBee","Please use the following OTP to verify your email:  "+otp)
+                                    // res.status(200).send({success:"true",message: 'Verification otp send to your email', otp,data:result })
+                                    // setTimeout(() => {
+                                    //     sendOtp.findOneAndDelete({ otp: otp },{returnOriginal:false}, (err, result) => {
+                                    //          console.log("line 81", result)
+                                    //          if(err){throw err}
+                                    //      })
+                                    // }, 30000)
+                                // }
+                                // else{
+                                //     res.status(400).send({message:"otp does not send"})
+                                // }
+                            // })
                         } else {
                             res.status(400).send({success:"false",message: 'fail to create data' })
                         }
@@ -57,31 +58,36 @@ const register = async (req, res) => {
 }
 
 const logiForuser = (req,res)=>{
+    console.log("1");
      try{
          if(!req.body.contact){
+             console.log("2");
              adminSchema.findOne({email:req.body.email},(err,data)=>{
                  console.log(data);
                  if(data!=null){
-                    const otp = otpRandamString.randomString(3)
-                    console.log("otp", otp)
-                    sendOtp.create({otp: otp },async (err,datas) => {
-                        if (datas) {
-                            const token = jwt.sign({userid:data._id},"secret")
-                            console.log(token);
-                            const to = data.email
-                            postMail(to,"FlameBee","Please use the following OTP to verify your email:  "+otp)
-                            res.status(200).send({success:"true",message: 'Verification otp send to your email', otp,data:data,token})
-                            setTimeout(() => {
-                                sendOtp.findOneAndDelete({ otp: otp },{returnOriginal:false}, (err, result) => {
-                                     console.log("line 81", result)
-                                     if(err){throw err}
-                                 })
-                            }, 30000)
-                        }
-                        else{
-                            res.status(400).send({message:"otp does not send"})
-                        }
-                    })
+                    const token = jwt.sign({userid:data._id},"secret")
+                    console.log(token);
+                    res.status(200).send({message:"login successfully",data,token})
+                    // const otp = otpRandamString.randomString(3)
+                    // console.log("otp", otp)
+                    // sendOtp.create({otp: otp },async (err,datas) => {
+                    //     if (datas) {
+                    //         const token = jwt.sign({userid:data._id},"secret")
+                    //         console.log(token);
+                    //         const to = data.email
+                    //         postMail(to,"FlameBee","Please use the following OTP to verify your email:  "+otp)
+                    //         res.status(200).send({success:"true",message: 'Verification otp send to your email', otp,data:data,token})
+                    //         setTimeout(() => {
+                    //             sendOtp.findOneAndDelete({ otp: otp },{returnOriginal:false}, (err, result) => {
+                    //                  console.log("line 81", result)
+                    //                  if(err){throw err}
+                    //              })
+                    //         }, 30000)
+                    //     }
+                    //     else{
+                    //         res.status(400).send({message:"otp does not send"})
+                    //     }
+                    // })
                 }
                 else{
                     res.status(500).send({message:"Invalid email"})
@@ -90,26 +96,30 @@ const logiForuser = (req,res)=>{
          }
          else{
             adminSchema.findOne({contact:req.body.contact},(err,data)=>{
+                console.log(data);
                 if(data!=null){
-                   const otp = otpRandamString.randomString(3)
-                   console.log("otp", otp)
-                   sendOtp.create({otp: otp },async (err,datas) => {
-                        if(datas) {
-                            const token = jwt.sign({userid:data._id},"secret")
-                            console.log(token);
-                            fast2sms.sendMessage({ authorization:"7AMS5DChNOQakW4RbGtZzPy8njrvJsHXiFIUp9f6V23wqKBm0E90ZS7gEBN2pVurRXAD4cC3Jei81WKI",message:otp,numbers:[req.body.contact]})
-                            res.status(200).send({ message:"verification otp send your mobile number",datas,otp,token})
-                            setTimeout(() => {
-                                sendOtp.findOneAndDelete({ otp: otp },{returnOriginal:false}, (err, result) => {
-                                        console.log("line 81", result)
-                                        if(err){throw err}
-                                    })
-                            },30000)
-                        }
-                        else{
-                           res.status(400).send({message:"otp does not send"})
-                        }
-                   })
+                    const token = jwt.sign({userid:data._id},"secret")
+                    console.log(token);
+                    res.status(200).send({message:"login successfully",data,token})
+                //    const otp = otpRandamString.randomString(3)
+                //    console.log("otp", otp)
+                //    sendOtp.create({otp: otp },async (err,datas) => {
+                //         if(datas) {
+                //             const token = jwt.sign({userid:data._id},"secret")
+                //             console.log(token);
+                //             fast2sms.sendMessage({ authorization:"7AMS5DChNOQakW4RbGtZzPy8njrvJsHXiFIUp9f6V23wqKBm0E90ZS7gEBN2pVurRXAD4cC3Jei81WKI",message:otp,numbers:[req.body.contact]})
+                //             res.status(200).send({ message:"verification otp send your mobile number",datas,otp,token})
+                //             setTimeout(() => {
+                //                 sendOtp.findOneAndDelete({ otp: otp },{returnOriginal:false}, (err, result) => {
+                //                         console.log("line 81", result)
+                //                         if(err){throw err}
+                //                     })
+                //             },30000)
+                //         }
+                //         else{
+                //            res.status(400).send({message:"otp does not send"})
+                //         }
+                //    })
                 }
                 else{
                     res.status(500).send({message:"Invalid phone number"})

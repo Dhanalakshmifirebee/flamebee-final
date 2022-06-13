@@ -6,6 +6,7 @@ const multer=require('../middleware/multer')
 
 //Restaurant
 router.post('/image',multer.upload.single('image'),restaraunt.image)
+
 router.post('/getLatLongByLocation',restaraunt.getLatLongByLocation)
 
 router.post('/createRestaurant',restaraunt.createRestaurant)
@@ -14,12 +15,14 @@ router.post('/updateRestaurantWithFood/:id',restaraunt.updateRestaurantWithFood)
 
 router.get('/getOneRestaurantById/:id',restaraunt.getOneRestaurantById)
 router.get('/getSpecificRestaurant',restaraunt.getSpecificRestaurant)
+router.get('/getAllRestaurant',restaraunt.getAllRestaurant)
 router.put('/updateRestaurant/:id',restaraunt.updateRestaurant)
 router.delete('/removeRestaurant/:id',restaraunt.removeRestaurant)
 router.get('/getRestaurantByLocation/:latitude/:longitude',restaraunt.getRestaurantByLocation)
 router.get('/getRestaurantLocationByOffer',restaraunt.getRestaurantLocationByOffer)
 router.get('/getRestaurantLocationByRating',restaraunt.getRestaurantLocationByRating)
 router.get('/getRestaurantLocationByRating1',restaraunt.getRestaurantLocationByRating1)
+
 
 router.post('/filterFood',restaraunt.filterFood)
 
@@ -29,6 +32,9 @@ router.get('/searchAPI/:key',restaraunt.searchAPI)
 //Food
 router.post('/addFood',restaraunt.addFood)
 router.get('/getFoodByOwner',restaraunt.getFoodByOwner)
+router.get('/getAllFood',restaraunt.getAllFood)
+router.put('/updateMenu/:id',restaraunt.updateMenu)
+router.delete('/deleteMenu/:id',restaraunt.deleteMenu)
 router.put('/updateFood/:restaurantId/:foodId',restaraunt.updateFood)
 router.delete('/deleteFood/:restaurantId/:foodId',restaraunt.deleteFood)
 router.get('/filterFoodByPriceLowToHigh',restaraunt.filterFoodByPriceLowToHigh)
