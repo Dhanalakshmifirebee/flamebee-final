@@ -132,7 +132,7 @@ const createContact = (req,res)=>{
         }
     }
     catch(err){
-        res.status(400).send({message:err})
+        res.status(500).send({message:err.message})
     }
 }
 
@@ -145,7 +145,7 @@ const getContact = (req,res)=>{
         })
     }
     catch(err){
-        res.status(400).send({message:err})
+        res.status(500).send({message:err.message})
     }
 }
 
@@ -161,7 +161,7 @@ const updateContact = (req,res)=>{
                 res.status(200).send({message:'update successfully',data})
             }
             else{
-                res.status(200).send({message:'Invalid token'})
+                res.status(400).send({message:'Invalid token'})
             }
         })
         }
@@ -171,7 +171,7 @@ const updateContact = (req,res)=>{
 
     }
     catch(err){
-        res.status(200).send({message:err})
+        res.status(500).send({message:err.message})
     }
 }
 
@@ -186,7 +186,7 @@ const deleteContact = (req,res)=>{
                     res.status(200).send({message:'deleted successfully',data})
                 }
                 else{
-                    res.status(200).send({message:'Invalid token'})
+                    res.status(400).send({message:'Invalid token'})
                 }
             })
         }
@@ -195,7 +195,7 @@ const deleteContact = (req,res)=>{
         }
     }                                                                 
     catch(err){
-        res.status(200).send({message:err})         
+        res.status(500).send({message:err.message})         
     }
 }
 
@@ -309,6 +309,42 @@ const updateTermsAndCondition = (req,res)=>{
 }
 
 
+const createContactForm = (req,res)=>{
+    try{
+        superControll.contactForm.create(req.body,(err,data)=>{
+            if(err){
+                throw err
+            }
+            else{
+                 res.status(200).send({message:data})
+            }
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+}
+
+const getContactFormDetails = (req,res)=>{
+    try{
+        superControll.contactForm.find((err,data)=>{
+            if(err){
+                throw err
+            }
+            else{
+                if(data.length!=0){
+                    res.status(200).send({message:data})
+                }
+                else{
+                    res.status(400).send({message:"data not found"})
+                }
+            }
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+}
 
 
 module.exports={
@@ -326,6 +362,8 @@ module.exports={
     createTermsAndCondition,
     getTermsAndCondition,
     updateTermsAndCondition,
-    addAdmin
+    addAdmin,
+    createContactForm,
+    getContactFormDetails
 
 }

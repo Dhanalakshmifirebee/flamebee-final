@@ -27,4 +27,7 @@ router.get('/getTotalRevenue',orderControllDetails.getTotalRevenue)
 router.get('/getTodayRevenue',orderControllDetails.getTodayRevenue)
 
 
+router.post('/foodOrder',orderControllDetails.foodOrder)
+
+
 module.exports=router

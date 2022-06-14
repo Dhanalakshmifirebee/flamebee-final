@@ -47,6 +47,13 @@ const contactSchema = mongoose.Schema({
     }
 })
 
+const contactFormSchema = mongoose.Schema({
+    name:String,
+    email:String,
+    message:String,
+})
+
+
 const termsAndconditionSchema = mongoose.Schema({
     content:String,
     agree:Boolean
@@ -58,10 +65,12 @@ const register=mongoose.model('superAdmin',registerSchema)
 const adminPackage = mongoose.model("adminPackageSchema",adminPackageSchema)
 const contact = mongoose.model('contactSchema',contactSchema)
 const termsAndCondition = mongoose.model('termsAndconditionSchema',termsAndconditionSchema)
+const contactForm= mongoose.model('contactForm',contactFormSchema)
 
 module.exports={
     register,
     adminPackage,
     contact,
-    termsAndCondition
+    termsAndCondition,
+    contactForm
 }

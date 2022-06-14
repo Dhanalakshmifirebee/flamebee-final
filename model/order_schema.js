@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+
 const restrauntSchema = mongoose.Schema({
   restarauntName: String,
   address: String,
@@ -23,6 +24,7 @@ const restrauntSchema = mongoose.Schema({
   }
 })
 
+
 const avaliableFoodSchema = mongoose.Schema({
   //foodImage: String,
   foodId:String,
@@ -43,6 +45,7 @@ const avaliableFoodSchema = mongoose.Schema({
       default: 'false'
   }
 })
+
 
 const orderSchema = mongoose.Schema({
   name:String,
@@ -72,12 +75,12 @@ const orderSchema = mongoose.Schema({
 })
 
 
+
 const cancellationReasonSchema = mongoose.Schema({
      reason:String,
      cancellationFor:String,
      status:String
 })
-
 
 
 
@@ -119,11 +122,36 @@ const cancellationReasonSchema = mongoose.Schema({
 // })
 
 
+const foodOrderSchema = mongoose.Schema({
+     firstName:String,
+     lastName:String,
+     email:String,
+     phone:Number,
+     userId:String,
+     fullAddress:String,
+     city:String,
+     postalCode:String,
+     PaymentMethod:{
+
+     },
+     date:String,
+     time:String,
+     type:String,
+     foodList:[Object]
+})
+
 
 const order=mongoose.model('ordersSchema', orderSchema)
 const cancellationReason = mongoose.model("cancellationReasonSchema",cancellationReasonSchema)
 
+
+
+const foodOrder = mongoose.model("foodOrderSchema",foodOrderSchema)
+
+
+
 module.exports={
   order,
-  cancellationReason
+  cancellationReason,
+  foodOrder
 }

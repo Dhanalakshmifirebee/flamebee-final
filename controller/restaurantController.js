@@ -13,7 +13,6 @@ const mongoose = require('mongoose')
 const { type } = require('express/lib/response')
 
 
-
 const image = (req,res)=>{
     try{
         console.log("1")
@@ -83,6 +82,11 @@ const createRestaurant = (req,res)=>{
                                     req.body.restaurantLocation = {"restaurantLatitude":convertAddressToLatLon[0].latitude,"restaurantLongitude":convertAddressToLatLon[0].longitude}
                                     req.body.restaurantOwnerId = verifyId
                                     console.log("line 81",req.body)
+                                    const result1 = req.body.restaurantName.toLowerCase()
+                                    req.body.restaurantName = result1
+                                   
+                                    console.log(req.body.restaurantName);
+                                
                                     restaurantController.restaurant.create(req.body,(err,data2)=>{
                                         if(err){
                                             throw err
@@ -214,7 +218,7 @@ const getOneRestaurantById = (req,res)=>{
 
 const getAllRestaurant = (req,res)=>{
     try{
-        restaurantController.restaurant.find({deleteFlag:"false"},(err,data)=>{
+        restaurantController.restaurant.aggregate([{$match:{deleteFlag:"false"}},{$project:{"foodList.restaurantDetails":0}}],(err,data)=>{
             console.log(data)
             if(err){
                 throw err
@@ -238,8 +242,10 @@ const getAllRestaurant = (req,res)=>{
 const updateRestaurant = (req,res)=>{
     try {
         console.log(req.body)
-        restaurantController.restaurant.findOneAndUpdate({_id:req.params.id}, req.body, { new: true }, (err, data) => {
-            if (err) { res.status(400).send({ message: 'invalid id' }) }
+        restaurantController.restaurant.findOneAndUpdate({_id:req.params.id},req.body,{ new: true },(err, data) => {
+            if (err) { 
+                res.status(400).send({ message: 'invalid id' }) 
+            }
             else {
                 console.log("line 143",data)
                 res.status(200).send({ message: 'updated successfully', data })
@@ -276,7 +282,7 @@ const getRestaurantByLocation = (req,res)=>{
             }
             else{
                 console.log(data);
-                const datas=data.filter(((result)=>filterLocation(result,5000,req.params.latitude,req.params.longitude)))
+                const datas=data.filter(((result)=>filterLocation(result,5000,req.query.latitude,req.query.longitude)))
                 if(datas.length!=0){
                      var count=datas.length
                      console.log(count)
@@ -315,7 +321,7 @@ const getRestaurantLocationByRating = (req,res)=>{
                                 console.log(data1._id)
                                 responseController.responseRestaurant.aggregate([{$match:{_id:data1._id}},
                                 { $unwind: "$data" },
-                                { $sort: { "data.rating": -1 }},
+                                { $sort: { "data.ratingValue": -1 }},
                                 { $group: {
                                 _id: "$_id",
                                 data: { $push: "$data" }
@@ -399,15 +405,25 @@ const getRestaurantLocationByOffer = (req,res)=>{
                             _id: "$_id",
                             data: { $push: "$data" }
                             }},{$project:{"restaurantDetails.foodList.restaurantDetails":0}}],(err,data2)=>{
-                                var count=data2.length
-                                console.log(count)
-                                var arr = []
-                                data2.map((x)=>{
-                                    x.data.map((y)=>{
-                                        arr.push(y)
-                                    })
-                                })
-                                res.status(200).send({message:data2,count})
+                                if(err){
+                                    throw err
+                                }
+                                else{
+                                    if(data.length!=0){
+                                        var count=data2.length
+                                        console.log(count)
+                                        var arr = []
+                                        data2.map((x)=>{
+                                            x.data.map((y)=>{
+                                                arr.push(y)
+                                            })
+                                        })
+                                        res.status(200).send({message:data2,count})
+                                    }
+                                    else{
+                                        res.status(400).send({message:"data not found"})
+                                    }
+                                }
                             })
                         })
                     }
@@ -431,7 +447,7 @@ const getRestaurantLocationByOffer = (req,res)=>{
 
 const filterFood = (req,res)=>{
     try{
-        if(req.query.latitude && req.query.longitude){
+        if(req.body.latitude && req.body.longitude){
         console.log(req.body)
         console.log(req.query);
         var a = req.body.cuisine
@@ -448,7 +464,7 @@ const filterFood = (req,res)=>{
             }
             else{
                 if(data.length!=0){
-                    const datas=data.filter(((result)=>filterLocation(result,d,req.query.latitude,req.query.longitude)))
+                    const datas=data.filter(((result)=>filterLocation(result,d,req.body.latitude,req.body.longitude)))
                     if(datas.length!=0){
                         const result = []
                         var result1 = []
@@ -551,14 +567,17 @@ function filterLocation(result,radius,latitude,longitude)
 
 const addFood =async(req,res)=>{
    try{
-        // console.log(req.body.restaurantId)
-        restaurantController.restaurant.findById({_id:req.body.restaurantId},{foodList:0},(err,data)=>{
+       console.log("11");
+        console.log(req.params.restaurantId)
+        restaurantController.restaurant.findOne({_id:req.params.restaurantId},{foodList:0},(err,data)=>{
             if(err){
                   throw err
             }
             else{
                 // console.log(data)
                 req.body.restaurantDetails = data
+                const result1 = req.body.foodName.toLowerCase()
+                req.body.foodName = result1
                 restaurantController.menu.create(req.body, (err, data1) => {
                     if (err) { 
                         throw err 
@@ -566,14 +585,14 @@ const addFood =async(req,res)=>{
                     else {
                         // console.log(data1)
                         res.status(200).send({ message: data1, statusCode: 200 })
-                        restaurantController.menu.find({restaurantId:data1.restaurantId},(err,data)=>{
+                        restaurantController.menu.aggregate([{$match:{"restaurantDetails._id":mongoose.Types.ObjectId(req.params.restaurantId)}}],(err,data)=>{
                             if(err){
                                 throw err
                             }
                             else{
                                 if(data.length!=0){
                                     console.log(data)
-                                    restaurantController.restaurant.findOneAndUpdate({_id:data1.restaurantId},{$set:{foodList:data}},{new:true},(err,data1)=>{
+                                    restaurantController.restaurant.findOneAndUpdate({_id:req.params.restaurantId},{$set:{foodList:data}},{new:true},(err,data1)=>{
                                         if(err){
                                             throw err
                                         }
@@ -629,7 +648,7 @@ const getFoodByOwner = (req,res)=>{
             const decoded = jwt.decode(token)
             const verify = decoded.userid
             console.log(verify);
-            restaurantController.menu.aggregate([{$match:{"restaurantDetails.restaurantOwnerId":verify}}],(err,data)=>{
+            restaurantController.menu.aggregate([{$match:{$and:[{"restaurantDetails.restaurantOwnerId":verify},{deleteFlag:"false"}]}}],(err,data)=>{
                 if(err){
                     throw err
                 }
@@ -809,11 +828,19 @@ const filterFoodByPriceHighToLow = (req,res)=>{
     try{
         if(req.query.latitude && req.query.longitude){
             restaurantController.menu.aggregate([{$sort:{foodPrice:-1}},{$project:{"restaurantDetails.foodList":0}}],(err,data)=>{
-                const datas=data.filter(((result)=>filterLocationForFood(result,5000,req.query.latitude,req.query.longitude)))
-                if(err) throw err
-                console.log(datas.length)
-                res.status(200).send({message:datas})
-               
+                if(err){
+                    throw err
+                }
+                else{
+                    const datas=data.filter(((result)=>filterLocationForFood(result,5000,req.query.latitude,req.query.longitude)))
+                    if(datas.length!=0){
+                        console.log(datas.length)
+                        res.status(200).send({message:datas})
+                    }
+                    else{
+                        res.status(400).send({message:"data not found"})
+                    }
+                }
             })
         }
         else{
@@ -962,7 +989,7 @@ const createRestaurantReview = (req,res)=>{
                                             })
                                         }
                                         else{
-                                            res.status()
+                                            res.status(400).send({message:"data not found"})
                                         }
                                         
                                     }
@@ -983,7 +1010,7 @@ const createRestaurantReview = (req,res)=>{
         }
     }
     catch(err){
-        res.status(500).send({message:err})
+        res.status(500).send({message:err.message})
     }
 } 
 
@@ -1068,25 +1095,31 @@ const searchAPI = (req,res)=>{
                 if(datas.length!=0){
                     req.body.data = datas
                     responseController.responseRestaurant.create(req.body,(err,data1)=>{
-                        console.log("line 547",data1)
-                        responseController.responseRestaurant.aggregate([{$match:{_id:data1._id}},{ $unwind:"$data"},{$match:{$or:[{"data.restaurantName":req.params.key},{"data.foodList.foodName":req.params.key}]}},{$project:{"data.foodList.restaurantDetails":0}},{ $group: {
-                            _id: "$_id",
-                            data: { $push: "$data" }
-                            }}],(err,data)=>{
-                            if(err){ 
-                                throw err
-                            }
-                            else{
-                                if(data.length!=0){
-                                    console.log(data)
-                                    res.status(200).send({message:data})
+                        if(err){
+                            throw err
+                        }
+                        else{
+                            console.log("line 547",data1)
+                            responseController.responseRestaurant.aggregate([{$match:{_id:data1._id}},{ $unwind:"$data"},{$match:{$or:[{"data.restaurantName":req.params.key},{"data.foodList.foodName":req.params.key}]}},{$project:{"data.foodList.restaurantDetails":0}},{ $group: {
+                                _id: "$_id",
+                                data: { $push: "$data" }
+                                }}],(err,data)=>{
+                                if(err){ 
+                                    throw err
                                 }
                                 else{
-                                    res.status()
+                                    if(data.length!=0){
+                                        console.log(data)
+                                        res.status(200).send({message:data})
+                                    }
+                                    else{
+                                        res.status(400).send({message:"data not found"})
+                                    }
                                 }
-                            }
-                           
-                        }) 
+                               
+                            }) 
+                        }
+                       
                     })
                 }
                 else{
@@ -1097,7 +1130,7 @@ const searchAPI = (req,res)=>{
         })
     }
     catch(err){
-        res.status(500).send({message:err})
+        res.status(500).send({message:err.message})
     }
 }
 

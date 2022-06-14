@@ -395,6 +395,33 @@ const getTodayRevenue = (req,res)=>{
 }
 
 
+const foodOrder = (req,res)=>{
+    try{
+        const token = req.headers.authorization
+        if(token!=null){
+            const decoded = jwt.decode(token)
+            const verify = decoded.userid
+            req.body.userId = verify
+            orderControll.foodOrder.create(req.body,(err,data)=>{
+                if(err){
+                    throw err
+                }
+                else{
+                    res.status(200).send({message:data})
+                }
+            })
+        }
+        else{
+            res.status(400).send({message:"unAuthorized"})
+        }
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+}
+
+
+
 // {$group:{_id:"$paymentDetails.amount"}}
 
 
@@ -418,5 +445,5 @@ module.exports = {
     getTodayOrderList,
     getTotalRevenue,
     getTodayRevenue,
-    
+    foodOrder
 }

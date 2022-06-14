@@ -9,6 +9,7 @@ const moment = require('moment')
 const mongoose = require('mongoose')
 
 
+
 const createAdminRequest = (req,res)=>{
     try{
         const errors = validationResult(req)
@@ -21,9 +22,13 @@ const createAdminRequest = (req,res)=>{
                         req.body.password = await bcrypt.hash(req.body.password,10)
                         req.body.confirmPassword = await bcrypt.hash(req.body.confirmPassword,10)
                         adminRequestController.adminRequest.create(req.body,(err,data)=>{
-                            if(err) throw err
-                            console.log(data)
-                            res.status(200).send({message:"Register Successfully",data})
+                            if(err) {
+                                throw err
+                            }
+                            else{
+                                console.log(data)
+                                res.status(200).send({message:"Register Successfully",data})
+                            }
                         })
                     }
                     else{
@@ -37,7 +42,7 @@ const createAdminRequest = (req,res)=>{
         }
     }
     catch(err){
-        res.status(500).send({message:err})
+        res.status(500).send({message:err.message})
     }
 }
 
@@ -45,11 +50,17 @@ const createAdminRequest = (req,res)=>{
 const getAdminRequest = (req,res)=>{
     try{
         adminRequestController.adminRequest.find({},(err,data)=>{
-            if(err) throw err
-            var count=data.length
-            console.log(count)
-            const datas=paginated.paginated(data,req,res)
-            res.status(200).send({message:datas,count})
+            if(err) {
+                throw err
+            }
+            else{
+                if(data.length!=0){
+                    res.status(200).send({message:data})
+                }
+                else{
+                    res.status(400).send({message:"data not found"})
+                }
+            }
         })
     }
     catch(err){
@@ -95,6 +106,7 @@ const adminLogin = (req,res)=>{
 const adminSelection =(req,res)=>{
     try{
         adminRequestController.adminRequest.findOne({_id:req.params.id},(err,data)=>{
+            console.log("line 109",data);
             console.log(data.email)
              if(req.body.role=="accept"){
                 //  const to = data.email

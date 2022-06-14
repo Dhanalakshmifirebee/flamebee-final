@@ -197,7 +197,7 @@ const serviceRating = (req,res)=>{
 const ratingForRestaurant = (req,res)=>{
     try{
         restaurantController.restaurantRating.findOne({restaurantId:req.query.id},{_id:0,restaurantId:0,userId:0,__v:0},(err,data)=>{
-            console.log(typeof(data.foodQuality))
+          
             const values = data.foodQuality+data.location+data.price+data.service
             const average = values/4
             console.log(average)
@@ -240,10 +240,11 @@ const ratingForRestaurant = (req,res)=>{
 
 const createInterestedPersons=async(req,res)=>{
     try{
-        if(req.headers.authorization){
-            const token=jwt.decode(req.headers.authorization)
+        const token = req.headers.authorization
+        if(token!=null){
+            const decoded=jwt.decode(token)
             console.log(token)
-            const verify = token.userid
+            const verify = decoded.userid
             console.log(verify)
             const user=await wishListController.wishList.aggregate([{$match:{}},{$unwind:{path:"$restaurantDetails"}},{$unwind:{path:"$userDetails"}},{$match:{$and:[{"restaurantDetails._id":new mongoose.Types.ObjectId(req.params.restaurantId)},{"userDetails._id":new mongoose.Types.ObjectId(token.userid)}]}}])
             console.log(user.length)
