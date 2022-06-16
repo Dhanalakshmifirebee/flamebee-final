@@ -402,6 +402,8 @@ const foodOrder = (req,res)=>{
             const decoded = jwt.decode(token)
             const verify = decoded.userid
             req.body.userId = verify
+            req.body.date = moment(new Date()).toISOString().slice(0,10)
+            req.body.time = new Date().toLocaleString()
             orderControll.foodOrder.create(req.body,(err,data)=>{
                 if(err){
                     throw err

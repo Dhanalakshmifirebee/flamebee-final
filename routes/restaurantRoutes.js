@@ -12,7 +12,6 @@ router.post('/getLatLongByLocation',restaraunt.getLatLongByLocation)
 router.post('/createRestaurant',restaraunt.createRestaurant)
 router.post('/updateRestaurantWithFood/:id',restaraunt.updateRestaurantWithFood)
 
-
 router.get('/getOneRestaurantById/:id',restaraunt.getOneRestaurantById)
 router.get('/getSpecificRestaurant',restaraunt.getSpecificRestaurant)
 router.get('/getAllRestaurant',restaraunt.getAllRestaurant)
@@ -22,7 +21,6 @@ router.get('/getRestaurantByLocation',restaraunt.getRestaurantByLocation)
 router.get('/getRestaurantLocationByOffer',restaraunt.getRestaurantLocationByOffer)
 router.get('/getRestaurantLocationByRating',restaraunt.getRestaurantLocationByRating)
 router.get('/getRestaurantLocationByRating1',restaraunt.getRestaurantLocationByRating1)
-
 
 router.post('/filterFood',restaraunt.filterFood)
 
@@ -42,17 +40,13 @@ router.get('/filterFoodByPriceHighToLow',restaraunt.filterFoodByPriceHighToLow)
 router.get('/getCategoryList',restaraunt.getCategoryList)
 
 
-
 //Restaurant Review
 router.post('/createRestaurantReview',restaraunt.createRestaurantReview)
 router.get('/getRestaurantReview/:id',restaraunt.getRestaurantReview)
 
 
-
 //Resaturant Rating
 router.post('/restaurantRating',restaraunt.restaurantRating)
-
-
 
 router.post('/foodQualityRating',rating.foodQualityRating)
 router.post('/locationRating',rating.locationRating)
@@ -61,6 +55,7 @@ router.post('/serviceRating',rating.serviceRating)
 router.post('/ratingForRestaurant',rating.ratingForRestaurant)
 router.post('/createInterestedPersons/:restaurantId',rating.createInterestedPersons)
 router.get('/UserFavoriteList',rating.UserFavoriteList)
+router.get('/getAllWishList',rating.getAllWishList)
 
 
 

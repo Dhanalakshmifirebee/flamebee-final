@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { stringify } = require('querystring');
 
 
 const restrauntSchema = mongoose.Schema({
@@ -75,13 +76,11 @@ const orderSchema = mongoose.Schema({
 })
 
 
-
 const cancellationReasonSchema = mongoose.Schema({
      reason:String,
      cancellationFor:String,
      status:String
 })
-
 
 
 // const ordersSchema = mongoose.Schema({
@@ -123,21 +122,20 @@ const cancellationReasonSchema = mongoose.Schema({
 
 
 const foodOrderSchema = mongoose.Schema({
-     firstName:String,
-     lastName:String,
+     restaurantId:String,
+     name:String,
      email:String,
-     phone:Number,
+     phoneNo:Number,
      userId:String,
      fullAddress:String,
      city:String,
-     postalCode:String,
-     PaymentMethod:{
-
-     },
+     postalCode:Number,
+     paymentMethod:String,
      date:String,
      time:String,
      type:String,
-     foodList:[Object]
+     foodList:[Object],
+     totalPrice:Number
 })
 
 

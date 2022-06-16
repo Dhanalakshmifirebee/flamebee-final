@@ -276,25 +276,31 @@ const removeRestaurant = (req,res)=>{
 const getRestaurantByLocation = (req,res)=>{
     try{
         console.log("data")
-        restaurantController.restaurant.find({deleteFlag:"false"},(err,data)=>{
-            if(err){
-                throw err
-            }
-            else{
-                console.log(data);
-                const datas=data.filter(((result)=>filterLocation(result,5000,req.query.latitude,req.query.longitude)))
-                if(datas.length!=0){
-                     var count=datas.length
-                     console.log(count)
-                     console.log(datas);
-                 //    const data1=paginated.paginated(datas,req,res)
-                     res.status(200).send({message:datas,count})
+        if(req.query.latitude && req.query.longitude !=null){
+            restaurantController.restaurant.find({deleteFlag:"false"},(err,data)=>{
+                if(err){
+                    throw err
                 }
                 else{
-                    res.status(400).send({message:"data not found"})
+                    console.log(data);
+                    const datas=data.filter(((result)=>filterLocation(result,5000,req.query.latitude,req.query.longitude)))
+                    if(datas.length!=0){
+                         var count=datas.length
+                         console.log(count)
+                         console.log(datas);
+                     //    const data1=paginated.paginated(datas,req,res)
+                         res.status(200).send({message:datas,count})
+                    }
+                    else{
+                        res.status(400).send({message:"data not found"})
+                    }
                 }
-            }
-        })
+            })
+        }
+        else{
+            res.status(400).send({message:"please send latitude longitude"})
+        }
+       
     }
     catch(err){
         res.status(500).send({message:err.message})
@@ -305,7 +311,7 @@ const getRestaurantByLocation = (req,res)=>{
 const getRestaurantLocationByRating = (req,res)=>{
     try{
         console.log("1");
-        if(req.query.latitude && req.query.longitude){
+        if(req.query.latitude && req.query.longitude!=null){
           restaurantController.restaurant.find({deleteFlag:"false"},(err,data)=>{
               if(err){
                   throw err
@@ -385,7 +391,7 @@ const getRestaurantLocationByRating1 = (req,res)=>{
 
 const getRestaurantLocationByOffer = (req,res)=>{
     try{
-        if(req.query.latitude && req.query.longitude){
+        if(req.query.latitude && req.query.longitude !=null){
            restaurantController.restaurant.find({deleteFlag:"false"},(err,data)=>{
                if(err){
                    throw err
@@ -447,7 +453,7 @@ const getRestaurantLocationByOffer = (req,res)=>{
 
 const filterFood = (req,res)=>{
     try{
-        if(req.body.latitude && req.body.longitude){
+        if(req.body.latitude && req.body.longitude!=null){
         console.log(req.body)
         console.log(req.query);
         var a = req.body.cuisine
@@ -856,20 +862,23 @@ const filterFoodByPriceHighToLow = (req,res)=>{
 
 const getCategoryList = (req,res)=>{
     try{
-        if(req.query.latitude && req.query.longitude){
-         restaurantController.menu.find({deleteFlag:"false"},(err,data)=>{
+        if(req.query.latitude && req.query.longitude!=null){
+         restaurantController.restaurant.find({deleteFlag:"false"},(err,data)=>{
              if(err){
                  throw err
              }
              else{
-                // console.log("line 733",data);
-                const datas=data.filter(((result)=>filterLocationForFood(result,5000,req.query.latitude,req.query.longitude)))
+                console.log("line 733",data);
+                const datas=data.filter(((result)=>filterLocation(result,5000,req.query.latitude,req.query.longitude)))
                 console.log("line 739",datas)
                 if(datas.length!=0){
                     var arr = []
                     datas.map((x)=>{
+                        x.cuisine.map((y)=>{
+                            arr.push(y)
+                        })
                         // console.log(x.cuisine)
-                        arr.push(x.cuisine)
+                       
                     })
                     // console.log(arr)
                     var arr1 = []
@@ -967,7 +976,7 @@ const createRestaurantReview = (req,res)=>{
                                         throw err
                                     }
                                     else{
-                                        if(data.length!=0){
+                                        if(data){
                                             console.log("--------------------",data.reviewCount);
                                             var array = []
                                             data.review.map((x)=>{

@@ -234,8 +234,7 @@ const ratingForRestaurant = (req,res)=>{
     }
     catch(err){
         res.status(500).send({message:err})
-    }
-    
+    }  
 }
 
 const createInterestedPersons=async(req,res)=>{
@@ -246,10 +245,9 @@ const createInterestedPersons=async(req,res)=>{
             console.log(token)
             const verify = decoded.userid
             console.log(verify)
-            const user=await wishListController.wishList.aggregate([{$match:{}},{$unwind:{path:"$restaurantDetails"}},{$unwind:{path:"$userDetails"}},{$match:{$and:[{"restaurantDetails._id":new mongoose.Types.ObjectId(req.params.restaurantId)},{"userDetails._id":new mongoose.Types.ObjectId(token.userid)}]}}])
+            const user=await wishListController.wishList.aggregate([{$match:{}},{$unwind:{path:"$restaurantDetails"}},{$unwind:{path:"$userDetails"}},{$match:{$and:[{"restaurantDetails._id":new mongoose.Types.ObjectId(req.params.restaurantId)},{"userDetails._id":new mongoose.Types.ObjectId(verify)}]}}])
             console.log(user.length)
             if(user.length==0){
-               if(req.body.interested=="true"){
                console.log("inside if")
                const user =await adminController.adminSchema.findOne({_id:verify,deleteFlag:false})
                req.body.userDetails=user
@@ -257,16 +255,19 @@ const createInterestedPersons=async(req,res)=>{
                const restaurant=await restaurantController.restaurant.findOne({_id:req.params.restaurantId,deleteFlag:false})   
                req.body.restaurantDetails=restaurant 
                console.log(req.body.restaurantDetails); 
-               wishListController.wishList.create(req.body,(err,data)=>{
-                    if(err){throw err}
+                wishListController.wishList.create(req.body,(err,data)=>{
+                    if(err){
+                        throw err
+                    }
                     else{
                         res.status(200).send({success:'true',message:'created successfully',data})
                     }
                 })      
-                }
             }
             else{
-                const data=await wishListController.wishList.findByIdAndUpdate({_id:user[0]._id},req.body,{new:true})
+                const data=await wishListController.wishList.findByIdAndUpdate({_id:user[0]._id},{$set:{interested:"false"}},{new:true})
+                console.log(data);
+                const deleteWishList = wishListController.wishList.findOneAndDelete({_id:data._id})
                 res.status(200).send({success:'true',message:'unliked successfully',data})
             }
         }else{
@@ -280,13 +281,17 @@ const createInterestedPersons=async(req,res)=>{
 
 const UserFavoriteList=async(req,res)=>{
     try{
-        if(req.headers.authorization){
-            const token=jwt.decode(req.headers.authorization)
-            const verify = token.userid
+        const token = req.headers.authorization
+        if(token!=null){
+            const decoded=jwt.decode(token)
+            const verify = decoded.userid
             console.log(verify)
-            console.log(new mongoose.Types.ObjectId(token.userid))
-            const data1= await wishListController.wishList.aggregate([{$match:{$and:[{"userDetails._id":new mongoose.Types.ObjectId(token.userid)},{interested:true}]}}])
-            // console.log(data1)
+            // console.log(new mongoose.Types.ObjectId(token.userid))
+            const data1= await wishListController.wishList.aggregate([{$match:{$and:[{"userDetails._id":new mongoose.Types.ObjectId(verify)},{interested:true}]}}])
+            console.log(data1)
+            data1.map((x)=>{
+                console.log("line 292",x.restaurantDetails.offer)
+            })
             res.status(200).send({success:'true',message:'fetch data successfully',data1})
         }else{
             res.status(401).send({success:'false',message:'unAuthorized',data:[]})
@@ -297,6 +302,25 @@ const UserFavoriteList=async(req,res)=>{
     }    
 }
 
+const getAllWishList = (req,res)=>{
+    try{
+        wishListController.wishList.find({},(err,data)=>{
+            if(err){
+                throw err
+            }
+            else{
+                res.status(200).send({message:data})
+            }
+        })
+    }
+    catch(err){
+        res.status(500).send({message:err.message})
+    }
+}
+
+
+
+
 // {$match:{$and:[{"userDetails._id":new mongoose.Types.ObjectId(token.userid)},{interested:"true"}]}}
 
 module.exports={
@@ -306,5 +330,6 @@ module.exports={
     serviceRating,
     ratingForRestaurant,
     createInterestedPersons,
-    UserFavoriteList
-}
+    UserFavoriteList,
+    getAllWishList
+}  

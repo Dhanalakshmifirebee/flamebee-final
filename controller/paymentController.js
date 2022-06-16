@@ -4,7 +4,8 @@ const razorpay = require('razorpay');
 const { convertSpeed } = require("geolib");
 const moment = require('moment');
 const { adminSchema } = require("../model/adminSchema");
-
+const env = require('dotenv')
+const stripe = require('stripe')(process.env.STRIPE_SECRET_TEST)
 
 
 
@@ -25,7 +26,6 @@ const createOrderId =(req,res)=>{
         res.status(400).send({message:err})
     }
 }
-
 
 
 const createPayment = (req,res)=>{
@@ -54,7 +54,6 @@ const createPayment = (req,res)=>{
 }
 
 
-
 const onlinePayment = (req,res)=>{
     try{
         paymentController.payment.create(req.body,(err,data)=>{
@@ -71,7 +70,6 @@ const onlinePayment = (req,res)=>{
 }
 
 
-
 const getPaymentList = (req,res)=>{
     try{
         paymentController.payment.find({status:"success"},(err,data)=>{
@@ -83,7 +81,6 @@ const getPaymentList = (req,res)=>{
         res.status(500).send({message:err})
     }
 }
-
 
 
 const updatePaymentStatus = (req,res)=>{
@@ -119,7 +116,6 @@ const createPackagePlanPayment = (req,res)=>{
 }
 
 
-
 const trackPayment = (req,res)=>{
     try{
         paymentController.payment.findOne({transactionId:req.params.id},(err,data)=>{
@@ -137,6 +133,24 @@ const trackPayment = (req,res)=>{
 }
 
 
+const payment =  async (req,res)=>{
+    let { amount , id } = req.body
+    try{
+        const createPayment = await stripe.paymentIntents.create({
+            amount,
+            currency : "USD",
+            description : "Spatula company",
+            payment_method : id ,
+            confirm : true
+        })
+        console.log("payment",createPayment)
+        res.status(200).send({message:"Payment Successfull",success:"true"})
+    }
+    catch(err){
+        res.status(500).send({message:"Payment failed",success :"false"})
+    }
+}
+
 
 module.exports={
     createOrderId,
@@ -145,5 +159,6 @@ module.exports={
     updatePaymentStatus,
     onlinePayment,
     createPackagePlanPayment,
-    trackPayment
+    trackPayment,
+    payment
 }
